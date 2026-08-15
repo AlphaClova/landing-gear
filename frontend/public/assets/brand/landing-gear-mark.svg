@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="title">
+  <title id="title">Landing Gear symbol</title>
+  <path d="M32 10c1.2 9.1 4.9 12.8 14 14-9.1 1.2-12.8 4.9-14 14-1.2-9.1-4.9-12.8-14-14 9.1-1.2 12.8-4.9 14-14Z" fill="#D5A756"/>
+  <path d="M14 47c12 0 24 2 36-3" stroke="#D5A756" stroke-width="2" stroke-linecap="round"/>
+</svg>
