@@ -39,6 +39,12 @@ export class MockPensionApiClient implements PensionApiClient {
         { key: 'companyPlan', label: '회사에서 제공하는 퇴직연금 제도', inputType: 'text', unit: null, options: null },
       ],
     }
+    if (message === '원리금보장형과 실적배당형은 어떻게 비교해야 하나요?') return {
+      type: 'result', requestId, mode: 'pension-chat',
+      conclusion: '상품 유형별 차이를 비교할 수 있습니다.',
+      explanation: '실제 상품 데이터 연결 전에는 유형별 확인 항목만 안내합니다.',
+      comparison: null, citations: [],
+    }
     if (message.includes('[limitation]') || message !== 'DB형과 DC형의 차이는 무엇인가요?') return {
       type: 'limitation', requestId,
       availableAnswer: 'DB형과 DC형의 일반적인 차이는 안내할 수 있습니다.',

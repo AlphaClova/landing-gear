@@ -3,6 +3,8 @@ import type { RefObject } from 'react'
 import type { ChatResponse } from '../../types/api'
 import { ErrorState, StatusBadge } from '../../components/ui'
 import { getPensionResultViewModel, pensionSuggestions } from './pension-chat-view-model'
+import { getProductComparisonViewModel } from './product-comparison-view-model'
+import { ProductComparison } from './ProductComparison'
 
 interface PensionChatProps {
   value: string
@@ -30,6 +32,7 @@ export function PensionChat(props: PensionChatProps) {
   const { value, onChange, onSubmit, onCancel, onRetry, response, answeredQuestion, pendingQuestion, loading, error, cancelled } = props
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const resultModel = response ? getPensionResultViewModel(answeredQuestion, response) : null
+  const productModel = response ? getProductComparisonViewModel(answeredQuestion, response) : null
   const chooseQuestion = (question: string) => {
     onChange(question)
     window.requestAnimationFrame(() => inputRef.current?.focus())
@@ -48,7 +51,8 @@ export function PensionChat(props: PensionChatProps) {
     {response && <div className="pension-conversation">
       {answeredQuestion && <section className="asked-question"><span>내 질문</span><p>{answeredQuestion}</p></section>}
 
-      {response.type === 'result' && <>
+      {response.type === 'result' && productModel && <ProductComparison model={productModel} onQuestion={chooseQuestion} />}
+      {response.type === 'result' && resultModel && <>
         <section className="pension-answer-section pension-conclusion"><StatusBadge tone="navy">핵심 결론</StatusBadge><h2>DB형과 DC형의 핵심 차이</h2>{response.conclusion.split('\n\n').map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</section>
         {response.comparison && <section className="pension-answer-section pension-comparison"><h2>{response.comparison.title}</h2><div className="pension-comparison-table" role="table" aria-label="DB형과 DC형 비교"><div className="pension-comparison-head" role="row"><strong role="columnheader">비교 항목</strong><strong role="columnheader">DB형</strong><strong role="columnheader">DC형</strong></div>{response.comparison.rows.map((row) => <div className="pension-comparison-row" role="row" key={row.id}><strong role="rowheader">{row.label}</strong><span role="cell">{row.optionA}</span><span role="cell">{row.optionB}</span></div>)}</div></section>}
         {resultModel && <>
@@ -58,6 +62,7 @@ export function PensionChat(props: PensionChatProps) {
           <section className="pension-followups" aria-labelledby="followups-title"><h2 id="followups-title">이어진 질문</h2><div>{resultModel.followUpQuestions.map((question) => <button type="button" key={question} onClick={() => chooseQuestion(question)}>{question}</button>)}</div></section>
         </>}
       </>}
+      {response.type === 'result' && !productModel && !resultModel && <section className="pension-answer-section"><StatusBadge tone="navy">확인된 결과</StatusBadge><h2>{response.conclusion}</h2><p>{response.explanation}</p></section>}
 
       {response.type === 'clarification' && <section className="pension-answer-section pension-state"><StatusBadge tone="amber">추가 정보 필요</StatusBadge><h2>현재 안내할 수 있는 내용</h2><p>DB형과 DC형의 일반적인 제도 차이는 설명할 수 있습니다.</p><h3>정확한 답변을 위해 부족한 정보</h3><p>현재 가입 유형이나 회사의 제도는 제공된 정보만으로 확인할 수 없습니다.</p><h3>필요한 조건</h3><ul>{response.requiredSlots.map((slot) => <li key={slot.key}>{slot.label}</li>)}</ul></section>}
       {response.type === 'limitation' && <section className="pension-answer-section pension-state pension-state--amber"><StatusBadge tone="amber">답변 범위 안내</StatusBadge><h2>현재 안내할 수 있는 내용</h2>{response.availableAnswer && <p>{response.availableAnswer}</p>}<h3>확인할 수 없는 내용</h3><p>{response.message}</p><h3>다음 확인 방법</h3><ul>{response.requiredConditions.map((condition) => <li key={condition}>{condition}</li>)}</ul></section>}

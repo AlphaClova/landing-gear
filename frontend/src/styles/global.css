@@ -136,7 +136,8 @@ h1, h2, h3, p { overflow-wrap: break-word; }
 .pension-prompt button:disabled { cursor: not-allowed; opacity: .45; }
 .pension-suggestions { margin-top: 30px; }
 .pension-suggestions h2, .pension-followups h2, .pension-new-question > h2 { margin: 0 0 14px; font-size: 19px; }
-.pension-suggestions > div, .pension-followups > div { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+.pension-suggestions > div { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.pension-followups > div { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
 .pension-suggestions button, .pension-followups button { min-height: 62px; padding: 13px 15px; border: 1px solid var(--stone-200); border-radius: 10px; color: var(--text-secondary); background: rgba(255,253,249,.58); text-align: left; line-height: 1.5; transition: border-color .18s ease, color .18s ease, transform .18s ease; }
 .pension-suggestions button:hover, .pension-followups button:hover { border-color: var(--gold-300); color: var(--navy-900); transform: translateY(-1px); }
 .pension-conversation { display: grid; gap: 18px; }
@@ -189,6 +190,21 @@ h1, h2, h3, p { overflow-wrap: break-word; }
 .pension-cancelled p { margin: 5px 0 0; color: var(--text-secondary); }
 .pension-state ul { color: var(--text-secondary); line-height: 1.8; }
 .pension-state--amber { border-top: 3px solid var(--gold-500); }
+
+.product-summary { padding: 24px 26px; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; border-radius: var(--radius); color: var(--ivory-50); background: var(--navy-950); }
+.product-summary h2 { margin: 12px 0 8px; font-size: 23px; }.product-summary p { margin: 0; color: rgba(250,247,241,.8); line-height: 1.65; }.product-summary > small { max-width: 280px; padding: 10px 12px; border: 1px solid rgba(227,197,140,.35); border-radius: 8px; color: var(--gold-300); line-height: 1.5; }
+.product-type-section > h2, .product-table-section > h2, .product-checks h2, .product-evidence-empty h2 { margin: 0 0 14px; font-size: 21px; }
+.product-type-cards { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.product-type-cards > article { padding: 22px; border: 1px solid var(--stone-200); border-radius: var(--radius); background: rgba(255,253,249,.82); box-shadow: var(--shadow); }
+.product-type-cards header { padding-bottom: 14px; border-bottom: 1px solid var(--stone-200); }.product-type-cards header small { color: var(--gold-500); font-weight: 700; }.product-type-cards h3 { margin: 5px 0 0; font-size: 22px; }
+.product-type-cards dl { margin: 4px 0 18px; }.product-type-cards dl > div { padding: 13px 0; display: grid; grid-template-columns: 120px 1fr; gap: 12px; border-bottom: 1px solid var(--stone-200); }.product-type-cards dt { color: var(--stone-500); font-size: 13px; }.product-type-cards dd { margin: 0; color: var(--text-secondary); font-size: 13px; line-height: 1.55; }.product-type-cards dd .product-status { margin-bottom: 6px; display: flex; width: fit-content; }
+.product-type-cards h4 { margin: 0 0 8px; }.product-type-cards ul { margin: 0; padding-left: 19px; color: var(--text-secondary); line-height: 1.7; }
+.product-caution { margin-top: 17px; padding: 14px; border-radius: 8px; background: #f5ead7; }.product-caution strong { color: #704b16; font-size: 12px; }.product-caution p { margin: 5px 0 0; color: var(--text-secondary); font-size: 13px; line-height: 1.55; }
+.product-status { padding: 4px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; white-space: nowrap; }.product-status--available { color: white; background: var(--navy-800); }.product-status--conditional { color: #704b16; background: #f1dfbc; }.product-status--unavailable { color: #5e5a56; background: #e5e0d9; }
+.product-table-section > div { overflow-x: auto; border: 1px solid var(--stone-200); border-radius: 10px; }.product-table-section table { width: 100%; min-width: 760px; border-collapse: collapse; background: rgba(255,253,249,.78); }.product-table-section th, .product-table-section td { padding: 14px; border-bottom: 1px solid var(--stone-200); text-align: left; vertical-align: top; font-size: 13px; }.product-table-section thead th { color: var(--ivory-50); background: var(--navy-900); }.product-table-section tbody th { width: 150px; background: var(--ivory-100); }.product-table-section td .product-status { margin-bottom: 7px; display: block; width: fit-content; }.product-table-section td > span:last-child { color: var(--text-secondary); line-height: 1.55; }
+.product-checks { padding: 20px 22px; border: 1px solid var(--stone-200); border-radius: 10px; }.product-checks ul { margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; list-style: none; }.product-checks li { padding: 7px 10px; border-radius: 999px; color: var(--navy-800); background: var(--ivory-100); font-size: 12px; font-weight: 600; }
+.product-data-limitation { padding: 20px 22px; border-top: 3px solid var(--gold-500); border-radius: 10px; background: #f5ead7; }.product-data-limitation h2 { margin: 11px 0 7px; font-size: 19px; }.product-data-limitation p { margin: 0; color: var(--text-secondary); line-height: 1.65; }
+.product-evidence-empty { padding: 22px; border: 1px dashed var(--stone-200); border-radius: 10px; text-align: center; }.product-evidence-empty p { margin: 0; color: var(--text-secondary); }
 
 .withdrawal-slice { width: min(100%, 1120px); margin: 0 auto; }
 .withdrawal-intro { margin-bottom: 28px; }
@@ -286,6 +302,7 @@ h1, h2, h3, p { overflow-wrap: break-word; }
   .pension-evidence summary { align-items: flex-start; flex-direction: column; }
   .evidence-toggle { align-self: flex-start; }
   .pension-followups button { min-height: 64px; }
+  .pension-suggestions > div, .product-type-cards { grid-template-columns: 1fr; }.product-summary { flex-direction: column; }.product-summary > small { max-width: none; }.product-type-cards dl > div { grid-template-columns: 1fr; gap: 5px; }
   .withdrawal-fields { grid-template-columns: 1fr; }.withdrawal-input-panel form { padding: 17px; }.withdrawal-form-actions { align-items: stretch; flex-direction: column-reverse; }.withdrawal-form-actions button { width: 100%; }.withdrawal-summary { padding: 21px; flex-direction: column; }.withdrawal-summary > small { max-width: none; }.withdrawal-assumptions dl > div { align-items: flex-start; flex-direction: column; }.withdrawal-assumptions dd { text-align: left; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } .brand-aura { animation: none !important; } }

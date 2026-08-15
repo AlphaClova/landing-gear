@@ -4,6 +4,7 @@ export const dbDcQuestion = 'DB형과 DC형의 차이는 무엇인가요?'
 
 export const pensionSuggestions = [
   dbDcQuestion,
+  '원리금보장형과 실적배당형은 어떻게 비교해야 하나요?',
   '연금저축과 IRP는 어떻게 다른가요?',
   '연금은 언제부터 받을 수 있나요?',
 ]
