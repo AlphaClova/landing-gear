@@ -1,4 +1,5 @@
 import type { ChatResponse } from '../../types/api'
+import { isMockApiEnabled } from '../../api/config'
 
 export const productComparisonQuestion = '원리금보장형과 실적배당형은 어떻게 비교해야 하나요?'
 
@@ -71,7 +72,11 @@ export const productComparisonFixture: ProductComparisonViewModel = {
   isMock: true,
 }
 
-export function getProductComparisonViewModel(question: string, response: ChatResponse): ProductComparisonViewModel | null {
-  const isMockMode = import.meta.env.VITE_USE_MOCK_API !== 'false'
-  return isMockMode && response.type === 'result' && question.trim() === productComparisonQuestion ? productComparisonFixture : null
+export function getProductComparisonViewModel(
+  question: string,
+  response: ChatResponse,
+  useMockFixture = isMockApiEnabled,
+): ProductComparisonViewModel | null {
+  // TODO(A/B): Map product fields only after the canonical product response is published.
+  return useMockFixture && response.type === 'result' && question.trim() === productComparisonQuestion ? productComparisonFixture : null
 }

@@ -1,4 +1,5 @@
 import type { ChatResponse } from '../../types/api'
+import { isMockApiEnabled } from '../../api/config'
 
 export const dbDcQuestion = 'DB형과 DC형의 차이는 무엇인가요?'
 
@@ -68,6 +69,11 @@ const dbDcResult: PensionResultViewModel = {
   ],
 }
 
-export function getPensionResultViewModel(question: string, response: ChatResponse): PensionResultViewModel | null {
-  return response.type === 'result' && question.trim() === dbDcQuestion ? dbDcResult : null
+export function getPensionResultViewModel(
+  question: string,
+  response: ChatResponse,
+  useMockFixture = isMockApiEnabled,
+): PensionResultViewModel | null {
+  // TODO(A): Map the canonical pension answer payload after its fields are finalized.
+  return useMockFixture && response.type === 'result' && question.trim() === dbDcQuestion ? dbDcResult : null
 }

@@ -136,3 +136,18 @@
 - [ ] timeout 처리
 - [ ] 계산 기준 버전 표시 방식
 - [ ] 확정 계산과 시나리오 계산의 서버 구분 방식
+
+## 18. 프론트 연결 전 A·B 확정 필요 항목
+
+아래 항목은 아직 프론트에서 확정하거나 추정하지 않는다. 확정 전 HTTP 인출 결과는 명시적인 `limited` 경계로 처리한다.
+
+- [ ] 최종 엔드포인트 (`VITE_API_BASE_URL` 뒤 `/answer` 사용 여부 포함)
+- [ ] `AnswerRequest`를 사용하는 요청 스키마와 인출 입력 전달 방식
+- [ ] 응답 discriminator 및 인출 결과 payload 위치
+- [ ] 서버 timeout과 프론트 timeout의 책임 및 권장 시간
+- [ ] HTTP 오류 본문 형식, 오류 코드, 재시도 가능 여부
+- [ ] 계산 기준 버전 필드와 보존 기간
+- [ ] evidence ID, claim ID, tool result ID의 형식과 참조 무결성
+- [ ] 모든 금액의 단위, 반올림 규칙, `null`/필드 생략 정책
+
+현재 프론트는 공개 `ChatResponse`, `AnswerRequest`, `PensionApiClient`를 변경하지 않는다. 확정되지 않은 인출 금액, 계산 기준, 근거 ID는 생성하거나 `0`으로 보정하지 않는다.

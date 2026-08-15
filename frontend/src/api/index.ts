@@ -1,12 +1,15 @@
 import type { PensionApiClient } from './client'
 import { HttpPensionApiClient } from './http-client'
 import { MockPensionApiClient } from './mock-client'
+import { apiClientConfig } from './config'
 
-const useMock = import.meta.env.VITE_USE_MOCK_API !== 'false'
+export function createPensionApiClient(config = apiClientConfig): PensionApiClient {
+  return config.useMockApi
+    ? new MockPensionApiClient()
+    : new HttpPensionApiClient(config.baseUrl, config.timeoutMs)
+}
 
-export const pensionApi: PensionApiClient = useMock
-  ? new MockPensionApiClient()
-  : new HttpPensionApiClient(import.meta.env.VITE_API_BASE_URL ?? '/api')
+export const pensionApi: PensionApiClient = createPensionApiClient()
 
 export type { PensionApiClient } from './client'
-
+export { isMockApiEnabled } from './config'
