@@ -3,7 +3,6 @@ import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right.mjs'
 import { pensionApi } from '../api'
 import { AppShell, Button, Card } from '../components/ui'
 import type { AppPage } from '../components/ui'
-import { StatusPanel } from '../components/StatusPanel'
 import { PensionChat } from '../features/pension-chat/PensionChat'
 import { WithdrawalDecision } from '../features/withdrawal-decision/WithdrawalDecision'
 import { AuxiliaryPage } from './AuxiliaryPages'
@@ -60,7 +59,7 @@ export function HomePage() {
       {page === 'home' ? <>
         <section className="home-hero"><div><h1>무엇을 도와드릴까요?</h1><p>궁금한 내용을 묻거나 필요한 계산을 시작해 보세요.</p></div><div className="home-prompt"><label className="sr-only" htmlFor="home-question">연금 질문</label><input id="home-question" value={message} onChange={(e) => setMessage(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && askFromHome()} placeholder="연금에 대해 궁금한 점을 입력해 주세요." /><Button onClick={askFromHome} disabled={!message.trim()}><span aria-hidden="true">✦</span> 질문하기</Button></div></section>
         <div className="home-grid"><div><div className="feature-cards"><button className="card feature-card" onClick={() => selectMode('pension-chat')}><img src="/assets/icons/pension-chat.svg" alt="" /><div><h2>연금 상담</h2><p>연금 제도와 수령 방식을 간단히 확인해 보세요.</p></div><span aria-hidden="true">→</span></button><button className="card feature-card" onClick={() => selectMode('withdrawal-decision')}><img src="/assets/icons/withdrawal-decision.svg" alt="" /><div><h2>인출 의사결정</h2><p>일시금과 연금 수령 방식의 차이를 비교해 보세요.</p></div><span aria-hidden="true">→</span></button></div><Card className="examples"><h2>이런 질문으로 시작해 보세요</h2><div>{examples.map((example) => <button key={example} onClick={() => { setMessage(example); navigate('pension-chat') }}><span aria-hidden="true">?</span>{example}<b aria-hidden="true">›</b></button>)}</div></Card></div><Card className="principles"><h2>답변 원칙</h2><ul><li><img src="/assets/icons/exact-estimate.svg" alt="" />확정값과 예상값 구분</li><li><img src="/assets/icons/evidence.svg" alt="" />근거와 출처 제공</li><li><img src="/assets/icons/condition.svg" alt="" />필요한 조건만 확인</li></ul></Card></div>
-      </> : page === 'pension-chat' ? <PensionChat value={message} onChange={setMessage} onSubmit={submit} onCancel={cancel} onRetry={submit} response={response} answeredQuestion={answeredQuestion} pendingQuestion={pendingQuestion} loading={loading} error={error} cancelled={cancelled} /> : page === 'withdrawal-decision' ? <div className="feature-layout"><div><WithdrawalDecision value={message} onChange={setMessage} onSubmit={submit} disabled={loading} /></div><StatusPanel response={response} loading={loading} error={error} onCancel={cancel} onRetry={submit} /></div> : <AuxiliaryPage page={page} />}
+      </> : page === 'pension-chat' ? <PensionChat value={message} onChange={setMessage} onSubmit={submit} onCancel={cancel} onRetry={submit} response={response} answeredQuestion={answeredQuestion} pendingQuestion={pendingQuestion} loading={loading} error={error} cancelled={cancelled} /> : page === 'withdrawal-decision' ? <WithdrawalDecision /> : <AuxiliaryPage page={page} />}
     </main>
   </AppShell>
 }
