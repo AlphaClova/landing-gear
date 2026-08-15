@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import type { ChatResponse } from '../../types/api'
 import { ErrorState, StatusBadge } from '../../components/ui'
@@ -31,12 +31,17 @@ function QuestionForm({ value, onChange, onSubmit, disabled, inputRef }: Pick<Pe
 export function PensionChat(props: PensionChatProps) {
   const { value, onChange, onSubmit, onCancel, onRetry, response, answeredQuestion, pendingQuestion, loading, error, cancelled } = props
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const resultRef = useRef<HTMLDivElement>(null)
   const resultModel = response ? getPensionResultViewModel(answeredQuestion, response) : null
   const productModel = response ? getProductComparisonViewModel(answeredQuestion, response) : null
   const chooseQuestion = (question: string) => {
     onChange(question)
     window.requestAnimationFrame(() => inputRef.current?.focus())
   }
+  useEffect(() => {
+    if (!response) return
+    window.requestAnimationFrame(() => resultRef.current?.focus({ preventScroll: true }))
+  }, [response])
 
   const form = <QuestionForm value={value} onChange={onChange} onSubmit={onSubmit} disabled={loading} inputRef={inputRef} />
 
@@ -48,7 +53,8 @@ export function PensionChat(props: PensionChatProps) {
       <section className="pension-suggestions" aria-labelledby="pension-suggestions-title"><h2 id="pension-suggestions-title">추천 질문</h2><div>{pensionSuggestions.map((question) => <button type="button" key={question} onClick={() => chooseQuestion(question)}>{question}</button>)}</div></section>
     </>}
 
-    {response && <div className="pension-conversation">
+    {response && <div ref={resultRef} className="pension-conversation focus-target" tabIndex={-1} aria-label="답변 결과">
+      {!loading && response.type !== 'error' && <p className="sr-only" role="status">{response.type === 'clarification' ? '추가 정보가 필요합니다.' : response.type === 'limitation' ? '답변 가능한 범위를 안내합니다.' : '답변이 준비되었습니다.'}</p>}
       {answeredQuestion && <section className="asked-question"><span>내 질문</span><p>{answeredQuestion}</p></section>}
 
       {response.type === 'result' && productModel && <ProductComparison model={productModel} onQuestion={chooseQuestion} />}
@@ -58,7 +64,7 @@ export function PensionChat(props: PensionChatProps) {
         {resultModel && <>
           <section className="pension-answer-section pension-details"><h2>상세 설명</h2><div>{resultModel.sections.map((section) => <article key={section.title}><h3>{section.title}</h3><p>{section.content}</p></article>)}</div></section>
           <section className="pension-caution"><StatusBadge tone="amber">확인할 사항</StatusBadge><p>{resultModel.caution}</p></section>
-          <section className="pension-answer-section pension-evidence" aria-labelledby="evidence-title"><h2 id="evidence-title">근거와 출처</h2><div className="evidence-list">{resultModel.evidence.map((evidence) => <details className="evidence-item" key={evidence.id}><summary><span className="evidence-summary"><b>{evidence.organization}</b><strong>{evidence.title}</strong><small>{evidence.location}</small><em>{evidence.supportedContent}</em></span><span className="evidence-toggle" aria-hidden="true">근거 보기</span></summary><div className="evidence-detail"><p>{evidence.excerpt}</p><a href={evidence.url} target="_blank" rel="noreferrer">공식 페이지에서 확인하기</a><div className="evidence-claims"><b>연결된 답변 항목</b><ul>{evidence.claimLabels.map((label) => <li key={label}>{label}</li>)}</ul></div></div></details>)}</div></section>
+          <section className="pension-answer-section pension-evidence" aria-labelledby="evidence-title"><h2 id="evidence-title">근거와 출처</h2><div className="evidence-list">{resultModel.evidence.map((evidence) => <details className="evidence-item" key={evidence.id}><summary><span className="evidence-summary"><b>{evidence.organization}</b><strong>{evidence.title}</strong><small>{evidence.location}</small><em>{evidence.supportedContent}</em></span><span className="evidence-toggle" aria-hidden="true">근거 보기</span></summary><div className="evidence-detail"><p>{evidence.excerpt}</p><a href={evidence.url} target="_blank" rel="noreferrer">공식 페이지에서 확인하기<span className="sr-only">(새 창)</span></a><div className="evidence-claims"><b>연결된 답변 항목</b><ul>{evidence.claimLabels.map((label) => <li key={label}>{label}</li>)}</ul></div></div></details>)}</div></section>
           <section className="pension-followups" aria-labelledby="followups-title"><h2 id="followups-title">이어진 질문</h2><div>{resultModel.followUpQuestions.map((question) => <button type="button" key={question} onClick={() => chooseQuestion(question)}>{question}</button>)}</div></section>
         </>}
       </>}
@@ -69,7 +75,7 @@ export function PensionChat(props: PensionChatProps) {
       {response.type === 'error' && <ErrorState message={response.message} onRetry={response.retryable ? onRetry : undefined} />}
     </div>}
 
-    {loading && <section className="pension-loading" aria-live="polite" aria-busy="true"><div className="asked-question"><span>내 질문</span><p>{pendingQuestion}</p></div><div className="pension-skeleton" aria-hidden="true"><i /><i /><i /></div><strong>답변을 준비하고 있습니다</strong><button type="button" onClick={onCancel}>요청 취소</button></section>}
+    {loading && <section className="pension-loading" role="status" aria-busy="true"><div className="asked-question"><span>내 질문</span><p>{pendingQuestion}</p></div><div className="pension-skeleton" aria-hidden="true"><i /><i /><i /></div><strong>답변을 준비하고 있습니다</strong><button type="button" onClick={onCancel}>요청 취소</button></section>}
     {error && <ErrorState message={error} onRetry={onRetry} />}
     {cancelled && !loading && <section className="pension-cancelled" role="status"><strong>요청이 취소되었습니다.</strong><p>입력한 질문은 그대로 유지됩니다.</p></section>}
 

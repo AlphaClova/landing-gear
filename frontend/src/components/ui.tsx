@@ -62,7 +62,7 @@ export function Sidebar({ current, onNavigate, open, onClose }: { current: AppPa
     <button className={`sidebar-scrim ${open ? 'is-open' : ''}`} onClick={onClose} aria-label="메뉴 닫기" tabIndex={open ? 0 : -1} />
     <aside className={`sidebar ${open ? 'is-open' : ''}`} aria-label="주 메뉴">
       <button className="sidebar-brand" onClick={() => onNavigate('home')}><LandingGearLogo /></button>
-      <nav>
+      <nav aria-label="주 메뉴">
         {menu.map((item) => {
           const active = current === item.id; const Icon = item.icon
           return <button key={item.id} className={active ? 'active' : ''} onClick={() => { onNavigate(item.id); onClose() }} aria-current={active ? 'page' : undefined}><Icon aria-hidden="true" />{item.label}</button>

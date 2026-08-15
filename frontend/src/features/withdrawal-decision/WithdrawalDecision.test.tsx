@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { WithdrawalDecision } from './WithdrawalDecision'
@@ -19,6 +19,9 @@ describe('인출 의사결정 회귀', () => {
     expect(await screen.findByText('수령 방식의 일반적인 차이는 안내할 수 있지만 금액 비교를 위해 추가 조건이 필요합니다.')).toBeInTheDocument()
     expect(screen.getByText(/퇴직급여 예상액, 현재 나이, 연금 수령 시작 나이/)).toBeInTheDocument()
     expect(screen.getByLabelText(/퇴직급여 예상액/)).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByLabelText(/퇴직급여 예상액/)).toHaveAttribute('aria-describedby', 'retirement-benefit-help')
+    expect(screen.getByLabelText(/퇴직급여 예상액/)).toHaveAccessibleDescription(/필수 입력입니다.*원 단위/)
+    await waitFor(() => expect(screen.getByLabelText(/퇴직급여 예상액/)).toHaveFocus())
   })
 
   it('예시 조건으로 세 방식과 확정·예상·조건부 상태를 구분한다', async () => {
@@ -75,6 +78,6 @@ describe('인출 의사결정 회귀', () => {
     await user.clear(age); await user.type(age, '56')
     await user.click(screen.getByRole('button', { name: '조건을 바꿔 다시 비교' }))
     const assumptions = await screen.findByRole('heading', { name: '적용된 가정' })
-    expect(within(assumptions.parentElement!).getByText('56세')).toBeInTheDocument()
+    await waitFor(() => expect(within(assumptions.parentElement!).getByText('56세')).toBeInTheDocument())
   })
 })
