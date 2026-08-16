@@ -12,6 +12,14 @@ async function loadExample(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe('인출 의사결정 회귀', () => {
+  it('짧은 행동 제목과 하나의 h1을 사용한다', () => {
+    render(<WithdrawalDecision />)
+    expect(screen.getByText('인출 의사결정')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: '수령 방식을 비교해 보세요' })).toBeInTheDocument()
+    expect(screen.queryByText('수령 방식의 차이를 같은 기준으로 비교해 보세요.')).not.toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+  })
+
   it('필수 입력 누락 시 needs_input 요약과 누락 필드를 표시한다', async () => {
     const user = userEvent.setup()
     render(<WithdrawalDecision />)

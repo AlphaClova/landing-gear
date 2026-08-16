@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import type { ChatResponse } from '../../types/api'
-import { ErrorState, StatusBadge } from '../../components/ui'
+import { ErrorState, PageHeader, StatusBadge } from '../../components/ui'
 import { getPensionResultViewModel, pensionSuggestions } from './pension-chat-view-model'
 import { getProductComparisonViewModel } from './product-comparison-view-model'
 import { ProductComparison } from './ProductComparison'
@@ -46,7 +46,7 @@ export function PensionChat(props: PensionChatProps) {
   const form = <QuestionForm value={value} onChange={onChange} onSubmit={onSubmit} disabled={loading} inputRef={inputRef} />
 
   return <section className="pension-slice" aria-labelledby="pension-title">
-    <header className="pension-intro"><span className="eyebrow">연금 상담</span><h1 id="pension-title">연금 상담</h1><p>연금 제도와 수령 방식이 궁금하다면 질문해 보세요.</p></header>
+    <PageHeader label="연금 상담" title="연금이 궁금하신가요?" description="연금 제도와 수령 방식을 근거와 함께 확인해 보세요." titleId="pension-title" />
 
     {!response && !loading && !error && !cancelled && <>
       {form}

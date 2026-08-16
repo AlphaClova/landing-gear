@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { StatusBadge } from '../../components/ui'
+import { PageHeader, StatusBadge } from '../../components/ui'
 import { ApiNetworkError, ApiTimeoutError } from '../../api/errors'
 import { isMockWithdrawalMode, requestWithdrawalDecision } from './withdrawal-decision-adapter'
 import { exampleWithdrawalInput } from './withdrawal-decision-mock'
@@ -60,7 +60,7 @@ export function WithdrawalDecision() {
   const hasResult = Boolean(viewModel && (viewModel.status === 'complete' || viewModel.status === 'limited'))
 
   return <section className="withdrawal-slice" aria-labelledby="withdrawal-title">
-    <header className="withdrawal-intro"><span className="eyebrow">인출 의사결정</span><h1 id="withdrawal-title">수령 방식의 차이를 같은 기준으로 비교해 보세요.</h1><p>확정 계산과 가정 기반 예상 결과를 구분해 확인할 수 있습니다.</p></header>
+    <PageHeader label="인출 의사결정" title="수령 방식을 비교해 보세요" description="확정 계산과 가정 기반 예상 결과를 구분해 확인할 수 있습니다." titleId="withdrawal-title" />
 
     <details className="withdrawal-input-panel" open={!hasResult || undefined}><summary>{hasResult ? '입력 조건 확인·수정' : '비교 조건 입력'}</summary><form onSubmit={submit} noValidate>
       {viewModel?.status === 'needs_input' && <div className="withdrawal-input-alert" role="alert"><strong>{viewModel.summary}</strong><p>부족한 조건: {viewModel.missingFields.map((field) => fieldLabels[field]).join(', ')}</p></div>}

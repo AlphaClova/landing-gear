@@ -40,6 +40,8 @@ export function HomePage() {
     })
   }, [page])
   const navigate = (next: Page) => { requestRef.current?.abort(); setPage(next); setResponse(null); setError(null); setAnsweredQuestion(''); setPendingQuestion(''); setCancelled(false); window.location.hash = next === 'start' ? '' : next }
+  const goToStart = () => { requestRef.current?.abort(); requestRef.current = null; setLoading(false); setMenuOpen(false); setPage('start'); window.location.hash = '' }
+  const enterHome = () => { setPage('home'); window.location.hash = 'home' }
   const selectMode = (mode: ResponseMode) => navigate(mode)
   const askFromHome = () => { if (message.trim()) navigate('pension-chat') }
   const cancel = () => { requestRef.current?.abort(); requestRef.current = null; setLoading(false); setPendingQuestion(''); setError(null); setCancelled(true) }
@@ -62,11 +64,11 @@ export function HomePage() {
     <section className="start-hero hero-content" aria-labelledby="start-heading">
       <div className="brand-stage"><div className="brand-aura" aria-hidden="true" /><h1 id="start-heading" className="hero-wordmark">Landing Gear<span className="wordmark-star" aria-hidden="true">✦</span><span className="wordmark-curve" aria-hidden="true" /></h1></div>
       <p>연금의 선택을 더 선명하게.</p>
-      <div className="start-actions"><Button onClick={() => navigate('home')}>시작하기 <ArrowRight aria-hidden="true" /></Button><button className="guide-link">서비스 안내</button></div>
+      <div className="start-actions"><Button onClick={enterHome}>시작하기 <ArrowRight aria-hidden="true" /></Button><button className="guide-link">서비스 안내</button></div>
     </section>
   </main>
 
-  return <AppShell current={page} onNavigate={navigate} menuOpen={menuOpen} onMenuOpen={() => setMenuOpen(true)} onMenuClose={() => setMenuOpen(false)}>
+  return <AppShell current={page} onNavigate={navigate} onGoToStart={goToStart} menuOpen={menuOpen} onMenuOpen={() => setMenuOpen(true)} onMenuClose={() => setMenuOpen(false)}>
     <main ref={mainRef} className="workspace">
       {page === 'home' ? <>
         <section className="home-hero"><div><h1>무엇을 도와드릴까요?</h1><p>궁금한 내용을 묻거나 필요한 계산을 시작해 보세요.</p></div><div className="home-prompt"><label className="sr-only" htmlFor="home-question">연금 질문</label><input id="home-question" value={message} onChange={(e) => setMessage(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && askFromHome()} placeholder="연금에 대해 궁금한 점을 입력해 주세요." /><Button onClick={askFromHome} disabled={!message.trim()}><span aria-hidden="true">✦</span> 질문하기</Button></div></section>

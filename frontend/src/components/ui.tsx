@@ -33,6 +33,10 @@ export function StatusBadge({ children, tone = 'gold' }: { children: ReactNode; 
   return <span className={`status-badge status-badge--${tone}`}>{children}</span>
 }
 
+export function PageHeader({ label, title, description, titleId }: { label: string; title: string; description: string; titleId?: string }) {
+  return <header className="page-heading"><span className="eyebrow">{label}</span><h1 id={titleId}>{title}</h1><p>{description}</p></header>
+}
+
 export function EvidenceCard({ title = '근거와 출처', children }: { title?: string; children: ReactNode }) {
   return <details className="evidence-card"><summary>{title}</summary><div>{children}</div></details>
 }
@@ -57,11 +61,11 @@ const menu = [
   { id: 'history', label: '내 기록', icon: History },
 ] as const
 
-export function Sidebar({ current, onNavigate, open, onClose }: { current: AppPage; onNavigate: (page: AppPage) => void; open: boolean; onClose: () => void }) {
+export function Sidebar({ current, onNavigate, onGoToStart, open, onClose }: { current: AppPage; onNavigate: (page: AppPage) => void; onGoToStart: () => void; open: boolean; onClose: () => void }) {
   return <>
     <button className={`sidebar-scrim ${open ? 'is-open' : ''}`} onClick={onClose} aria-label="메뉴 닫기" tabIndex={open ? 0 : -1} />
     <aside className={`sidebar ${open ? 'is-open' : ''}`} aria-label="주 메뉴">
-      <button className="sidebar-brand" onClick={() => onNavigate('home')}><LandingGearLogo /></button>
+      <button className="sidebar-brand" onClick={() => { onGoToStart(); onClose() }} aria-label="Landing Gear 시작 화면으로 이동"><LandingGearLogo /></button>
       <nav aria-label="주 메뉴">
         {menu.map((item) => {
           const active = current === item.id; const Icon = item.icon
@@ -73,10 +77,11 @@ export function Sidebar({ current, onNavigate, open, onClose }: { current: AppPa
   </>
 }
 
-export function Header({ onMenu }: { onMenu: () => void }) {
-  return <header className="top-header"><button className="menu-button" onClick={onMenu} aria-label="메뉴 열기"><Menu /></button><span>안녕하세요</span><div className="header-actions"><button aria-label="알림"><Bell /></button><span className="header-divider" /><button aria-label="프로필" className="profile-icon"><UserRound /></button></div></header>
+export function Header({ onMenu, displayName }: { onMenu: () => void; displayName?: string | null }) {
+  const greeting = displayName?.trim() ? `안녕하세요, ${displayName.trim()}님` : '안녕하세요, 고객님'
+  return <header className="top-header"><button className="menu-button" onClick={onMenu} aria-label="메뉴 열기"><Menu aria-hidden="true" /></button><span className="header-greeting">{greeting}</span><div className="header-actions"><button aria-label="알림"><Bell aria-hidden="true" /></button><span className="header-divider" aria-hidden="true" /><button aria-label="계정" className="profile-icon"><UserRound aria-hidden="true" /></button></div></header>
 }
 
-export function AppShell({ current, onNavigate, menuOpen, onMenuOpen, onMenuClose, children }: { current: AppPage; onNavigate: (page: AppPage) => void; menuOpen: boolean; onMenuOpen: () => void; onMenuClose: () => void; children: ReactNode }) {
-  return <div className="app-shell"><Sidebar current={current} onNavigate={onNavigate} open={menuOpen} onClose={onMenuClose} /><div className="app-frame"><Header onMenu={onMenuOpen} />{children}</div></div>
+export function AppShell({ current, onNavigate, onGoToStart, menuOpen, onMenuOpen, onMenuClose, displayName, children }: { current: AppPage; onNavigate: (page: AppPage) => void; onGoToStart: () => void; menuOpen: boolean; onMenuOpen: () => void; onMenuClose: () => void; displayName?: string | null; children: ReactNode }) {
+  return <div className="app-shell"><Sidebar current={current} onNavigate={onNavigate} onGoToStart={onGoToStart} open={menuOpen} onClose={onMenuClose} /><div className="app-frame"><Header onMenu={onMenuOpen} displayName={displayName} />{children}</div></div>
 }

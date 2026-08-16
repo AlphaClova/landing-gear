@@ -31,6 +31,14 @@ function PensionHarness() {
 }
 
 describe('연금 상담 회귀', () => {
+  it('화면명과 행동 제목을 반복하지 않고 하나의 h1을 사용한다', () => {
+    render(<PensionHarness />)
+    expect(screen.getByText('연금 상담')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: '연금이 궁금하신가요?' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { level: 1, name: '연금 상담' })).not.toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+  })
+
   it('추천 질문을 키보드로 선택할 수 있다', async () => {
     const user = userEvent.setup()
     render(<PensionHarness />)
