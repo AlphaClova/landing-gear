@@ -96,7 +96,8 @@ class BM25Retriever:
                 )
             )
 
-        return sorted(hits, key=lambda h: h.score, reverse=True)[:top_k]
+        # Explicit secondary key keeps equal-score results stable across runs.
+        return sorted(hits, key=lambda h: (-h.score, h.chunk_id))[:top_k]
 
     def _score(self, query_terms: list[str], indexed_chunk: _IndexedChunk) -> float:
         score = 0.0

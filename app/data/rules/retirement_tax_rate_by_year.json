@@ -1,0 +1,37 @@
+{
+  "rule_id": "RETIRE_TAX_RATE_BY_YEAR",
+  "version": "1.0.0",
+  "inputs": [
+    "deferred_retirement_tax",
+    "actual_pension_year"
+  ],
+  "effective_from": null,
+  "valid_to": null,
+  "source_priority": 0,
+  "source": {
+    "document_id": "doc51",
+    "page": 2,
+    "section": "연금수령시 퇴직소득세 절세혜택",
+    "quote": "1 ~ 10년차에는 30% 감면(이연퇴직소득세율의 70% 납부), 11년차 ~ 20년차에는 40% 감면(이연퇴직소득세율의 60% 납부), 21년차부터는 50% 감면(이연퇴직소득세율의 50% 납부)이 적용된다."
+  },
+  "parameters": {
+    "brackets": [
+      {
+        "min_year": 1,
+        "max_year": 10,
+        "rate": "0.70"
+      },
+      {
+        "min_year": 11,
+        "max_year": 20,
+        "rate": "0.60"
+      },
+      {
+        "min_year": 21,
+        "max_year": null,
+        "rate": "0.50"
+      }
+    ]
+  },
+  "function": "calc_retirement_pension_tax"
+}

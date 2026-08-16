@@ -2,8 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal
+import json
+from pathlib import Path
+from typing import Any
 
-from app.data.schemas.models import CalculationResult, Citation, RuleDefinition
+from app.data.schemas.models import CalculationResult, Citation
 
 
 class RuleEngineError(Exception):
@@ -18,65 +21,95 @@ class UnknownRuleVersionError(RuleEngineError):
     """Raised when a requested rule version does not exist."""
 
 
+class RoundingPolicyUndefinedError(RuleEngineError):
+    """Raised when a fractional-won result has no source-backed rounding policy."""
+
+
 @dataclass(frozen=True)
 class ComparisonRow:
     scenario: str
     tax_result: CalculationResult
 
 
-RETIREMENT_TAX_RULES: dict[str, RuleDefinition] = {
-    "2026-01-01": RuleDefinition(
-        rule_id="RETIRE_TAX_RATE_BY_YEAR",
-        version="2026-01-01",
-        brackets=[
-            (10, Decimal("0.70")),
-            (20, Decimal("0.60")),
-            (10_000, Decimal("0.50")),
-        ],
-        source=Citation(document_id="doc51", page=3),
-    )
-}
+RULES_DIR = Path(__file__).resolve().parents[1] / "data" / "rules"
+DEFAULT_RETIREMENT_TAX_RULE_VERSION = "1.0.0"
 
 
-def _get_rule(rule_version: str) -> RuleDefinition:
+def _load_retirement_tax_rules() -> dict[str, dict[str, Any]]:
+    rule_path = RULES_DIR / "retirement_tax_rate_by_year.json"
+    rule = json.loads(rule_path.read_text(encoding="utf-8"))
+    return {rule["version"]: rule}
+
+
+RETIREMENT_TAX_RULES = _load_retirement_tax_rules()
+
+
+def _get_rule(rule_version: str) -> dict[str, Any]:
     rule = RETIREMENT_TAX_RULES.get(rule_version)
     if rule is None:
         raise UnknownRuleVersionError(f"Unknown rule_version: {rule_version}")
     return rule
 
 
-def retirement_tax_rate_by_year(actual_pension_year: int, rule_version: str = "2026-01-01") -> Decimal:
+def retirement_tax_rate_by_year(
+    actual_pension_year: int | None,
+    rule_version: str = DEFAULT_RETIREMENT_TAX_RULE_VERSION,
+) -> Decimal:
+    if actual_pension_year is None:
+        raise MissingInputError("actual_pension_year is required")
+    if not isinstance(actual_pension_year, int) or isinstance(actual_pension_year, bool):
+        raise MissingInputError("actual_pension_year must be an integer")
     if actual_pension_year < 1:
         raise MissingInputError("actual_pension_year must be >= 1")
 
     rule = _get_rule(rule_version)
-    for upper_bound, rate in rule.brackets:
-        if actual_pension_year <= upper_bound:
-            return rate
+    for bracket in rule["parameters"]["brackets"]:
+        lower_bound = bracket["min_year"]
+        upper_bound = bracket["max_year"]
+        if actual_pension_year >= lower_bound and (
+            upper_bound is None or actual_pension_year <= upper_bound
+        ):
+            return Decimal(bracket["rate"])
 
     # Should never happen because of the fallback bracket.
     raise RuleEngineError("No tax bracket matched for actual_pension_year")
 
 
 def calc_retirement_pension_tax(
-    deferred_retirement_tax: int,
-    actual_pension_year: int,
-    rule_version: str = "2026-01-01",
+    deferred_retirement_tax: int | None,
+    actual_pension_year: int | None,
+    rule_version: str = DEFAULT_RETIREMENT_TAX_RULE_VERSION,
 ) -> CalculationResult:
+    if deferred_retirement_tax is None:
+        raise MissingInputError("deferred_retirement_tax is required")
+    if not isinstance(deferred_retirement_tax, int) or isinstance(deferred_retirement_tax, bool):
+        raise MissingInputError("deferred_retirement_tax must be an integer")
     if deferred_retirement_tax < 0:
         raise MissingInputError("deferred_retirement_tax must be >= 0")
 
     rate = retirement_tax_rate_by_year(actual_pension_year, rule_version)
-    value = int(Decimal(deferred_retirement_tax) * rate)
+    decimal_value = Decimal(deferred_retirement_tax) * rate
+    if decimal_value != decimal_value.to_integral_value():
+        raise RoundingPolicyUndefinedError(
+            "fractional-won result cannot be converted without a documented rounding policy"
+        )
+    value = int(decimal_value)
     rule = _get_rule(rule_version)
+    source = rule["source"]
 
     return CalculationResult(
         value=value,
         rate=rate,
         formula=f"{deferred_retirement_tax} * {rate}",
-        rule_id=rule.rule_id,
-        rule_version=rule.version,
-        citations=[rule.source],
+        rule_id=rule["rule_id"],
+        rule_version=rule["version"],
+        citations=[
+            Citation(
+                document_id=source["document_id"],
+                page=source["page"],
+                quote=f"{source['section']}: {source['quote']}",
+            )
+        ],
         assumptions=[],
         warnings=[],
         result_type="exact",
@@ -84,7 +117,10 @@ def calc_retirement_pension_tax(
     )
 
 
-def calc_retirement_lump_sum_tax(deferred_retirement_tax: int, rule_version: str = "2026-01-01") -> CalculationResult:
+def calc_retirement_lump_sum_tax(
+    deferred_retirement_tax: int,
+    rule_version: str = DEFAULT_RETIREMENT_TAX_RULE_VERSION,
+) -> CalculationResult:
     if deferred_retirement_tax < 0:
         raise MissingInputError("deferred_retirement_tax must be >= 0")
 
@@ -93,9 +129,15 @@ def calc_retirement_lump_sum_tax(deferred_retirement_tax: int, rule_version: str
         value=deferred_retirement_tax,
         rate=Decimal("1.00"),
         formula=f"{deferred_retirement_tax} * 1.00",
-        rule_id=rule.rule_id,
-        rule_version=rule.version,
-        citations=[rule.source],
+        rule_id=rule["rule_id"],
+        rule_version=rule["version"],
+        citations=[
+            Citation(
+                document_id=rule["source"]["document_id"],
+                page=rule["source"]["page"],
+                quote=f"{rule['source']['section']}: {rule['source']['quote']}",
+            )
+        ],
         assumptions=[],
         warnings=[],
         result_type="exact",
@@ -106,7 +148,7 @@ def calc_retirement_lump_sum_tax(deferred_retirement_tax: int, rule_version: str
 def compare_lump_sum_vs_pension(
     deferred_retirement_tax: int,
     pension_year_candidates: list[int],
-    rule_version: str = "2026-01-01",
+    rule_version: str = DEFAULT_RETIREMENT_TAX_RULE_VERSION,
 ) -> list[ComparisonRow]:
     if not pension_year_candidates:
         raise MissingInputError("pension_year_candidates must not be empty")

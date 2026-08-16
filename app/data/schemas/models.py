@@ -35,7 +35,7 @@ class Chunk:
     chunk_id: str
     document_id: str
     title: str
-    page: int
+    page: int | None
     section: str
     text: str
     effective_from: str
@@ -59,7 +59,7 @@ class RetrievalHit:
     chunk_id: str
     score: float
     document_id: str
-    page: int
+    page: int | None
     quote: str
 
 
