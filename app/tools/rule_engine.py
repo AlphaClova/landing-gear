@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from app.data.schemas.models import CalculationResult, Citation
+from app.data.schemas.models import CalculationResult, ComparisonResult, ComparisonScenario
 
 
 class RuleEngineError(Exception):
@@ -32,7 +32,6 @@ class ComparisonRow:
 
 
 RULES_DIR = Path(__file__).resolve().parents[1] / "data" / "rules"
-DEFAULT_RETIREMENT_TAX_RULE_VERSION = "1.0.0"
 
 
 def _load_retirement_tax_rules() -> dict[str, dict[str, Any]]:
@@ -42,6 +41,21 @@ def _load_retirement_tax_rules() -> dict[str, dict[str, Any]]:
 
 
 RETIREMENT_TAX_RULES = _load_retirement_tax_rules()
+
+
+def select_retirement_tax_rule_version() -> str:
+    """Select the sole currently valid verified version deterministically."""
+    valid = [
+        version
+        for version, rule in RETIREMENT_TAX_RULES.items()
+        if rule.get("effective_from") is None and rule.get("valid_to") is None
+    ]
+    if len(valid) != 1:
+        raise RuleEngineError(f"Expected one current retirement-tax rule, found {len(valid)}")
+    return valid[0]
+
+
+DEFAULT_RETIREMENT_TAX_RULE_VERSION = select_retirement_tax_rule_version()
 
 
 def _get_rule(rule_version: str) -> dict[str, Any]:
@@ -95,21 +109,13 @@ def calc_retirement_pension_tax(
         )
     value = int(decimal_value)
     rule = _get_rule(rule_version)
-    source = rule["source"]
-
     return CalculationResult(
         value=value,
         rate=rate,
         formula=f"{deferred_retirement_tax} * {rate}",
         rule_id=rule["rule_id"],
         rule_version=rule["version"],
-        citations=[
-            Citation(
-                document_id=source["document_id"],
-                page=source["page"],
-                quote=f"{source['section']}: {source['quote']}",
-            )
-        ],
+        evidence_ids=[rule["source"]["evidence_id"]],
         assumptions=[],
         warnings=[],
         result_type="exact",
@@ -118,9 +124,13 @@ def calc_retirement_pension_tax(
 
 
 def calc_retirement_lump_sum_tax(
-    deferred_retirement_tax: int,
+    deferred_retirement_tax: int | None,
     rule_version: str = DEFAULT_RETIREMENT_TAX_RULE_VERSION,
 ) -> CalculationResult:
+    if deferred_retirement_tax is None:
+        raise MissingInputError("deferred_retirement_tax is required")
+    if not isinstance(deferred_retirement_tax, int) or isinstance(deferred_retirement_tax, bool):
+        raise MissingInputError("deferred_retirement_tax must be an integer")
     if deferred_retirement_tax < 0:
         raise MissingInputError("deferred_retirement_tax must be >= 0")
 
@@ -131,13 +141,7 @@ def calc_retirement_lump_sum_tax(
         formula=f"{deferred_retirement_tax} * 1.00",
         rule_id=rule["rule_id"],
         rule_version=rule["version"],
-        citations=[
-            Citation(
-                document_id=rule["source"]["document_id"],
-                page=rule["source"]["page"],
-                quote=f"{rule['source']['section']}: {rule['source']['quote']}",
-            )
-        ],
+        evidence_ids=[rule["lump_sum_source"]["evidence_id"]],
         assumptions=[],
         warnings=[],
         result_type="exact",
@@ -172,3 +176,45 @@ def compare_lump_sum_vs_pension(
             )
         )
     return rows
+
+
+def calculate_retirement_tax_scenario(
+    retirement_amount: int | None,
+    deferred_retirement_tax: int | None,
+) -> ComparisonResult:
+    """Build the A/C withdrawal comparison without accepting a rule version."""
+    if retirement_amount is None:
+        raise MissingInputError("retirement_amount is required")
+    if not isinstance(retirement_amount, int) or isinstance(retirement_amount, bool):
+        raise MissingInputError("retirement_amount must be an integer")
+    if retirement_amount < 0:
+        raise MissingInputError("retirement_amount must be >= 0")
+
+    rule_version = select_retirement_tax_rule_version()
+    lump_sum = calc_retirement_lump_sum_tax(deferred_retirement_tax, rule_version)
+    year_10 = calc_retirement_pension_tax(deferred_retirement_tax, 10, rule_version)
+    year_21 = calc_retirement_pension_tax(deferred_retirement_tax, 21, rule_version)
+    assert lump_sum.value is not None and year_10.value is not None and year_21.value is not None
+
+    def scenario(scenario_id: str, result: CalculationResult) -> ComparisonScenario:
+        assert result.value is not None and result.rate is not None
+        return ComparisonScenario(
+            scenario=scenario_id,  # type: ignore[arg-type]
+            tax_value=result.value,
+            applicable_rate=result.rate,
+            difference_vs_lump_sum=lump_sum.value - result.value,
+            formula=result.formula,
+            rule_id=result.rule_id,
+            rule_version=result.rule_version,
+            evidence_ids=result.evidence_ids,
+            assumptions=result.assumptions,
+            warnings=result.warnings,
+        )
+
+    return ComparisonResult(
+        scenarios=[
+            scenario("lump_sum", lump_sum),
+            scenario("annuity_10_years", year_10),
+            scenario("annuity_21_plus_years", year_21),
+        ]
+    )

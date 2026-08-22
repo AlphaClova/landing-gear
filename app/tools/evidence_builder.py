@@ -53,7 +53,8 @@ def build_evidence_card(hit: RetrievalHit, chunk: Chunk | None = None) -> dict[s
     }
 
 
-def build_tool_result_record(result: CalculationResult) -> dict[str, Any]:
+def build_internal_tool_result_record(result: CalculationResult) -> dict[str, Any]:
+    """Build a B-internal deterministic record; this is not an A-facing contract."""
     calculation = asdict(result)
     calculation["rate"] = str(result.rate) if result.rate is not None else None
     payload = {
@@ -62,11 +63,12 @@ def build_tool_result_record(result: CalculationResult) -> dict[str, Any]:
         "formula": result.formula,
         "rule_id": result.rule_id,
         "rule_version": result.rule_version,
-        "citations": calculation["citations"],
+        "evidence_ids": calculation["evidence_ids"],
     }
     return {
         "tool_result_id": _deterministic_id("tool", payload),
         "tool_name": "calc_retirement_pension_tax",
+        "contract_scope": "b_internal_validation",
         "calculation_result": calculation,
     }
 
@@ -157,18 +159,25 @@ def validate_claim(
             reasons.append("rule_id_mismatch")
         if claim.get("rule_version") and calculation["rule_version"] != claim["rule_version"]:
             reasons.append("rule_version_mismatch")
-        if required_document_id and not any(
-            citation["document_id"] == required_document_id
-            for citation in calculation["citations"]
+        calculation_evidence_ids = calculation.get("evidence_ids", [])
+        calculation_evidence = [
+            evidence_registry[eid]
+            for eid in calculation_evidence_ids
+            if eid in evidence_registry
+        ]
+        if len(calculation_evidence) != len(calculation_evidence_ids):
+            reasons.append("invalid_calculation_evidence_id")
+        if required_document_id and calculation_evidence and not any(
+            card["document_id"] == required_document_id for card in calculation_evidence
         ):
-            reasons.append("tool_citation_mismatch")
+            reasons.append("tool_evidence_mismatch")
         expected_citation = claim.get("expected_citation")
-        if expected_citation and not any(
-            citation.get("document_id") == expected_citation.get("document_id")
-            and citation.get("page") == expected_citation.get("page")
-            for citation in calculation["citations"]
+        if expected_citation and calculation_evidence and not any(
+            card.get("document_id") == expected_citation.get("document_id")
+            and card.get("page") == expected_citation.get("page")
+            for card in calculation_evidence
         ):
-            reasons.append("tool_citation_mismatch")
+            reasons.append("tool_evidence_mismatch")
 
     return {
         "claim_id": claim["claim_id"],

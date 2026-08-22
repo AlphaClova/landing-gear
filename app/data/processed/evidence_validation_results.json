@@ -14,20 +14,17 @@
   ],
   "tool_results": [
     {
-      "tool_result_id": "tool-f72326ccafa22cd5",
+      "tool_result_id": "tool-b605d44273dbb002",
       "tool_name": "calc_retirement_pension_tax",
+      "contract_scope": "b_internal_validation",
       "calculation_result": {
         "value": 5000000,
         "rate": "0.50",
         "formula": "10000000 * 0.50",
         "rule_id": "RETIRE_TAX_RATE_BY_YEAR",
         "rule_version": "1.0.0",
-        "citations": [
-          {
-            "document_id": "doc51",
-            "page": 2,
-            "quote": "연금수령시 퇴직소득세 절세혜택: 1 ~ 10년차에는 30% 감면(이연퇴직소득세율의 70% 납부), 11년차 ~ 20년차에는 40% 감면(이연퇴직소득세율의 60% 납부), 21년차부터는 50% 감면(이연퇴직소득세율의 50% 납부)이 적용된다."
-          }
+        "evidence_ids": [
+          "doc51-p002-t016-389a14afe5"
         ],
         "assumptions": [],
         "warnings": [],
@@ -65,7 +62,7 @@
       "text": "이연퇴직소득세 10,000,000원을 21년차 기준으로 계산하면 적용 비율은 0.50이고 계산값은 5,000,000원이다.",
       "evidence_ids": [],
       "tool_result_ids": [
-        "tool-f72326ccafa22cd5"
+        "tool-b605d44273dbb002"
       ],
       "required_document_id": "doc51",
       "asserted_value": 5000000,
@@ -92,7 +89,7 @@
       "claim_type": "numeric",
       "evidence_ids": [],
       "tool_result_ids": [
-        "tool-f72326ccafa22cd5"
+        "tool-b605d44273dbb002"
       ]
     }
   ],

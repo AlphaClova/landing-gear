@@ -9,7 +9,7 @@ from app.tools.evidence_builder import (
     build_claim_evidence_link,
     build_claim_record,
     build_evidence_card,
-    build_tool_result_record,
+    build_internal_tool_result_record,
     validate_claims,
 )
 from app.tools.retriever import BM25Retriever
@@ -59,7 +59,7 @@ def main() -> None:
         actual_pension_year=21,
         rule_version="1.0.0",
     )
-    tool_result = build_tool_result_record(calculation)
+    tool_result = build_internal_tool_result_record(calculation)
 
     factual_claim = build_claim_record(
         "factual",

@@ -9,10 +9,18 @@
   "valid_to": null,
   "source_priority": 0,
   "source": {
+    "evidence_id": "doc51-p002-t016-389a14afe5",
     "document_id": "doc51",
     "page": 2,
     "section": "연금수령시 퇴직소득세 절세혜택",
     "quote": "1 ~ 10년차에는 30% 감면(이연퇴직소득세율의 70% 납부), 11년차 ~ 20년차에는 40% 감면(이연퇴직소득세율의 60% 납부), 21년차부터는 50% 감면(이연퇴직소득세율의 50% 납부)이 적용된다."
+  },
+  "lump_sum_source": {
+    "evidence_id": "doc51-p001-t004-41a054df8c",
+    "document_id": "doc51",
+    "page": 1,
+    "section": "퇴직금 일시수령과 연금계좌 입금 후 연금수령에 대한 세금 차이",
+    "quote": "일시금으로 받으면 퇴직소득세를 100% 즉시 납부해야한다."
   },
   "parameters": {
     "brackets": [

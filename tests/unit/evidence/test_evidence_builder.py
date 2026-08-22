@@ -6,7 +6,7 @@ from app.tools.evidence_builder import (
     build_claim_evidence_link,
     build_claim_record,
     build_evidence_card,
-    build_tool_result_record,
+    build_internal_tool_result_record,
     validate_claim,
     validate_claims,
 )
@@ -52,7 +52,7 @@ def _actual_records() -> tuple[dict, dict, dict]:
         and "1 ~ 10년차" in chunks_by_id[hit.chunk_id].text
     )
     evidence = build_evidence_card(hit, chunks_by_id[hit.chunk_id])
-    tool = build_tool_result_record(calc_retirement_pension_tax(10_000_000, 21, "1.0.0"))
+    tool = build_internal_tool_result_record(calc_retirement_pension_tax(10_000_000, 21, "1.0.0"))
     return evidence, tool, chunks_by_id
 
 
@@ -102,9 +102,11 @@ def test_factual_claim_with_valid_evidence_is_supported() -> None:
 
 
 def test_numeric_claim_with_valid_tool_result_is_supported() -> None:
-    _, tool, _ = _actual_records()
+    evidence, tool, _ = _actual_records()
     result = validate_claim(
-        _numeric_claim(tool["tool_result_id"]), {}, {tool["tool_result_id"]: tool}
+        _numeric_claim(tool["tool_result_id"]),
+        {evidence["evidence_id"]: evidence},
+        {tool["tool_result_id"]: tool},
     )
     assert result["supported"] is True
 
@@ -151,13 +153,17 @@ def test_wrong_document_evidence_fails_expected_support() -> None:
 
 
 def test_numeric_claim_value_mismatch_is_detected() -> None:
-    _, tool, _ = _actual_records()
+    evidence, tool, _ = _actual_records()
     claim = _numeric_claim(
         tool["tool_result_id"],
         text="이연퇴직소득세 계산값은 6,000,000원이다.",
         asserted_value=6_000_000,
     )
-    result = validate_claim(claim, {}, {tool["tool_result_id"]: tool})
+    result = validate_claim(
+        claim,
+        {evidence["evidence_id"]: evidence},
+        {tool["tool_result_id"]: tool},
+    )
     assert result["supported"] is False
     assert "numeric_value_mismatch" in result["reasons"]
 
@@ -192,19 +198,27 @@ def test_rule_citation_document_page_matches_evidence() -> None:
         tool["tool_result_id"],
         expected_citation={"document_id": evidence["document_id"], "page": evidence["page"]},
     )
-    result = validate_claim(claim, {}, {tool["tool_result_id"]: tool})
+    result = validate_claim(
+        claim,
+        {evidence["evidence_id"]: evidence},
+        {tool["tool_result_id"]: tool},
+    )
     assert result["supported"] is True
 
 
 def test_rule_citation_document_page_mismatch_is_detected() -> None:
-    _, tool, _ = _actual_records()
+    evidence, tool, _ = _actual_records()
     claim = _numeric_claim(
         tool["tool_result_id"],
         expected_citation={"document_id": "doc51", "page": 3},
     )
-    result = validate_claim(claim, {}, {tool["tool_result_id"]: tool})
+    result = validate_claim(
+        claim,
+        {evidence["evidence_id"]: evidence},
+        {tool["tool_result_id"]: tool},
+    )
     assert result["supported"] is False
-    assert "tool_citation_mismatch" in result["reasons"]
+    assert "tool_evidence_mismatch" in result["reasons"]
 
 
 def test_unsupported_claim_rate_zero_for_valid_case() -> None:

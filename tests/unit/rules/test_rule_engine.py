@@ -8,6 +8,7 @@ from app.tools.rule_engine import (
     RETIREMENT_TAX_RULES,
     RoundingPolicyUndefinedError,
     UnknownRuleVersionError,
+    calculate_retirement_tax_scenario,
     calc_retirement_pension_tax,
     retirement_tax_rate_by_year,
 )
@@ -67,8 +68,7 @@ def test_calc_retirement_pension_tax_fields() -> None:
     assert result.rate == Decimal("0.50")
     assert result.rule_id == "RETIRE_TAX_RATE_BY_YEAR"
     assert result.rule_version == "1.0.0"
-    assert result.citations[0].document_id == "doc51"
-    assert result.citations[0].page == 2
+    assert result.evidence_ids == ["doc51-p002-t016-389a14afe5"]
     assert result.is_exact is True
 
 
@@ -135,12 +135,10 @@ def test_retirement_tax_result_has_rule_id() -> None:
     assert result.rule_id == "RETIRE_TAX_RATE_BY_YEAR"
 
 
-def test_retirement_tax_result_has_citation() -> None:
+def test_retirement_tax_result_has_evidence_link_not_nested_citation() -> None:
     result = calc_retirement_pension_tax(1_000_000, 10)
-    assert result.citations
-    assert result.citations[0].document_id == "doc51"
-    assert result.citations[0].page == 2
-    assert "퇴직소득세 절세혜택" in (result.citations[0].quote or "")
+    assert result.evidence_ids == ["doc51-p002-t016-389a14afe5"]
+    assert not hasattr(result, "citations")
 
 
 def test_retirement_tax_deterministic() -> None:
@@ -165,3 +163,28 @@ def test_integral_won_result_remains_exact() -> None:
 def test_retirement_tax_additional_valid_years(year: int) -> None:
     result = calc_retirement_pension_tax(1_000_000, year)
     assert result.value in {700_000, 600_000, 500_000}
+
+
+def test_withdrawal_comparison_exact_contract_and_values() -> None:
+    result = calculate_retirement_tax_scenario(300_000_000, 24_000_000)
+    assert result.result_type == "exact"
+    assert result.unit == "KRW"
+    assert [row.scenario for row in result.scenarios] == [
+        "lump_sum", "annuity_10_years", "annuity_21_plus_years"
+    ]
+    assert [row.tax_value for row in result.scenarios] == [24_000_000, 16_800_000, 12_000_000]
+    assert [row.difference_vs_lump_sum for row in result.scenarios] == [0, 7_200_000, 12_000_000]
+    assert [row.applicable_rate for row in result.scenarios] == [
+        Decimal("1.00"), Decimal("0.70"), Decimal("0.50")
+    ]
+    assert all(type(row.tax_value) is int for row in result.scenarios)
+    assert all(row.rule_version == "1.0.0" for row in result.scenarios)
+    assert all(row.evidence_ids for row in result.scenarios)
+    assert all(row.assumptions == [] and row.warnings == [] for row in result.scenarios)
+
+
+def test_withdrawal_comparison_requires_inputs() -> None:
+    with pytest.raises(MissingInputError, match="retirement_amount is required"):
+        calculate_retirement_tax_scenario(None, 24_000_000)
+    with pytest.raises(MissingInputError, match="deferred_retirement_tax is required"):
+        calculate_retirement_tax_scenario(300_000_000, None)

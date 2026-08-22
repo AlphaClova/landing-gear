@@ -12,7 +12,7 @@ ClaimType = Literal["numeric", "factual", "conditional"]
 @dataclass(frozen=True)
 class Citation:
     document_id: str
-    page: int
+    page: int | None
     quote: str | None = None
 
 
@@ -23,11 +23,35 @@ class CalculationResult:
     formula: str
     rule_id: str
     rule_version: str
-    citations: list[Citation] = field(default_factory=list)
+    evidence_ids: list[str] = field(default_factory=list)
     assumptions: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     result_type: ResultType = "exact"
     is_exact: bool = True
+
+
+ScenarioId = Literal["lump_sum", "annuity_10_years", "annuity_21_plus_years"]
+
+
+@dataclass(frozen=True)
+class ComparisonScenario:
+    scenario: ScenarioId
+    tax_value: int
+    applicable_rate: Decimal
+    difference_vs_lump_sum: int
+    formula: str
+    rule_id: str
+    rule_version: str
+    evidence_ids: list[str]
+    assumptions: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class ComparisonResult:
+    scenarios: list[ComparisonScenario]
+    result_type: Literal["exact"] = "exact"
+    unit: Literal["KRW"] = "KRW"
 
 
 @dataclass(frozen=True)

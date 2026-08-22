@@ -2,6 +2,8 @@
 
 from .models import (
     CalculationResult,
+    ComparisonResult,
+    ComparisonScenario,
     Chunk,
     Citation,
     ClaimEvidenceLink,
@@ -11,6 +13,8 @@ from .models import (
 
 __all__ = [
     "CalculationResult",
+    "ComparisonResult",
+    "ComparisonScenario",
     "Chunk",
     "Citation",
     "ClaimEvidenceLink",
