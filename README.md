@@ -5,8 +5,9 @@
 
 FastAPI 기반 Agent 파이프라인: Intent Router → Slot Manager → Tool Router → Composer → Verifier.
 B(검색/계산)의 `retrieve_evidence` / `calculate` / `calculate_withdrawal_comparison` /
-`query_products`는 `app/agent/tools.py`의 Mock Provider로 대체되어 있다 — B가 실제 구현을
-넘기면 `app/api/dependencies.py`의 `get_tool_router()`에서 주입 교체한다.
+`query_products`는 `app/agent/tools.py`의 Provider로 연결된다 — `calculate_withdrawal_comparison`은
+B의 실제 구현(`app/tools/withdrawal_comparison.py`)에 연결되어 있고, 나머지는 아직 Mock Provider다.
+`app/api/dependencies.py`의 `get_tool_router()`에서 주입을 바꾼다.
 A·B·C 3자 합의된 필드 매핑·응답 구조는 [`docs/contract.md`](docs/contract.md) 참고.
 
 ### 실행
@@ -46,3 +47,40 @@ docker run --rm -p 8000:8000 --env-file .env landing-gear-agent
 
 NCP 배포, 장애 대응, 롤백 절차는 [`docs/deploy.md`](docs/deploy.md) 참고.
 
+## 담당 B (Data · Retrieval · Rule Engine)
+
+퇴직연금 세제 규칙 계산, 근거 검색(BM25), 상품 조회, claim-evidence 검증을 담당한다.
+
+### 구현 범위
+
+- 퇴직연금 세제(70/60/50%) deterministic rule engine
+- topic·account type·effective date 필터를 지원하는 BM25 retriever
+- SQLite 기반 상품 조회
+- 근거 없는 numeric/factual claim을 차단하는 Claim-Evidence 매핑 가드
+- rule 경계값, retrieval 필터링, evidence 매핑 단위 테스트
+- 문서 파싱, 인덱스 빌드 검증, 상품 시딩, unsupported claim 평가용 스크립트
+
+### 담당 폴더
+
+- `app/tools/`
+- `app/data/`
+- `scripts/`
+- `tests/unit/rules/`
+- `tests/unit/retrieval/`
+
+### 실행
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+PYTHONPATH=. pytest tests/unit/rules tests/unit/retrieval tests/unit/evidence -q
+```
+
+### 다음 작업 (담당 B)
+
+1. PDF/DOCX/XLSX 파서를 정식 구현으로 교체하고 표 행을 보존한다.
+2. 원본 문서에서 processed chunk 메타데이터(`document_id`, `page`, `effective_from`, `valid_to`)를 채운다.
+3. 2025/2026 rule version을 추가하고 버전 혼용을 막는 회귀 테스트를 추가한다.
+4. 검증된 소스 수식으로 연금 수령 한도 rule을 구현한다.
+5. claim-evidence golden 테스트와 unsupported claim rate 체크를 추가한다.

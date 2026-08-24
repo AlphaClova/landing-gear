@@ -1,0 +1,126 @@
+{
+  "A": [
+    {
+      "rank": 1,
+      "score": 16.068091,
+      "chunk_id": "doc10-p001-t001-fc64955c5a",
+      "document_id": "doc10",
+      "page": 1,
+      "section": "퇴직연금 가입대상",
+      "topic": "pension_system",
+      "account_type": "DB_DC",
+      "content": "퇴직연금 가입대상 2026.02.21. ■ 질문 리스트 ① 퇴직연금이 무엇인가요? ② 확정급여형(DB, Defined Benefit)은 무엇인가요? ③ 확정기여형(DC, Defined Contribution)은 무엇",
+      "metadata_filter_applied": true
+    },
+    {
+      "rank": 2,
+      "score": 14.231668,
+      "chunk_id": "doc10-p002-t001-37311d5ca3",
+      "document_id": "doc10",
+      "page": 2,
+      "section": "[표] 개인사업자 관련 정리",
+      "topic": "pension_system",
+      "account_type": "DB_DC",
+      "content": "[표] 개인사업자 관련 정리 구분 대표자 고용된 직원 개인사업 퇴직연금 가입 불가 퇴직연금 가입 가능 • 개인사업 대표는 일반 IRP(개인형 퇴직연금)를 통해 자영업자로 가입할 수 있습니다. ○ 다른 법에 따라 퇴직",
+      "metadata_filter_applied": true
+    },
+    {
+      "rank": 3,
+      "score": 13.239648,
+      "chunk_id": "doc10-p002-t001-33404abd57",
+      "document_id": "doc10",
+      "page": 2,
+      "section": "[표] 개인사업자 관련 정리-table-1",
+      "topic": "pension_system",
+      "account_type": "DB_DC",
+      "content": "| 구분 |  |  | 대표자 |  |  | 고용된 직원 | \n개인사업 |  |  | 퇴직연금 가입 불가 |  |  | 퇴직연금 가입 가능 |  |",
+      "metadata_filter_applied": true
+    },
+    {
+      "rank": 4,
+      "score": 6.196633,
+      "chunk_id": "doc10-p002-t002-3834f44b2f",
+      "document_id": "doc10",
+      "page": 2,
+      "section": "[표] 개인사업자 관련 정리-table-2",
+      "topic": "pension_system",
+      "account_type": "DB_DC",
+      "content": "| 대상 |  |  | 설명 | \n공무원, 군인, 사립학교 교직원,\n선원 등 |  |  | ○일반 퇴직연금 가입대상이 아닙니다.\n○별도의 퇴직급여제도*를 적용을 받습니다.\n*군인연금법, 사립학교교직원법, 공무원연금법",
+      "metadata_filter_applied": true
+    },
+    {
+      "rank": 5,
+      "score": 3.798824,
+      "chunk_id": "doc10-p003-t001-d8f71ebfc8",
+      "document_id": "doc10",
+      "page": 3,
+      "section": "첨부",
+      "topic": "pension_system",
+      "account_type": "DB_DC",
+      "content": "첨부 관련법령·행정해석·판례 등 근로자퇴직급여 보장법 제2조(정의) 이법에서 사용하는 용어의 뜻은 다음과 같다. 1.“근로자”란 근로기준법 제2조제1항제1호에 따른 근로자를 말한다. 근로자퇴직급여 보장법 제3조(적용",
+      "metadata_filter_applied": true
+    }
+  ],
+  "B": [
+    {
+      "rank": 1,
+      "score": 19.865351,
+      "chunk_id": "doc51-p001-t003-66cdd679b8",
+      "document_id": "doc51",
+      "page": 1,
+      "section": "퇴직금 일시수령과 연금계좌 입금 후 연금수령에 대한 세금 차이",
+      "topic": "withdrawal_tax",
+      "account_type": "IRP",
+      "content": "퇴직금을 수령하는 방식은 크게 두 가지다. 퇴직 즉시 전액을 받는 ‘일시금’과 연금계좌(IRP·연금저축)에 이전한 뒤 만55세 이후 나눠받는 ‘연금’이다. 이 두 가지는 단순한 수령 시기의 차이가 아니라 과세 체계 ",
+      "metadata_filter_applied": true
+    },
+    {
+      "rank": 2,
+      "score": 13.829389,
+      "chunk_id": "doc51-p002-t016-389a14afe5",
+      "document_id": "doc51",
+      "page": 2,
+      "section": "연금수령시 퇴직소득세 절세혜택",
+      "topic": "withdrawal_tax",
+      "account_type": "IRP",
+      "content": "연금으로 받으면 퇴직소득세가 30% ~ 50% 감면된다는 말은, 원래 납부했어야 할 퇴직소득세의 일부만 내도 된다는 뜻이다. 이 감면율은 연금을 수령하는 기간에 따라 달라진다. 1 ~ 10년차에는 30% 감면(이연퇴",
+      "metadata_filter_applied": true
+    },
+    {
+      "rank": 3,
+      "score": 13.540577,
+      "chunk_id": "doc51-p003-t020-bb2adc7ed3",
+      "document_id": "doc51",
+      "page": 3,
+      "section": "연금수령시 운용수익 절세혜택",
+      "topic": "withdrawal_tax",
+      "account_type": "IRP",
+      "content": "연금계좌에 퇴직금을 넣어두면 그 안에서 운용되는 수익에 대해 연금을 받기 전까지는 세금이 부과되지 않는다. 이를 ‘과세이연’이라고 한다. 세금을 떼지 않은 원금 전체가 복리로 굴러간다. 같은 수익률이라도 세금을 중간",
+      "metadata_filter_applied": true
+    },
+    {
+      "rank": 4,
+      "score": 11.367356,
+      "chunk_id": "doc51-p001-t002-23b0b24be4",
+      "document_id": "doc51",
+      "page": 1,
+      "section": "퇴직금 일시수령과 연금계좌 입금 후 연금수령에 대한 세금 차이",
+      "topic": "withdrawal_tax",
+      "account_type": "IRP",
+      "content": "퇴직금 일시수령과 연금계좌 입금 후 연금수령에 대한 세금 차이",
+      "metadata_filter_applied": true
+    },
+    {
+      "rank": 5,
+      "score": 10.624446,
+      "chunk_id": "doc51-p001-t001-92fb85fb15",
+      "document_id": "doc51",
+      "page": 1,
+      "section": "퇴직금 일시수령과 연금계좌 입금 후 연금수령에 대한 세금 차이",
+      "topic": "withdrawal_tax",
+      "account_type": "IRP",
+      "content": "구분 | 일시금 수령 | 연금수령\n퇴직소득세 | 퇴직소득세율 100% | 퇴직소득세율의 70% ~ 50%\n운용수익 과세 | 일반계좌에서 이자 배당 발생하면 15.4% 과세(금융소득발생, 연2,000만원초과 시 종합과",
+      "metadata_filter_applied": true
+    }
+  ]
+}
