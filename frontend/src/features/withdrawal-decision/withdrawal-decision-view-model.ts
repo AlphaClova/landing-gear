@@ -27,6 +27,7 @@ export interface MoneyValue {
 
 export interface WithdrawalDecisionInput {
   retirementBenefitAmount: number | null
+  expectedTaxWon: number | null
   currentAge: number | null
   pensionStartAge: number | null
   desiredMonthlyIncome: number | null
@@ -69,6 +70,8 @@ export interface WithdrawalOptionResult {
 
   retirementIncomeTax: MoneyValue
   pensionTaxEffect: MoneyValue
+  taxSavingFromLumpSum?: MoneyValue
+  applicableRate?: number
 
   healthInsuranceImpact: ConditionalImpact
   financialIncomeTaxImpact: ConditionalImpact
@@ -78,6 +81,9 @@ export interface WithdrawalOptionResult {
   cautions: string[]
   evidenceIds: string[]
   toolResultId?: string
+  formula?: string
+  ruleId?: string
+  ruleVersion?: string
 }
 
 export interface WithdrawalAssumption {
@@ -90,7 +96,7 @@ export interface WithdrawalAssumption {
 
 export interface WithdrawalEvidence {
   id: string
-  organization: string
+  organization?: string
   title: string
   location: string
   url?: string
@@ -98,6 +104,9 @@ export interface WithdrawalEvidence {
   validFrom?: string | null
   validTo?: string | null
   claimIds: string[]
+  documentId?: string
+  chunkId?: string
+  page?: number | null
 }
 
 export interface WithdrawalDecisionViewModel {

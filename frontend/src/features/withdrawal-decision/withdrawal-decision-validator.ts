@@ -23,7 +23,13 @@ const isOption = (value: unknown): value is WithdrawalOptionResult => isRecord(v
   && isMoneyValue(value.estimatedMonthlyCashflow)
   && isMoneyValue(value.retirementIncomeTax)
   && isMoneyValue(value.pensionTaxEffect)
+  && (!Object.hasOwn(value, 'taxSavingFromLumpSum') || isMoneyValue(value.taxSavingFromLumpSum))
+  && (!Object.hasOwn(value, 'applicableRate')
+    || (typeof value.applicableRate === 'number' && value.applicableRate >= 0 && value.applicableRate <= 1))
   && (value.differenceFromBaseline === null || isMoneyValue(value.differenceFromBaseline))
+  && (!Object.hasOwn(value, 'formula') || typeof value.formula === 'string')
+  && (!Object.hasOwn(value, 'ruleId') || typeof value.ruleId === 'string')
+  && (!Object.hasOwn(value, 'ruleVersion') || typeof value.ruleVersion === 'string')
   && Array.isArray(value.evidenceIds)
   && value.evidenceIds.every((id) => typeof id === 'string')
 
