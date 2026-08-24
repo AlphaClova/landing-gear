@@ -51,10 +51,10 @@ INFO_GAP_CASES = [
     (
         "gap-04",
         QUESTION_COMPREHENSIVE,
-        {"retirement_amount_won": 300_000_000, "expected_tax_won": 24_000_000},
-        {"plan_type"},
+        {"retirement_amount_won": 300_000_000},
+        {"expected_tax_won"},
     ),
-    ("gap-05", QUESTION_COMPREHENSIVE, {}, {"retirement_amount_won", "expected_tax_won", "plan_type"}),
+    ("gap-05", QUESTION_COMPREHENSIVE, {}, {"retirement_amount_won", "expected_tax_won"}),
     ("gap-06", "IRP 상품 중에 어떤 펀드가 있나요?", {}, {"plan_type"}),
     ("gap-07", "퇴직금 소득세 비과세 한도 알려주세요", {}, {"retirement_amount_won", "expected_tax_won"}),
     ("gap-08", QUESTION_COMPREHENSIVE, {"plan_type": "DB"}, {"retirement_amount_won", "expected_tax_won"}),

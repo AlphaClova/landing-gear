@@ -64,10 +64,16 @@ class HCXClient:
         return data["result"]["message"]["content"]
 
     def _mock_complete(self, user_prompt: str) -> str:
-        return (
-            f"[MOCK HCX 응답 / model={self._settings.hcx_model} "
-            f"prompt_version={self._settings.hcx_prompt_version}] {user_prompt[:200]}"
+        # 사용자 질문·근거 원문을 echo하면 "3억원"처럼 단위 붙은 숫자가 그대로 섞여
+        # Verifier의 근거 없는 숫자 검사에 걸린다 (calculation_results 값과 형식이 달라
+        # 근거 없는 숫자로 오인됨). mock 응답은 아무 사용자 입력도 echo하지 않는다.
+        logger.info(
+            "hcx_mock_complete model=%s prompt_version=%s prompt_len=%s",
+            self._settings.hcx_model,
+            self._settings.hcx_prompt_version,
+            len(user_prompt),
         )
+        return "[MOCK 응답] 제공된 근거와 계산 결과를 참고해 주세요. (실 HCX 연결 전 mock 모드)"
 
     def close(self) -> None:
         self._client.close()

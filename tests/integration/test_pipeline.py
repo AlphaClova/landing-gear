@@ -9,19 +9,19 @@ client = TestClient(app)
 QUESTION = "퇴직금 3억원, 예상 퇴직소득세 2,400만원인데 일시금과 연금 중 무엇이 나을까요?"
 
 
-def test_representative_question_asks_for_missing_plan_type_first() -> None:
+def test_representative_question_asks_for_missing_expected_tax_won_first() -> None:
     resp = client.post(
         "/v1/chat",
         json={
             "session_id": "integration-1",
             "question": QUESTION,
-            "profile": {"retirement_amount_won": 300_000_000, "expected_tax_won": 24_000_000},
+            "profile": {"retirement_amount_won": 300_000_000},
         },
     )
     assert resp.status_code == 200
     body = resp.json()
     assert body["type"] == "clarification"
-    assert any(s["name"] == "plan_type" for s in body["required_slots"])
+    assert any(s["name"] == "expected_tax_won" for s in body["required_slots"])
     assert len(body["required_slots"]) <= 3
 
 
@@ -52,14 +52,14 @@ def test_session_retains_slots_across_followup_turns() -> None:
         json={
             "session_id": session_id,
             "question": QUESTION,
-            "profile": {"retirement_amount_won": 300_000_000, "expected_tax_won": 24_000_000},
+            "profile": {"retirement_amount_won": 300_000_000},
         },
     )
     assert first.json()["type"] == "clarification"
 
     second = client.post(
         "/v1/chat",
-        json={"session_id": session_id, "question": "DC형이에요", "profile": {"plan_type": "DC"}},
+        json={"session_id": session_id, "question": "2400만원이요", "profile": {"expected_tax_won": 24_000_000}},
     )
     assert second.status_code == 200
 

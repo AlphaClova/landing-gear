@@ -24,7 +24,6 @@ REQUIRED_SLOTS_BY_INTENT: dict[Intent, tuple[SlotSpec, ...]] = {
     "종합": (
         SlotSpec("retirement_amount_won", "예상 퇴직급여(퇴직금) 총액이 얼마인가요?", "일시금/연금 비교 계산에 필요"),
         SlotSpec("expected_tax_won", "예상 퇴직소득세가 얼마인가요?", "실수령액 비교 계산에 필요"),
-        SlotSpec("plan_type", "가입하신 제도가 DB형인가요, DC형인가요?", "인출 옵션 비교 분기에 필요"),
     ),
     "상품": (SlotSpec("plan_type", "IRP·DC 중 어떤 계좌 기준으로 비교할까요?", "상품 검색 필터에 필요"),),
     "절차": (),
