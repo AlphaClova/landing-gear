@@ -61,6 +61,24 @@ class Citation(BaseModel):
     url: str | None = None
 
 
+class ProductResult(BaseModel):
+    """B `app/data/schemas/models.py`의 ProductResult와 1:1로 대응한다 (손실 없이 매핑)."""
+
+    product_id: str
+    product_name: str
+    plan_types: list[str] | None = None
+    category: str | None = None
+    asset_type: str | None = None
+    risk_level: int | None = None
+    document_id: str
+    page: int | None = None
+    source: str
+    source_priority: int
+    plan_type_pages: dict[str, list[int]] = Field(default_factory=dict)
+    category_page: int | None = None
+    risk_page: int | None = None
+
+
 class ComparisonRow(BaseModel):
     label: str
     values: dict[str, str] = Field(default_factory=dict)

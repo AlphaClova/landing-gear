@@ -18,6 +18,7 @@ from app.api.schemas import (
     Citation,
     ClaimValidation,
     ClaimValidationEntry,
+    ProductResult,
     ToolCallTrace,
     WithdrawalComparisonResponse,
     WithdrawalEvidenceItem,
@@ -26,6 +27,8 @@ from app.api.schemas import (
 )
 from app.core.errors import ErrorCode, ToolError
 from app.core.logging import get_logger
+from app.tools.product_query import query_products as b_query_products
+from app.tools.retriever import retrieve_evidence as b_retrieve_evidence
 from app.tools.withdrawal_comparison import calculate_withdrawal_comparison as b_calculate_withdrawal_comparison
 
 logger = get_logger(__name__)
@@ -51,7 +54,7 @@ class RuleEngine(Protocol):
 
 
 class ProductCatalog(Protocol):
-    def query_products(self, *, plan_type: str | None, category: str | None) -> list[dict[str, str]]: ...
+    def query_products(self, *, plan_type: str | None, category: str | None) -> list[ProductResult]: ...
 
 
 # ---------------------------------------------------------------------------
@@ -90,6 +93,33 @@ def to_withdrawal_comparison_response(raw: object) -> WithdrawalComparisonRespon
     if is_dataclass(raw) and not isinstance(raw, type):
         raw = asdict(raw)
     return WithdrawalComparisonResponse.model_validate(raw)
+
+
+def to_citation(raw: object) -> Citation:
+    """B EvidenceResult(dataclass 또는 dict) -> A `Citation`. 필드명이 일부 다르다
+    (evidence_id -> id) — chunk_id/source_priority/score는 Citation 계약에 없어 버린다."""
+    if isinstance(raw, Citation):
+        return raw
+    if is_dataclass(raw) and not isinstance(raw, type):
+        raw = asdict(raw)
+    return Citation(
+        id=raw["evidence_id"],
+        document_id=raw["document_id"],
+        page=raw.get("page"),
+        section=raw.get("section"),
+        source=raw["source"],
+        excerpt=raw["excerpt"],
+    )
+
+
+def to_product_result(raw: object) -> ProductResult:
+    """B ProductResult(dataclass 또는 dict) -> A `ProductResult`. 필드 shape이 1:1이라
+    손실 없이 그대로 파싱한다 (provenance 필드 포함)."""
+    if isinstance(raw, ProductResult):
+        return raw
+    if is_dataclass(raw) and not isinstance(raw, type):
+        raw = asdict(raw)
+    return ProductResult.model_validate(raw)
 
 
 # ---------------------------------------------------------------------------
@@ -175,7 +205,7 @@ class MockRuleEngine:
 
 
 class MockProductCatalog:
-    def query_products(self, *, plan_type: str | None = None, category: str | None = None) -> list[dict[str, str]]:
+    def query_products(self, *, plan_type: str | None = None, category: str | None = None) -> list[ProductResult]:
         return []
 
 
@@ -190,6 +220,16 @@ class BRuleEngine(MockRuleEngine):
         self, *, retirement_amount: int, deferred_retirement_tax: int
     ) -> Any:
         return b_calculate_withdrawal_comparison(retirement_amount, deferred_retirement_tax)
+
+
+class BEvidenceProvider:
+    def retrieve_evidence(self, query: str, *, topic: str | None = None, top_k: int = 5) -> list[Citation]:
+        return [to_citation(item) for item in b_retrieve_evidence(query, topic, top_k)]
+
+
+class BProductCatalog:
+    def query_products(self, *, plan_type: str | None = None, category: str | None = None) -> list[ProductResult]:
+        return [to_product_result(item) for item in b_query_products(plan_type, category)]
 
 
 # ---------------------------------------------------------------------------
@@ -214,7 +254,7 @@ class ToolResult:
     evidence: list[Citation] = field(default_factory=list)
     calculations: list[CalculationResult] = field(default_factory=list)
     withdrawal_result: WithdrawalComparisonResponse | None = None
-    products: list[dict[str, str]] = field(default_factory=list)
+    products: list[ProductResult] = field(default_factory=list)
     traces: list[ToolCallTrace] = field(default_factory=list)
 
 
@@ -241,7 +281,10 @@ class ToolRouter:
         result = ToolResult()
 
         if "retrieve_evidence" in allowed:
-            result.evidence, trace = self._call_retrieve_evidence(question, intent)
+            # A의 intent 라벨("종합"/"세제"...)과 B의 chunk topic 키(pension_system/withdrawal_tax)가
+            # 서로 다른 taxonomy라 intent를 그대로 topic 필터로 넘기면 항상 0건이 된다.
+            # 매핑이 B와 확정되기 전까지는 topic 필터 없이(relevance만으로) 검색한다.
+            result.evidence, trace = self._call_retrieve_evidence(question, None)
             result.traces.append(trace)
 
         if "calculate" in allowed and rule_id:
@@ -260,7 +303,7 @@ class ToolRouter:
 
         return result
 
-    def _call_retrieve_evidence(self, question: str, topic: str) -> tuple[list[Citation], ToolCallTrace]:
+    def _call_retrieve_evidence(self, question: str, topic: str | None) -> tuple[list[Citation], ToolCallTrace]:
         try:
             args = RetrieveEvidenceArgs(query=question, topic=topic)
         except ValidationError as exc:
@@ -324,7 +367,7 @@ class ToolRouter:
         )
         return result, trace
 
-    def _call_query_products(self, slots: dict[str, object]) -> tuple[list[dict[str, str]], ToolCallTrace]:
+    def _call_query_products(self, slots: dict[str, object]) -> tuple[list[ProductResult], ToolCallTrace]:
         try:
             args = QueryProductsArgs(
                 plan_type=slots.get("plan_type"),  # type: ignore[arg-type]
