@@ -21,6 +21,7 @@ def main() -> None:
         raise FileNotFoundError(f"Source product file does not exist: {source}")
 
     rows = json.loads(source.read_text(encoding="utf-8"))
+    Path(args.db).parent.mkdir(parents=True, exist_ok=True)
     service = ProductQueryService(args.db)
     service.initialize()
     service.upsert_products(rows)

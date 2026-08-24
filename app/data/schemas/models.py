@@ -119,6 +119,25 @@ class EvidenceResult:
 
 
 @dataclass(frozen=True)
+class ProductResult:
+    """B-owned product fact with document-level provenance."""
+
+    product_id: str
+    product_name: str
+    plan_types: list[str] | None
+    category: str | None
+    asset_type: str | None
+    risk_level: int | None
+    document_id: str
+    page: int | None
+    source: str
+    source_priority: int
+    plan_type_pages: dict[str, list[int]] = field(default_factory=dict)
+    category_page: int | None = None
+    risk_page: int | None = None
+
+
+@dataclass(frozen=True)
 class ClaimEvidenceLink:
     claim_id: str
     claim_type: ClaimType
