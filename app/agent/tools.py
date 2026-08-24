@@ -26,6 +26,7 @@ from app.api.schemas import (
 )
 from app.core.errors import ErrorCode, ToolError
 from app.core.logging import get_logger
+from app.tools.withdrawal_comparison import calculate_withdrawal_comparison as b_calculate_withdrawal_comparison
 
 logger = get_logger(__name__)
 
@@ -176,6 +177,19 @@ class MockRuleEngine:
 class MockProductCatalog:
     def query_products(self, *, plan_type: str | None = None, category: str | None = None) -> list[dict[str, str]]:
         return []
+
+
+# ---------------------------------------------------------------------------
+# B RuleEngine — calculate_withdrawal_comparison만 B의 실제 구현으로 연결한다.
+# calculate()는 B가 아직 generic dispatcher를 제공하지 않아 Mock을 유지한다.
+# ---------------------------------------------------------------------------
+
+
+class BRuleEngine(MockRuleEngine):
+    def calculate_withdrawal_comparison(
+        self, *, retirement_amount: int, deferred_retirement_tax: int
+    ) -> Any:
+        return b_calculate_withdrawal_comparison(retirement_amount, deferred_retirement_tax)
 
 
 # ---------------------------------------------------------------------------

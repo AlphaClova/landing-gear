@@ -44,7 +44,7 @@ B 내부 `WithdrawalComparisonResult`)과 **필드명·구조가 1:1**이 되도
 | `comparison.scenarios[].tax_value` / `applicable_rate` / `difference_vs_lump_sum` | `int` / `float` / `int` | 세액(원), 적용 세율, 일시금 대비 차액 |
 | `comparison.scenarios[].evidence_ids` | `string[]` | 아래 `evidence[].evidence_id`를 가리킴 (Citation을 중복 담지 않음) |
 | `evidence` | `WithdrawalEvidenceItem[]` | `evidence_id/chunk_id/document_id/page/section/quote/source_priority/score` |
-| `applied_rules` | `AppliedRule[]` | 실제 계산에 적용된 `rule_id` + B Rule Registry가 내부적으로 고른 `rule_version` (시나리오별 1개씩, 총 3개) |
+| `applied_rules` | `AppliedRule[]` | 실제 계산에 적용된 `rule_id` + B Rule Registry가 내부적으로 고른 `rule_version` (동일 rule은 중복 제거) |
 | `claim_validation` | `ClaimValidation` | `validations: {claim_id, supported, reasons}[]` + `unsupported_claim_count` + `validated_claim_count` + `unsupported_claim_rate` |
 
 이 계산은 퇴직소득세 비교만 다룬다 — 수익률·수수료·물가상승·건강보험료·금융소득은
@@ -53,20 +53,17 @@ B 내부 `WithdrawalComparisonResult`)과 **필드명·구조가 1:1**이 되도
 C는 `withdrawal_result`가 `null`이 아닐 때만 전용 ViewModel Adapter로 렌더링하고,
 `null`이면 기존 `comparison`(있는 경우) 또는 `message`만으로 일반 상담 화면을 그린다.
 
-**현재 상태 (2026-08-24 기준):**
-- A: 위 타입 확정 + Tool Protocol(`RuleEngine.calculate_withdrawal_comparison`) + 변환
-  어댑터(`to_withdrawal_comparison_response`)까지 완료. `MockRuleEngine`으로 파이프라인
-  종단(`/v1/chat` → `withdrawal_result`)까지 동작 확인.
-- B: `app/tools/withdrawal_comparison.py::calculate_withdrawal_comparison()` production
-  구현 완료 (branch `feature/data-rule` 기준 `app/tools/rule_engine.py` +
-  `app/tools/evidence_builder.py` 로직을 재사용). 대표 입력
-  `retirement_amount=300,000,000, deferred_retirement_tax=24,000,000` 기준 결과값
-  (일시금 2,400만/10년 1,680만/21년+ 1,200만)과 위 스키마가 실제로 손실 없이
-  매핑되는지 `docs/samples/chat_withdrawal_result.json`으로 검증 완료.
-- **미완료**: B의 production 브랜치가 아직 `feat/role-a-agent`에 병합되지 않아
-  `get_tool_router()`는 여전히 `MockRuleEngine`을 사용한다. B/A 브랜치 병합(또는 B의
-  PR → `develop`/`main` 반영) 후 `get_tool_router()`에서 Mock 대신 B의 실제
-  `calculate_withdrawal_comparison()`을 감싼 Provider로 주입 교체해야 한다.
+**현재 상태 (2026-08-24 기준): 실연동 완료.**
+- B의 `app/tools/withdrawal_comparison.py::calculate_withdrawal_comparison()`이 PR #3로
+  `develop`에 머지됐고, 이 브랜치(`feat/role-a-agent`)에도 `develop`을 merge해 반영했다.
+- A는 `app/agent/tools.py`의 `BRuleEngine`(`MockRuleEngine` 상속, `calculate_withdrawal_comparison`만
+  B의 실제 함수로 교체)을 만들고 `app/api/dependencies.py`의 `get_tool_router()`에서
+  `MockRuleEngine` 대신 주입했다. `to_withdrawal_comparison_response()`가 B의 반환값
+  (`WithdrawalComparisonResult` dataclass)을 이름 변환 없이 그대로 파싱한다.
+- 실제 `/v1/chat` 호출(`retirement_amount_won=300,000,000, expected_tax_won=24,000,000`)로
+  end-to-end 검증 완료: `withdrawal_result.comparison.scenarios`가 일시금 2,400만/10년
+  1,680만/21년+ 1,200만으로 나오고 `claim_validation`도 모두 `supported: true`.
+- `retrieve_evidence`/`query_products`는 B 구현이 아직 없어 Mock으로 남아 있다.
 
 ## 3. 오류 응답
 

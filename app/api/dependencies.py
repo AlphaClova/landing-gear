@@ -8,7 +8,7 @@ from app.agent.hcx_client import HCXClient
 from app.agent.orchestrator import Orchestrator
 from app.agent.router import IntentRouter
 from app.agent.slots import SlotManager
-from app.agent.tools import ToolRouter
+from app.agent.tools import BRuleEngine, ToolRouter
 from app.agent.verifier import Verifier
 from app.core.config import Settings, get_settings
 from app.core.session import SessionStore, get_session_store
@@ -30,8 +30,8 @@ def get_hcx_client() -> HCXClient:
 
 @lru_cache
 def get_tool_router() -> ToolRouter:
-    # B의 실제 Provider가 준비되면 여기서 주입한다.
-    return ToolRouter()
+    # retrieve_evidence/query_products는 B 구현이 아직 없어 Mock 유지.
+    return ToolRouter(rule_engine=BRuleEngine())
 
 
 @lru_cache
