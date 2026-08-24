@@ -19,7 +19,7 @@ def test_mock_mode_when_no_api_key() -> None:
     try:
         assert client.is_mock
         result = client.complete("sys", "안녕하세요")
-        assert "[MOCK HCX" in result
+        assert "[MOCK 응답]" in result
     finally:
         client.close()
 
