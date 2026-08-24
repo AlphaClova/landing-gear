@@ -7,8 +7,8 @@ LLM은 계산하지 않고 이 Tool의 결과만 사용한다 (문서 9장 Fails
 """
 
 import time
-from dataclasses import dataclass, field
-from typing import Protocol
+from dataclasses import asdict, dataclass, field, is_dataclass
+from typing import Any, Protocol
 
 from pydantic import BaseModel, ValidationError
 
@@ -17,9 +17,12 @@ from app.api.schemas import (
     CalculationResult,
     Citation,
     ClaimValidation,
-    ComparisonResult,
+    ClaimValidationEntry,
     ToolCallTrace,
     WithdrawalComparisonResponse,
+    WithdrawalEvidenceItem,
+    WithdrawalScenario,
+    WithdrawalTaxComparison,
 )
 from app.core.errors import ErrorCode, ToolError
 from app.core.logging import get_logger
@@ -39,9 +42,11 @@ class EvidenceProvider(Protocol):
 class RuleEngine(Protocol):
     def calculate(self, rule_id: str, params: dict[str, float | int | str]) -> CalculationResult: ...
 
+    # B 내부 WithdrawalComparisonResult(또는 동등 dict) 반환. A는 그대로 받지 않고
+    # to_withdrawal_comparison_response()로 변환한다 (B의 내부 결과 타입은 A-facing 계약이 아님).
     def calculate_withdrawal_comparison(
-        self, params: dict[str, float | int | str]
-    ) -> WithdrawalComparisonResponse: ...
+        self, *, retirement_amount: int, deferred_retirement_tax: int
+    ) -> Any: ...
 
 
 class ProductCatalog(Protocol):
@@ -65,12 +70,25 @@ class CalculateArgs(BaseModel):
 
 
 class WithdrawalComparisonArgs(BaseModel):
-    params: dict[str, float | int | str] = {}
+    retirement_amount: int
+    deferred_retirement_tax: int
 
 
 class QueryProductsArgs(BaseModel):
     plan_type: str | None = None
     category: str | None = None
+
+
+def to_withdrawal_comparison_response(raw: object) -> WithdrawalComparisonResponse:
+    """B의 WithdrawalComparisonResult(dataclass 또는 dict) -> A `WithdrawalComparisonResponse`.
+
+    필드 shape이 B 산출값과 1:1이므로 이름 변환 없이 그대로 파싱한다.
+    """
+    if isinstance(raw, WithdrawalComparisonResponse):
+        return raw
+    if is_dataclass(raw) and not isinstance(raw, type):
+        raw = asdict(raw)
+    return WithdrawalComparisonResponse.model_validate(raw)
 
 
 # ---------------------------------------------------------------------------
@@ -104,17 +122,54 @@ class MockRuleEngine:
         )
 
     def calculate_withdrawal_comparison(
-        self, params: dict[str, float | int | str]
+        self, *, retirement_amount: int, deferred_retirement_tax: int
     ) -> WithdrawalComparisonResponse:
-        return WithdrawalComparisonResponse(
-            comparison=ComparisonResult(
-                title="[MOCK] 일시금 vs 연금수령 비교",
-                options=["lump_sum", "pension"],
-                note="B팀 Rule Engine 연결 전 mock 값입니다.",
+        applied_rule = AppliedRule(rule_id="RETIRE_TAX_RATE_BY_YEAR", rule_version="mock")
+        scenarios = [
+            WithdrawalScenario(
+                scenario="lump_sum",
+                tax_value=deferred_retirement_tax,
+                applicable_rate=1.0,
+                difference_vs_lump_sum=0,
+                formula=f"{deferred_retirement_tax} * 1.00",
+                rule_id=applied_rule.rule_id,
+                rule_version=applied_rule.rule_version,
+                warnings=["B팀 Rule Engine 연결 전 mock 값입니다."],
             ),
+            WithdrawalScenario(
+                scenario="annuity_10_years",
+                tax_value=int(deferred_retirement_tax * 0.7),
+                applicable_rate=0.7,
+                difference_vs_lump_sum=int(deferred_retirement_tax * 0.3),
+                formula=f"{deferred_retirement_tax} * 0.70",
+                rule_id=applied_rule.rule_id,
+                rule_version=applied_rule.rule_version,
+                warnings=["B팀 Rule Engine 연결 전 mock 값입니다."],
+            ),
+            WithdrawalScenario(
+                scenario="annuity_21_plus_years",
+                tax_value=int(deferred_retirement_tax * 0.5),
+                applicable_rate=0.5,
+                difference_vs_lump_sum=int(deferred_retirement_tax * 0.5),
+                formula=f"{deferred_retirement_tax} * 0.50",
+                rule_id=applied_rule.rule_id,
+                rule_version=applied_rule.rule_version,
+                warnings=["B팀 Rule Engine 연결 전 mock 값입니다."],
+            ),
+        ]
+        return WithdrawalComparisonResponse(
+            comparison=WithdrawalTaxComparison(scenarios=scenarios),
             evidence=[],
-            applied_rules=[AppliedRule(rule_id="lump_sum_vs_pension", rule_version=None)],
-            claim_validation=ClaimValidation(verified=False, issues=["B팀 Rule Engine 미연결 (mock)"]),
+            applied_rules=[AppliedRule(rule_id=applied_rule.rule_id, rule_version=applied_rule.rule_version)] * 3,
+            claim_validation=ClaimValidation(
+                validations=[
+                    ClaimValidationEntry(claim_id=f"mock-{s.scenario}", supported=False, reasons=["mock_no_evidence"])
+                    for s in scenarios
+                ],
+                unsupported_claim_count=len(scenarios),
+                validated_claim_count=len(scenarios),
+                unsupported_claim_rate=1.0,
+            ),
         )
 
 
@@ -227,7 +282,10 @@ class ToolRouter:
         self, slots: dict[str, object]
     ) -> tuple[WithdrawalComparisonResponse, ToolCallTrace]:
         try:
-            args = WithdrawalComparisonArgs(params=slots)  # type: ignore[arg-type]
+            args = WithdrawalComparisonArgs(
+                retirement_amount=slots.get("retirement_amount_won"),  # type: ignore[arg-type]
+                deferred_retirement_tax=slots.get("expected_tax_won"),  # type: ignore[arg-type]
+            )
         except ValidationError as exc:
             raise ToolError(
                 "calculate_withdrawal_comparison", str(exc), code=ErrorCode.TOOL_ARGUMENT_ERROR
@@ -235,7 +293,11 @@ class ToolRouter:
 
         start = time.monotonic()
         try:
-            result = self._rules.calculate_withdrawal_comparison(args.params)
+            raw = self._rules.calculate_withdrawal_comparison(
+                retirement_amount=args.retirement_amount,
+                deferred_retirement_tax=args.deferred_retirement_tax,
+            )
+            result = to_withdrawal_comparison_response(raw)
             status = "ok"
         except Exception as exc:  # noqa: BLE001
             raise ToolError("calculate_withdrawal_comparison", str(exc)) from exc

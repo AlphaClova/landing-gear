@@ -90,18 +90,66 @@ class AppliedRule(BaseModel):
     rule_version: str | None = None
 
 
-class ClaimValidation(BaseModel):
-    """Verifier가 계산 결과와 근거(evidence) 연결을 검증한 결과."""
+class WithdrawalScenario(BaseModel):
+    """B `app/data/schemas/models.py`의 `ComparisonScenario`와 1:1로 대응한다."""
 
-    verified: bool
-    issues: list[str] = Field(default_factory=list)
+    scenario: Literal["lump_sum", "annuity_10_years", "annuity_21_plus_years"]
+    tax_value: int
+    applicable_rate: float
+    difference_vs_lump_sum: int
+    formula: str
+    rule_id: str
+    rule_version: str
+    evidence_ids: list[str] = Field(default_factory=list)
+    assumptions: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+
+
+class WithdrawalTaxComparison(BaseModel):
+    """B `ComparisonResult`(scenarios/result_type/unit)와 1:1로 대응한다. 상단 범용 `ComparisonResult`와는 다른 타입."""
+
+    scenarios: list[WithdrawalScenario]
+    result_type: Literal["exact"] = "exact"
+    unit: Literal["KRW"] = "KRW"
+
+
+class WithdrawalEvidenceItem(BaseModel):
+    """B `evidence_builder.build_evidence_card()` 출력과 1:1로 대응한다."""
+
+    evidence_id: str
+    chunk_id: str
+    document_id: str
+    page: int | None = None
+    section: str | None = None
+    quote: str | None = None
+    source_priority: int | None = None
+    score: float
+
+
+class ClaimValidationEntry(BaseModel):
+    claim_id: str
+    supported: bool
+    reasons: list[str] = Field(default_factory=list)
+
+
+class ClaimValidation(BaseModel):
+    """B `evidence_builder.validate_claims()` 출력과 1:1로 대응한다."""
+
+    validations: list[ClaimValidationEntry] = Field(default_factory=list)
+    unsupported_claim_count: int = 0
+    validated_claim_count: int = 0
+    unsupported_claim_rate: float = 0.0
 
 
 class WithdrawalComparisonResponse(BaseModel):
-    """일시금 vs 연금수령 비교 전용 응답. `/v1/chat`의 `withdrawal_result`에 원형 그대로 담긴다."""
+    """일시금 vs 연금수령 비교 전용 응답. `/v1/chat`의 `withdrawal_result`에 원형 그대로 담긴다.
 
-    comparison: ComparisonResult
-    evidence: list[Citation] = Field(default_factory=list)
+    필드 shape은 B의 실제 production 반환값(`WithdrawalComparisonResult`)과 1:1로
+    맞춰뒀다 — B가 새 필드를 추가하지 않는 한 변환 손실이 없다.
+    """
+
+    comparison: WithdrawalTaxComparison
+    evidence: list[WithdrawalEvidenceItem] = Field(default_factory=list)
     applied_rules: list[AppliedRule] = Field(default_factory=list)
     claim_validation: ClaimValidation
 
