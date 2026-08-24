@@ -20,8 +20,8 @@ class UserProfile(BaseModel):
     """C가 화면 입력에서 전달하는 알려진 정보. 값이 없으면 필드를 생략(None)한다."""
 
     age: int | None = None
-    retirement_amount_won: int | None = None
-    expected_tax_won: int | None = None
+    retirement_amount_won: int | None = None  # B `retirement_amount`로 매핑
+    expected_tax_won: int | None = None  # B `deferred_retirement_tax`로 매핑. 연금 수령 감면(70/60/50%) 적용 전 기준 퇴직소득세.
     plan_type: Literal["DB", "DC", "IRP"] | None = None
     extra: dict[str, str | int | float | bool] = Field(default_factory=dict)
 
@@ -53,6 +53,9 @@ class RequiredSlot(BaseModel):
 
 class Citation(BaseModel):
     id: str
+    document_id: str
+    page: int | None = None  # PDF/PPTX 등 페이지가 확정되는 문서만 채움. 없으면 null.
+    section: str | None = None  # DOCX 등 page가 없을 때 document_id+id(evidence/chunk)+section으로 추적
     source: str
     excerpt: str
     url: str | None = None
@@ -72,10 +75,35 @@ class ComparisonResult(BaseModel):
 
 class CalculationResult(BaseModel):
     rule_id: str
+    rule_version: str | None = None  # B Rule Registry가 내부적으로 선택한 버전 (Agent는 지정하지 않음)
     label: str
     value: float
     unit: str
+    rate: str | None = None
     formula: str | None = None
+
+
+class AppliedRule(BaseModel):
+    """계산에 실제 적용된 rule. B Rule Registry가 내부적으로 고른 rule_version을 그대로 기록한다."""
+
+    rule_id: str
+    rule_version: str | None = None
+
+
+class ClaimValidation(BaseModel):
+    """Verifier가 계산 결과와 근거(evidence) 연결을 검증한 결과."""
+
+    verified: bool
+    issues: list[str] = Field(default_factory=list)
+
+
+class WithdrawalComparisonResponse(BaseModel):
+    """일시금 vs 연금수령 비교 전용 응답. `/v1/chat`의 `withdrawal_result`에 원형 그대로 담긴다."""
+
+    comparison: ComparisonResult
+    evidence: list[Citation] = Field(default_factory=list)
+    applied_rules: list[AppliedRule] = Field(default_factory=list)
+    claim_validation: ClaimValidation
 
 
 class ToolCallTrace(BaseModel):
@@ -105,6 +133,7 @@ class InternalAnswer(BaseModel):
     session_id: str | None = None
     required_slots: list[RequiredSlot] = Field(default_factory=list)
     comparison: ComparisonResult | None = None
+    withdrawal_result: WithdrawalComparisonResponse | None = None
     calculation_results: list[CalculationResult] = Field(default_factory=list)
     citations: list[Citation] = Field(default_factory=list)
     confidence: float = 0.0
@@ -122,6 +151,7 @@ class ChatResponse(BaseModel):
     message: str
     required_slots: list[RequiredSlot] = Field(default_factory=list)
     comparison: ComparisonResult | None = None
+    withdrawal_result: WithdrawalComparisonResponse | None = None
     citations: list[Citation] = Field(default_factory=list)
     request_id: str
 
@@ -152,6 +182,7 @@ def to_chat_response(internal: InternalAnswer) -> ChatResponse:
         message=internal.message,
         required_slots=internal.required_slots,
         comparison=internal.comparison,
+        withdrawal_result=internal.withdrawal_result,
         citations=internal.citations,
         request_id=internal.request_id,
     )

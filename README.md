@@ -4,9 +4,10 @@
 ## 담당 A (Agent · API · 배포)
 
 FastAPI 기반 Agent 파이프라인: Intent Router → Slot Manager → Tool Router → Composer → Verifier.
-B(검색/계산)의 `retrieve_evidence` / `calculate` / `query_products`는 `app/agent/tools.py`의
-Mock Provider로 대체되어 있다 — B가 실제 구현을 넘기면 `app/api/dependencies.py`의
-`get_tool_router()`에서 주입 교체한다.
+B(검색/계산)의 `retrieve_evidence` / `calculate` / `calculate_withdrawal_comparison` /
+`query_products`는 `app/agent/tools.py`의 Mock Provider로 대체되어 있다 — B가 실제 구현을
+넘기면 `app/api/dependencies.py`의 `get_tool_router()`에서 주입 교체한다.
+A·B·C 3자 합의된 필드 매핑·응답 구조는 [`docs/contract.md`](docs/contract.md) 참고.
 
 ### 실행
 

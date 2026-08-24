@@ -104,7 +104,7 @@ def test_out_of_scope_returns_limitation(case_id: str, question: str) -> None:
 # ---------------------------------------------------------------------------
 
 _ROUTE = RouteDecision(intent="상품", route="fast_path", route_confidence=0.9)
-_CITATION = Citation(id="c1", source="doc", excerpt="근거 문장")
+_CITATION = Citation(id="c1", document_id="doc51", page=2, source="doc", excerpt="근거 문장")
 _CALC = CalculationResult(rule_id="r1", label="세후 실수령액", value=1000.0, unit="원")
 
 

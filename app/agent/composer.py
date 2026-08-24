@@ -9,7 +9,13 @@ from dataclasses import dataclass, field
 from app.agent.hcx_client import HCXClient
 from app.agent.router import Intent
 from app.agent.tools import ToolResult
-from app.api.schemas import CalculationResult, Citation, ComparisonResult, ComparisonRow
+from app.api.schemas import (
+    CalculationResult,
+    Citation,
+    ComparisonResult,
+    ComparisonRow,
+    WithdrawalComparisonResponse,
+)
 
 _SYSTEM_PROMPT = (
     "당신은 은퇴 자금(퇴직연금) 의사결정을 돕는 어시스턴트입니다. "
@@ -25,6 +31,7 @@ class Draft:
     citations: list[Citation] = field(default_factory=list)
     calculation_results: list[CalculationResult] = field(default_factory=list)
     comparison: ComparisonResult | None = None
+    withdrawal_result: WithdrawalComparisonResponse | None = None
 
 
 class Composer:
@@ -50,6 +57,7 @@ class Composer:
             citations=tool_result.evidence,
             calculation_results=tool_result.calculations,
             comparison=comparison,
+            withdrawal_result=tool_result.withdrawal_result,
         )
 
     def _build_comparison(self, intent: Intent, calculations: list[CalculationResult]) -> ComparisonResult | None:

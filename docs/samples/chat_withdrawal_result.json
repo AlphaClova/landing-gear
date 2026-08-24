@@ -1,0 +1,57 @@
+{
+  "type": "result",
+  "message": "퇴직급여 3억원, 기준 퇴직소득세 2,000만원 기준으로 일시금 수령과 연금 수령(1~10년차)을 비교하면 아래와 같습니다.",
+  "required_slots": [],
+  "comparison": null,
+  "withdrawal_result": {
+    "comparison": {
+      "title": "일시금 vs 연금수령 비교",
+      "options": ["lump_sum", "pension_1_10y"],
+      "rows": [
+        {
+          "label": "적용 세율",
+          "values": { "lump_sum": "100%", "pension_1_10y": "70%" }
+        },
+        {
+          "label": "예상 퇴직소득세",
+          "values": { "lump_sum": "20,000,000원", "pension_1_10y": "14,000,000원" }
+        },
+        {
+          "label": "세후 실수령액",
+          "values": { "lump_sum": "280,000,000원", "pension_1_10y": "286,000,000원" }
+        }
+      ],
+      "note": "단정적인 추천이 아닌 참고용 비교입니다. 실제 수령 방식은 개인 상황에 따라 달라질 수 있습니다."
+    },
+    "evidence": [
+      {
+        "id": "evidence-1",
+        "document_id": "doc-retirement-tax-guide",
+        "page": 12,
+        "section": null,
+        "source": "퇴직소득세 감면율 안내",
+        "excerpt": "연금 수령 1~10년차까지는 퇴직소득세의 70%를 적용하고, 11~20년차는 60%, 21년차 이상은 50%를 적용한다.",
+        "url": null
+      }
+    ],
+    "applied_rules": [
+      { "rule_id": "lump_sum_vs_pension", "rule_version": "2026-01" }
+    ],
+    "claim_validation": {
+      "verified": true,
+      "issues": []
+    }
+  },
+  "citations": [
+    {
+      "id": "evidence-1",
+      "document_id": "doc-retirement-tax-guide",
+      "page": 12,
+      "section": null,
+      "source": "퇴직소득세 감면율 안내",
+      "excerpt": "연금 수령 1~10년차까지는 퇴직소득세의 70%를 적용하고, 11~20년차는 60%, 21년차 이상은 50%를 적용한다.",
+      "url": null
+    }
+  ],
+  "request_id": "req_a1b2c3d4e5f6"
+}

@@ -12,7 +12,15 @@ from typing import Protocol
 
 from pydantic import BaseModel, ValidationError
 
-from app.api.schemas import CalculationResult, Citation, ToolCallTrace
+from app.api.schemas import (
+    AppliedRule,
+    CalculationResult,
+    Citation,
+    ClaimValidation,
+    ComparisonResult,
+    ToolCallTrace,
+    WithdrawalComparisonResponse,
+)
 from app.core.errors import ErrorCode, ToolError
 from app.core.logging import get_logger
 
@@ -30,6 +38,10 @@ class EvidenceProvider(Protocol):
 
 class RuleEngine(Protocol):
     def calculate(self, rule_id: str, params: dict[str, float | int | str]) -> CalculationResult: ...
+
+    def calculate_withdrawal_comparison(
+        self, params: dict[str, float | int | str]
+    ) -> WithdrawalComparisonResponse: ...
 
 
 class ProductCatalog(Protocol):
@@ -52,6 +64,10 @@ class CalculateArgs(BaseModel):
     params: dict[str, float | int | str] = {}
 
 
+class WithdrawalComparisonArgs(BaseModel):
+    params: dict[str, float | int | str] = {}
+
+
 class QueryProductsArgs(BaseModel):
     plan_type: str | None = None
     category: str | None = None
@@ -67,6 +83,9 @@ class MockEvidenceProvider:
         return [
             Citation(
                 id="mock-evidence-1",
+                document_id="mock-doc",
+                page=None,
+                section=None,
                 source="mock://B팀-근거자료-미연결",
                 excerpt=f"[MOCK] '{query}'에 대한 근거 자료는 B팀 retrieve_evidence() 연결 후 제공됩니다.",
             )
@@ -77,10 +96,25 @@ class MockRuleEngine:
     def calculate(self, rule_id: str, params: dict[str, float | int | str]) -> CalculationResult:
         return CalculationResult(
             rule_id=rule_id,
+            rule_version=None,
             label=f"[MOCK] {rule_id}",
             value=0.0,
             unit="원",
             formula="B팀 Rule Engine 연결 전 mock 값입니다.",
+        )
+
+    def calculate_withdrawal_comparison(
+        self, params: dict[str, float | int | str]
+    ) -> WithdrawalComparisonResponse:
+        return WithdrawalComparisonResponse(
+            comparison=ComparisonResult(
+                title="[MOCK] 일시금 vs 연금수령 비교",
+                options=["lump_sum", "pension"],
+                note="B팀 Rule Engine 연결 전 mock 값입니다.",
+            ),
+            evidence=[],
+            applied_rules=[AppliedRule(rule_id="lump_sum_vs_pension", rule_version=None)],
+            claim_validation=ClaimValidation(verified=False, issues=["B팀 Rule Engine 미연결 (mock)"]),
         )
 
 
@@ -96,17 +130,21 @@ class MockProductCatalog:
 ALLOWED_TOOLS_BY_INTENT: dict[str, tuple[str, ...]] = {
     "제도": ("retrieve_evidence",),
     "세제": ("retrieve_evidence", "calculate"),
-    "종합": ("retrieve_evidence", "calculate", "query_products"),
+    "종합": ("retrieve_evidence", "calculate_withdrawal_comparison", "query_products"),
     "절차": ("retrieve_evidence",),
     "상품": ("retrieve_evidence", "query_products"),
     "범위 밖": (),
 }
+
+# "종합" intent에서 calculate 대신 이 rule_id일 때만 calculate_withdrawal_comparison을 호출한다.
+_WITHDRAWAL_COMPARISON_RULE_ID = "lump_sum_vs_pension"
 
 
 @dataclass
 class ToolResult:
     evidence: list[Citation] = field(default_factory=list)
     calculations: list[CalculationResult] = field(default_factory=list)
+    withdrawal_result: WithdrawalComparisonResponse | None = None
     products: list[dict[str, str]] = field(default_factory=list)
     traces: list[ToolCallTrace] = field(default_factory=list)
 
@@ -140,6 +178,10 @@ class ToolRouter:
         if "calculate" in allowed and rule_id:
             calc, trace = self._call_calculate(rule_id, slots)
             result.calculations.append(calc)
+            result.traces.append(trace)
+
+        if "calculate_withdrawal_comparison" in allowed and rule_id == _WITHDRAWAL_COMPARISON_RULE_ID:
+            result.withdrawal_result, trace = self._call_calculate_withdrawal_comparison(slots)
             result.traces.append(trace)
 
         if "query_products" in allowed:
@@ -180,6 +222,31 @@ class ToolRouter:
         duration_ms = (time.monotonic() - start) * 1000
         trace = ToolCallTrace(tool_name="calculate", args={"rule_id": rule_id}, status=status, duration_ms=duration_ms)
         return calc, trace
+
+    def _call_calculate_withdrawal_comparison(
+        self, slots: dict[str, object]
+    ) -> tuple[WithdrawalComparisonResponse, ToolCallTrace]:
+        try:
+            args = WithdrawalComparisonArgs(params=slots)  # type: ignore[arg-type]
+        except ValidationError as exc:
+            raise ToolError(
+                "calculate_withdrawal_comparison", str(exc), code=ErrorCode.TOOL_ARGUMENT_ERROR
+            ) from exc
+
+        start = time.monotonic()
+        try:
+            result = self._rules.calculate_withdrawal_comparison(args.params)
+            status = "ok"
+        except Exception as exc:  # noqa: BLE001
+            raise ToolError("calculate_withdrawal_comparison", str(exc)) from exc
+        duration_ms = (time.monotonic() - start) * 1000
+        trace = ToolCallTrace(
+            tool_name="calculate_withdrawal_comparison",
+            args={"rule_id": _WITHDRAWAL_COMPARISON_RULE_ID},
+            status=status,
+            duration_ms=duration_ms,
+        )
+        return result, trace
 
     def _call_query_products(self, slots: dict[str, object]) -> tuple[list[dict[str, str]], ToolCallTrace]:
         try:
