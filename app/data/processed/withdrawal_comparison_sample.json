@@ -1,0 +1,112 @@
+{
+  "inputs": {
+    "retirement_amount": 300000000,
+    "deferred_retirement_tax": 24000000
+  },
+  "comparison": {
+    "scenarios": [
+      {
+        "scenario": "lump_sum",
+        "tax_value": 24000000,
+        "applicable_rate": 1.0,
+        "difference_vs_lump_sum": 0,
+        "formula": "24000000 * 1.00",
+        "rule_id": "RETIRE_TAX_RATE_BY_YEAR",
+        "rule_version": "1.0.0",
+        "evidence_ids": [
+          "doc51-p001-t004-41a054df8c"
+        ],
+        "assumptions": [],
+        "warnings": []
+      },
+      {
+        "scenario": "annuity_10_years",
+        "tax_value": 16800000,
+        "applicable_rate": 0.7,
+        "difference_vs_lump_sum": 7200000,
+        "formula": "24000000 * 0.70",
+        "rule_id": "RETIRE_TAX_RATE_BY_YEAR",
+        "rule_version": "1.0.0",
+        "evidence_ids": [
+          "doc51-p002-t016-389a14afe5"
+        ],
+        "assumptions": [],
+        "warnings": []
+      },
+      {
+        "scenario": "annuity_21_plus_years",
+        "tax_value": 12000000,
+        "applicable_rate": 0.5,
+        "difference_vs_lump_sum": 12000000,
+        "formula": "24000000 * 0.50",
+        "rule_id": "RETIRE_TAX_RATE_BY_YEAR",
+        "rule_version": "1.0.0",
+        "evidence_ids": [
+          "doc51-p002-t016-389a14afe5"
+        ],
+        "assumptions": [],
+        "warnings": []
+      }
+    ],
+    "result_type": "exact",
+    "unit": "KRW"
+  },
+  "evidence": [
+    {
+      "evidence_id": "doc51-p001-t004-41a054df8c",
+      "chunk_id": "doc51-p001-t004-41a054df8c",
+      "document_id": "doc51",
+      "page": 1,
+      "section": "퇴직금 일시수령과 연금계좌 입금 후 연금수령에 대한 세금 차이",
+      "quote": "일시금으로 받으면 퇴직소득세를 100% 즉시 납부해야한다. 이후 남은 돈을 금융상품에 운용하면 발생하는 이자·배당은 금융소득으로 과세되고, 금융소득 종합과세 기준(연 2,000만원)에 포함된다. 또한 이자·배당이 연 1,000만원을 초과한다면 건강보험료 부과 대상 소득에 포함되어 건강보험료에 영향을 준다. 반면 연금으로 받으면 세 가지 혜택이 동시에 생긴다. 퇴직소득세를 30% ~ 50% 감면받고, IRP 내 운용수익은 연금을 받을 때까지 과세가 이연되며, 사적연금소득은 건강보험료 산정에서 제외된다. 먼저 이 차이를 한눈에 파악하자.",
+      "source_priority": 0,
+      "score": 1.0
+    },
+    {
+      "evidence_id": "doc51-p002-t016-389a14afe5",
+      "chunk_id": "doc51-p002-t016-389a14afe5",
+      "document_id": "doc51",
+      "page": 2,
+      "section": "연금수령시 퇴직소득세 절세혜택",
+      "quote": "연금으로 받으면 퇴직소득세가 30% ~ 50% 감면된다는 말은, 원래 납부했어야 할 퇴직소득세의 일부만 내도 된다는 뜻이다. 이 감면율은 연금을 수령하는 기간에 따라 달라진다. 1 ~ 10년차에는 30% 감면(이연퇴직소득세율의 70% 납부), 11년차 ~ 20년차에는 40% 감면(이연퇴직소득세율의 60% 납부), 21년차부터는 50% 감면(이연퇴직소득세율의 50% 납부)이 적용된다. 오래 나눠 받을수록 세금이 더 줄어드는 구조다.",
+      "source_priority": 0,
+      "score": 1.0
+    }
+  ],
+  "applied_rules": [
+    {
+      "rule_id": "RETIRE_TAX_RATE_BY_YEAR",
+      "rule_version": "1.0.0"
+    },
+    {
+      "rule_id": "RETIRE_TAX_RATE_BY_YEAR",
+      "rule_version": "1.0.0"
+    },
+    {
+      "rule_id": "RETIRE_TAX_RATE_BY_YEAR",
+      "rule_version": "1.0.0"
+    }
+  ],
+  "claim_validation": {
+    "validations": [
+      {
+        "claim_id": "claim-dd94b3529f5f010f",
+        "supported": true,
+        "reasons": []
+      },
+      {
+        "claim_id": "claim-44189e31ad4e5241",
+        "supported": true,
+        "reasons": []
+      },
+      {
+        "claim_id": "claim-ff7d08e7408304ac",
+        "supported": true,
+        "reasons": []
+      }
+    ],
+    "unsupported_claim_count": 0,
+    "validated_claim_count": 3,
+    "unsupported_claim_rate": 0.0
+  }
+}

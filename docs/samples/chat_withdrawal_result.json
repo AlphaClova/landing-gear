@@ -1,0 +1,99 @@
+{
+  "type": "result",
+  "message": "퇴직급여 3억원, 기준 퇴직소득세 2,400만원 기준으로 일시금 수령과 연금 수령(10년/21년 이상)을 비교하면 아래와 같습니다.",
+  "required_slots": [],
+  "comparison": null,
+  "withdrawal_result": {
+    "comparison": {
+      "scenarios": [
+        {
+          "scenario": "lump_sum",
+          "tax_value": 24000000,
+          "applicable_rate": 1.0,
+          "difference_vs_lump_sum": 0,
+          "formula": "24000000 * 1.00",
+          "rule_id": "RETIRE_TAX_RATE_BY_YEAR",
+          "rule_version": "1.0.0",
+          "evidence_ids": ["doc51-p001-t004-41a054df8c"],
+          "assumptions": [],
+          "warnings": []
+        },
+        {
+          "scenario": "annuity_10_years",
+          "tax_value": 16800000,
+          "applicable_rate": 0.7,
+          "difference_vs_lump_sum": 7200000,
+          "formula": "24000000 * 0.70",
+          "rule_id": "RETIRE_TAX_RATE_BY_YEAR",
+          "rule_version": "1.0.0",
+          "evidence_ids": ["doc51-p002-t016-389a14afe5"],
+          "assumptions": [],
+          "warnings": []
+        },
+        {
+          "scenario": "annuity_21_plus_years",
+          "tax_value": 12000000,
+          "applicable_rate": 0.5,
+          "difference_vs_lump_sum": 12000000,
+          "formula": "24000000 * 0.50",
+          "rule_id": "RETIRE_TAX_RATE_BY_YEAR",
+          "rule_version": "1.0.0",
+          "evidence_ids": ["doc51-p002-t016-389a14afe5"],
+          "assumptions": [],
+          "warnings": []
+        }
+      ],
+      "result_type": "exact",
+      "unit": "KRW"
+    },
+    "evidence": [
+      {
+        "evidence_id": "doc51-p001-t004-41a054df8c",
+        "chunk_id": "doc51-p001-t004-41a054df8c",
+        "document_id": "doc51",
+        "page": 1,
+        "section": "퇴직금 일시수령과 연금계좌 입금 후 연금수령에 대한 세금 차이",
+        "quote": "일시금으로 받으면 퇴직소득세를 100% 즉시 납부해야한다. ... 반면 연금으로 받으면 세 가지 혜택이 동시에 생긴다. 퇴직소득세를 30% ~ 50% 감면받고, IRP 내 운용수익은 연금을 받을 때까지 과세가 이연되며, 사적연금소득은 건강보험료 산정에서 제외된다.",
+        "source_priority": 0,
+        "score": 1.0
+      },
+      {
+        "evidence_id": "doc51-p002-t016-389a14afe5",
+        "chunk_id": "doc51-p002-t016-389a14afe5",
+        "document_id": "doc51",
+        "page": 2,
+        "section": "연금수령시 퇴직소득세 절세혜택",
+        "quote": "연금으로 받으면 퇴직소득세가 30% ~ 50% 감면된다. 1 ~ 10년차에는 30% 감면(70% 납부), 11년차 ~ 20년차에는 40% 감면(60% 납부), 21년차부터는 50% 감면(50% 납부)이 적용된다.",
+        "source_priority": 0,
+        "score": 1.0
+      }
+    ],
+    "applied_rules": [
+      { "rule_id": "RETIRE_TAX_RATE_BY_YEAR", "rule_version": "1.0.0" },
+      { "rule_id": "RETIRE_TAX_RATE_BY_YEAR", "rule_version": "1.0.0" },
+      { "rule_id": "RETIRE_TAX_RATE_BY_YEAR", "rule_version": "1.0.0" }
+    ],
+    "claim_validation": {
+      "validations": [
+        { "claim_id": "claim-dd94b3529f5f010f", "supported": true, "reasons": [] },
+        { "claim_id": "claim-44189e31ad4e5241", "supported": true, "reasons": [] },
+        { "claim_id": "claim-ff7d08e7408304ac", "supported": true, "reasons": [] }
+      ],
+      "unsupported_claim_count": 0,
+      "validated_claim_count": 3,
+      "unsupported_claim_rate": 0.0
+    }
+  },
+  "citations": [
+    {
+      "id": "doc51-p001-t004-41a054df8c",
+      "document_id": "doc51",
+      "page": 1,
+      "section": null,
+      "source": "퇴직금 일시수령과 연금계좌 입금 후 연금수령에 대한 세금 차이",
+      "excerpt": "일시금으로 받으면 퇴직소득세를 100% 즉시 납부해야한다.",
+      "url": null
+    }
+  ],
+  "request_id": "req_a1b2c3d4e5f6"
+}
