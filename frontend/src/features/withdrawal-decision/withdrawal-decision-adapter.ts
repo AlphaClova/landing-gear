@@ -1,6 +1,6 @@
-import { isMockApiEnabled, pensionApi } from '../../api'
-import type { PensionApiClient } from '../../api'
-import type { ChatResponse } from '../../types/api'
+import { chatApiClient, ChatApiClientError } from '../../api/chat-client'
+import type { ChatApiClient } from '../../api/chat-client'
+import { getChatSessionId } from '../../api/chat-session'
 import { buildChatApiRequest } from '../../api/chat-request'
 import type { ChatApiRequest } from '../../api/chat-request'
 import type {
@@ -26,8 +26,13 @@ import type {
   WithdrawalEvidenceCitation,
 } from './withdrawal-decision-transport'
 import { validateWithdrawalDecisionViewModel } from './withdrawal-decision-validator'
+import { adaptChatApiWithdrawalResponse, WithdrawalChatAdapterError } from './withdrawal-decision-chat-adapter'
 
-export const isMockWithdrawalMode = isMockApiEnabled
+export type WithdrawalChatApiMode = 'mock' | 'http'
+export const parseWithdrawalChatApiMode = (value: string | undefined): WithdrawalChatApiMode => value === 'http' ? 'http' : 'mock'
+export const withdrawalChatApiMode = parseWithdrawalChatApiMode(import.meta.env.VITE_CHAT_API_MODE)
+export const isMockWithdrawalMode = withdrawalChatApiMode === 'mock'
+export const WITHDRAWAL_COMPARISON_QUESTION = '입력한 조건으로 일시금, 10년 연금, 21년 이상 연금 수령 시 퇴직소득세를 비교해 주세요.'
 
 const requiredFields: Array<keyof WithdrawalDecisionInput> = ['retirementBenefitAmount', 'expectedTaxWon', 'currentAge', 'pensionStartAge']
 
@@ -260,45 +265,45 @@ class MockWithdrawalDecisionProvider implements WithdrawalDecisionProvider {
   }
 }
 
-export function adaptWithdrawalChatResponse(response: ChatResponse, input: WithdrawalDecisionInput): WithdrawalDecisionViewModel {
-  const apiBoundary: WithdrawalDecisionViewModel = {
-    status: 'limited', scenarioTitle: '퇴직급여 수령 방식 비교', input, missingFields: [],
-    summary: '', limitations: [], options: [], assumptions: [], evidence: [],
-    baselineOptionId: null, highlightedOptionId: null, highlightReason: null,
-    canCompare: false, canRetry: false,
-  }
-  if (response.type === 'error') return { ...apiBoundary, status: 'error', summary: response.message, canRetry: response.retryable }
-  if (response.type === 'clarification') return {
-    ...apiBoundary, status: 'needs_input',
-    summary: '금액 비교를 위해 추가 조건이 필요합니다.',
-    missingFields: invalidRequiredFields(input),
-  }
-  return {
-    ...apiBoundary,
-    summary: response.type === 'limitation' ? response.availableAnswer ?? response.message : response.conclusion,
-    limitations: [response.type === 'limitation' ? response.message : '현재 계산 결과를 화면에 표시할 수 없습니다.'],
-  }
-}
-
-class HttpWithdrawalDecisionProvider implements WithdrawalDecisionProvider {
-  constructor(private readonly client: PensionApiClient) {}
+export class HttpChatWithdrawalDecisionProvider implements WithdrawalDecisionProvider {
+  constructor(private readonly client: ChatApiClient) {}
 
   async compare(input: WithdrawalDecisionInput, signal: AbortSignal) {
-    const response = await this.client.answer(
-      { mode: 'withdrawal-decision', message: JSON.stringify({ input }) },
-      { signal },
-    )
-    // TODO(A/B): Replace this explicit limitation boundary only after the
-    // canonical withdrawal payload and calculation/evidence IDs are finalized.
-    return validateWithdrawalDecisionViewModel(adaptWithdrawalChatResponse(response, input))
+    const missingFields = invalidRequiredFields(input)
+    if (missingFields.length > 0) return validateWithdrawalDecisionViewModel(createNeedsInputFixture(input, missingFields))
+    try {
+      const request = buildWithdrawalDecisionChatRequest(
+        WITHDRAWAL_COMPARISON_QUESTION,
+        getChatSessionId(),
+        input,
+      )
+      const response = await this.client.chat(request, { signal })
+      return adaptChatApiWithdrawalResponse(response, input)
+    } catch (error) {
+      if (error instanceof ChatApiClientError && error.kind === 'cancelled') {
+        throw new DOMException('Request aborted', 'AbortError')
+      }
+      const retryable = error instanceof ChatApiClientError ? error.retryable : false
+      const summary = error instanceof ChatApiClientError
+        ? error.userMessage
+        : error instanceof WithdrawalChatAdapterError
+          ? '응답을 확인하는 중 문제가 발생했습니다.'
+          : '비교 결과를 불러오지 못했습니다.'
+      return validateWithdrawalDecisionViewModel({
+        status: 'error', scenarioTitle: '퇴직급여 수령 방식 비교', input, missingFields: [],
+        summary, limitations: [], options: [], assumptions: [], evidence: [],
+        baselineOptionId: null, highlightedOptionId: null, highlightReason: null,
+        canCompare: false, canRetry: retryable,
+      })
+    }
   }
 }
 
 export function createWithdrawalDecisionProvider(
   useMockApi: boolean,
-  client: PensionApiClient = pensionApi,
+  client: ChatApiClient = chatApiClient,
 ): WithdrawalDecisionProvider {
-  return useMockApi ? new MockWithdrawalDecisionProvider() : new HttpWithdrawalDecisionProvider(client)
+  return useMockApi ? new MockWithdrawalDecisionProvider() : new HttpChatWithdrawalDecisionProvider(client)
 }
 
 const withdrawalDecisionProvider = createWithdrawalDecisionProvider(isMockWithdrawalMode)
