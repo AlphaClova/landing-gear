@@ -104,6 +104,21 @@ class RetrievalHit:
 
 
 @dataclass(frozen=True)
+class EvidenceResult:
+    """B-owned retrieval result with source provenance preserved."""
+
+    evidence_id: str
+    chunk_id: str
+    document_id: str
+    page: int | None
+    section: str
+    excerpt: str
+    source: str
+    source_priority: int
+    score: float
+
+
+@dataclass(frozen=True)
 class ClaimEvidenceLink:
     claim_id: str
     claim_type: ClaimType

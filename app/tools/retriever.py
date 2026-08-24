@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+import json
 import math
 import re
 from collections import Counter
 from dataclasses import dataclass
 from datetime import date
+from pathlib import Path
 
-from app.data.schemas.models import Chunk, RetrievalHit
+from app.data.schemas.models import Chunk, EvidenceResult, RetrievalHit
 
 
 TOKEN_PATTERN = re.compile(r"[0-9A-Za-z가-힣]+")
+DEFAULT_CHUNKS_PATH = Path(__file__).resolve().parents[1] / "data" / "processed" / "chunks.jsonl"
 
 
 def _tokenize(text: str) -> list[str]:
@@ -117,6 +120,66 @@ class BM25Retriever:
             )
             score += idf * ((term_freq * (self._k1 + 1)) / denominator)
         return score
+
+
+def _load_chunks(path: Path) -> list[Chunk]:
+    chunks: list[Chunk] = []
+    with path.open("r", encoding="utf-8") as stream:
+        for line in stream:
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            chunks.append(
+                Chunk(
+                    chunk_id=row["chunk_id"],
+                    document_id=row["document_id"],
+                    title=row["title"],
+                    page=row.get("page"),
+                    section=row["section"],
+                    text=row.get("content", row.get("text", "")),
+                    effective_from=row.get("effective_from"),
+                    valid_to=row.get("valid_to"),
+                    topics=row.get("topics", [row.get("topic", "")]),
+                    account_types=row.get("account_types", [row.get("account_type", "")]),
+                    source_type=row.get("source_type", "provided"),
+                    source_priority=row.get("source_priority", 0),
+                )
+            )
+    return chunks
+
+
+def retrieve_evidence(
+    query: str,
+    topic: str | None,
+    top_k: int,
+) -> list[EvidenceResult]:
+    """Search the production chunk corpus without manufacturing fallback evidence."""
+    if not isinstance(query, str) or not query.strip():
+        raise ValueError("query must not be empty")
+    if not isinstance(top_k, int) or isinstance(top_k, bool) or top_k <= 0:
+        raise ValueError("top_k must be a positive integer")
+
+    chunks = _load_chunks(DEFAULT_CHUNKS_PATH)
+    chunks_by_id = {chunk.chunk_id: chunk for chunk in chunks}
+    hits = BM25Retriever(chunks).search(
+        query,
+        top_k=top_k,
+        topics=[topic] if topic is not None else None,
+    )
+    return [
+        EvidenceResult(
+            evidence_id=hit.chunk_id,
+            chunk_id=hit.chunk_id,
+            document_id=hit.document_id,
+            page=hit.page,
+            section=chunks_by_id[hit.chunk_id].section,
+            excerpt=chunks_by_id[hit.chunk_id].text,
+            source=chunks_by_id[hit.chunk_id].title,
+            source_priority=chunks_by_id[hit.chunk_id].source_priority,
+            score=hit.score,
+        )
+        for hit in hits
+    ]
 
 
 def _passes_filters(
