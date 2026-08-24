@@ -1,0 +1,41 @@
+{
+  "index_type": "bm25",
+  "source": "app/data/processed/chunks.jsonl",
+  "source_sha256": "8a7e17ffcc39ada076725465e8d612a3ea848257355d39c5fe7c2a622724cdc3",
+  "chunk_count": 29,
+  "document_ids": [
+    "doc10",
+    "doc51"
+  ],
+  "chunk_ids": [
+    "doc10-p001-t001-fc64955c5a",
+    "doc10-p001-t002-e6034995ac",
+    "doc10-p001-t001-231cb0576b",
+    "doc10-p002-t001-37311d5ca3",
+    "doc10-p002-t001-33404abd57",
+    "doc10-p002-t002-3834f44b2f",
+    "doc10-p003-t001-d8f71ebfc8",
+    "doc51-p001-t001-4ea29f1490",
+    "doc51-p001-t002-23b0b24be4",
+    "doc51-p001-t003-66cdd679b8",
+    "doc51-p001-t004-41a054df8c",
+    "doc51-p001-t001-92fb85fb15",
+    "doc51-p001-t005-fab76847a5",
+    "doc51-p001-t006-9e8348b84e",
+    "doc51-p001-t007-7d4d805b67",
+    "doc51-p001-t008-8eda40c8cf",
+    "doc51-p002-t009-01c292669d",
+    "doc51-p002-t010-5fb7ac442a",
+    "doc51-p002-t011-1ebd5020aa",
+    "doc51-p002-t012-8a5fa0941e",
+    "doc51-p002-t013-debbc0e4b7",
+    "doc51-p002-t002-f295169201",
+    "doc51-p002-t014-4741fd19a4",
+    "doc51-p002-t015-0183d5aa38",
+    "doc51-p002-t016-389a14afe5",
+    "doc51-p002-t017-714f82f22c",
+    "doc51-p003-t018-0641c6141d",
+    "doc51-p003-t019-8c02a7ec8b",
+    "doc51-p003-t020-bb2adc7ed3"
+  ]
+}

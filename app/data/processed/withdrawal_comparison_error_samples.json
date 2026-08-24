@@ -1,0 +1,45 @@
+{
+  "errors": [
+    {
+      "case": "missing_deferred_retirement_tax",
+      "inputs": {
+        "retirement_amount": 300000000,
+        "deferred_retirement_tax": null
+      },
+      "error_type": "MissingInputError",
+      "message": "deferred_retirement_tax is required",
+      "api_error_family": "MISSING_INPUT"
+    },
+    {
+      "case": "missing_actual_pension_year",
+      "inputs": {
+        "deferred_retirement_tax": 24000000,
+        "actual_pension_year": null
+      },
+      "error_type": "MissingInputError",
+      "message": "actual_pension_year is required",
+      "api_error_family": "MISSING_INPUT"
+    },
+    {
+      "case": "fractional_won_without_rounding_policy",
+      "inputs": {
+        "deferred_retirement_tax": 1,
+        "actual_pension_year": 10
+      },
+      "error_type": "RoundingPolicyUndefinedError",
+      "message": "fractional-won result cannot be converted without a documented rounding policy",
+      "api_error_family": "RULE_ERROR"
+    },
+    {
+      "case": "unknown_explicit_rule_version",
+      "inputs": {
+        "deferred_retirement_tax": 24000000,
+        "actual_pension_year": 10,
+        "rule_version": "unknown-version"
+      },
+      "error_type": "UnknownRuleVersionError",
+      "message": "Unknown rule_version: unknown-version",
+      "api_error_family": "RULE_ERROR"
+    }
+  ]
+}
