@@ -1,0 +1,2006 @@
+[
+  {
+    "product_id": "r2_kr510902511m",
+    "product_name": "미래에셋장기성장포커스증권자투자신탁1호(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 1,
+    "document_id": "r2_kr510902511m",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR510902511M.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        16
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr510902773m",
+    "product_name": "미래에셋고배당포커스연금저축증권전환형자투자신탁1호(주식)",
+    "plan_types": null,
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 3,
+    "document_id": "r2_kr510902773m",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR510902773M.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr510902777m",
+    "product_name": "미래에셋코어밸류연금저축증권전환형자투자신탁1호(주식)",
+    "plan_types": null,
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr510902777m",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR510902777M.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5110501016",
+    "product_name": "미래에셋프리미엄크레딧알파증권자투자신탁(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5110501016",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5110501016.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        6,
+        18
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5110601022",
+    "product_name": "미래에셋차세대Fun인덱스증권자투자신탁[주식]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5110601022",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5110601022.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        18
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5111420047",
+    "product_name": "하나파워 e 단기채증권자투자신탁[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5111420047",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5111420047.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8,
+        15
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5111450067",
+    "product_name": "하나IT코리아증권자투자신탁(제1호)[주식]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5111450067",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5111450067.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        9,
+        18
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5113420012",
+    "product_name": "한국투자 골드플랜 연금 증권 전환형 투자신탁 1호(국공채)",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "국공채",
+    "risk_level": 5,
+    "document_id": "r2_kr5113420012",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5113420012.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5113420013",
+    "product_name": "한국투자 골드플랜 연금 증권 전환형 자투자신탁 1호(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5113420013",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5113420013.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8,
+        16
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5113420015",
+    "product_name": "한국투자 골드플랜 연금 증권 전환형 자투자신탁 1호(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5113420015",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5113420015.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8,
+        16
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5113420069",
+    "product_name": "한국투자 크레딧포커스 ESG 증권 자투자신탁 1호(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5113420069",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5113420069.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        10,
+        19
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5113450111",
+    "product_name": "한국투자 골드플랜 연금 증권 전환형 투자신탁 1호(주식)",
+    "plan_types": null,
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5113450111",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5113450111.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5113450401",
+    "product_name": "한국투자 중소밸류 증권 자투자신탁(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 3,
+    "document_id": "r2_kr5113450401",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5113450401.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        10,
+        17
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5113470030",
+    "product_name": "한국투자 인덱스플러스 증권 투자신탁 1호(주식-파생형)",
+    "plan_types": null,
+    "category": "equity",
+    "asset_type": "주식-파생형",
+    "risk_level": 2,
+    "document_id": "r2_kr5113470030",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5113470030.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5113470031",
+    "product_name": "한국투자 인덱스플러스 증권 투자신탁 1호(주식-파생형)",
+    "plan_types": null,
+    "category": "equity",
+    "asset_type": "주식-파생형",
+    "risk_level": 2,
+    "document_id": "r2_kr5113470031",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5113470031.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5114420016",
+    "product_name": "삼성ABF코리아장기채권인덱스증권투자신탁[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 4,
+    "document_id": "r2_kr5114420016",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5114420016.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        10,
+        17
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5114420022",
+    "product_name": "삼성클래식연금증권전환형투자신탁 제1호[채권]",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5114420022",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5114420022.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5114420027",
+    "product_name": "삼성코리아중기채권증권자투자신탁 제1호[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5114420027",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5114420027.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        10,
+        17
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5114420046",
+    "product_name": "삼성퇴직연금인덱스12M증권자투자신탁 제1호[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5114420046",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5114420046.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        9,
+        15
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5114450222",
+    "product_name": "삼성클래식연금증권전환형자투자신탁 제1호[주식]",
+    "plan_types": null,
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5114450222",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5114450222.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5114450270",
+    "product_name": "삼성퇴직연금KOSPI200증권자투자신탁 제1호[주식]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5114450270",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5114450270.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        9,
+        16
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5116501001",
+    "product_name": "브이아이 퇴직연금 증권 자투자신탁 1호[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5116501001",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5116501001.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        14
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5117420097",
+    "product_name": "신한초단기채증권투자신탁[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5117420097",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5117420097.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        14
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5118201004",
+    "product_name": "우리하이플러스채권증권자투자신탁1호(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5118201004",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5118201004.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5118420006",
+    "product_name": "우리나라초단기채권증권투자신탁[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5118420006",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5118420006.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8,
+        15
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5118420036",
+    "product_name": "우리나라중단기ESG채권증권자투자신탁1호(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5118420036",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5118420036.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8,
+        16
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5118420062",
+    "product_name": "우리단기채권증권투자신탁(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5118420062",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5118420062.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        14
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5119450058",
+    "product_name": "신한코리아롱숏증권자투자신탁[주식]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 3,
+    "document_id": "r2_kr5119450058",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5119450058.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        9,
+        16
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5119501001",
+    "product_name": "신한퇴직연금국공채증권자투자신탁[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5119501001",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5119501001.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        11
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5119520012",
+    "product_name": "신한상대가치장기증권자투자신탁[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5119520012",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5119520012.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8,
+        16
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5120420039",
+    "product_name": "교보악사 Tomorrow 장기우량 증권투자신탁 K-1호(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5120420039",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5120420039.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        10,
+        20
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5120420091",
+    "product_name": "교보악사 내일환매 초단기우량채증권투자신탁[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5120420091",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5120420091.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        10,
+        18
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5120450015",
+    "product_name": "교보악사 파워인덱스 증권 자투자신탁 1호 (주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5120450015",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5120450015.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        10,
+        19
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5120450018",
+    "product_name": "교보악사 파워인덱스 증권 자투자신탁 1호 (주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5120450018",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5120450018.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        10,
+        19
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5120451001",
+    "product_name": "교보악사 파워인덱스증권자투자신탁 2호[주식]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5120451001",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5120451001.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        10,
+        18
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5122420005",
+    "product_name": "유진챔피언단기채증권자투자신탁(채권)",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5122420005",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5122420005.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5123365001",
+    "product_name": "키움 연금 증권 자투자신탁 제C1호[국공채]",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "국공채",
+    "risk_level": 5,
+    "document_id": "r2_kr5123365001",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5123365001.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5123420015",
+    "product_name": "키움 단기 국공채 증권 자투자신탁 제1호[채권]",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5123420015",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5123420015.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5123420039",
+    "product_name": "키움파이어니어ESG증권자투자신탁제1호[채권]",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5123420039",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5123420039.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5123420049",
+    "product_name": "키움더드림단기채증권투자신탁[채권]",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5123420049",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5123420049.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5123490013",
+    "product_name": "키움 Smart Investor 분할매수 증권 자투자신탁 제1호[주식혼합-재간접형]",
+    "plan_types": null,
+    "category": "mixed",
+    "asset_type": "주식혼합-재간접형",
+    "risk_level": 2,
+    "document_id": "r2_kr5123490013",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5123490013.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5123490016",
+    "product_name": "키움 Smart Investor 분할매수 증권 자투자신탁 제1호[주식혼합-재간접형]",
+    "plan_types": null,
+    "category": "mixed",
+    "asset_type": "주식혼합-재간접형",
+    "risk_level": 2,
+    "document_id": "r2_kr5123490016",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5123490016.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5123490017",
+    "product_name": "키움 Smart Investor 분할매수 증권 자투자신탁 제1호[주식혼합-재간접형]",
+    "plan_types": null,
+    "category": "mixed",
+    "asset_type": "주식혼합-재간접형",
+    "risk_level": 2,
+    "document_id": "r2_kr5123490017",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5123490017.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5125450023",
+    "product_name": "신영밸류고배당증권자투자신탁(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5125450023",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5125450023.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5125450070",
+    "product_name": "신영마라톤증권자투자신탁(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5125450070",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5125450070.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5127420034",
+    "product_name": "KB스타 중기 국공채 증권 자투자신탁(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5127420034",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5127420034.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        6,
+        12
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5127420039",
+    "product_name": "KB스타 중기 국공채 증권 자투자신탁(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5127420039",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5127420039.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        6,
+        12
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5127420045",
+    "product_name": "KB스타 단기 국공채 증권 자투자신탁(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5127420045",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5127420045.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        14
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5127420083",
+    "product_name": "KB 장기국채 플러스 증권 자투자신탁(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 4,
+    "document_id": "r2_kr5127420083",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5127420083.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        12
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5127450117",
+    "product_name": "KB 그로스 포커스 증권 자투자신탁(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5127450117",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5127450117.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        6,
+        12
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5127450215",
+    "product_name": "KB스타 코스닥150 인덱스 증권 자투자신탁(주식-파생형)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식-파생형",
+    "risk_level": 1,
+    "document_id": "r2_kr5127450215",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5127450215.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8,
+        13
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5127450217",
+    "product_name": "KB스타 코스닥150 인덱스 증권 자투자신탁(주식-파생형)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식-파생형",
+    "risk_level": 1,
+    "document_id": "r2_kr5127450217",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5127450217.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8,
+        13
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5127450473",
+    "product_name": "KB 코리아 밸류업 액티브 증권 자투자신탁(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5127450473",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5127450473.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        13
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5129420025",
+    "product_name": "한화내일받는단기국공채증권 자투자신탁(채권)",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5129420025",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5129420025.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5129420031",
+    "product_name": "한화코리아밸류채권증권 자투자신탁(채권)",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5129420031",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5129420031.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5131420007",
+    "product_name": "DB정통크레딧증권자투자신탁[채권]",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5131420007",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5131420007.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5131420025",
+    "product_name": "DB다같이장기채권증권투자신탁[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5131420025",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5131420025.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        6
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5139420015",
+    "product_name": "흥국멀티크레딧증권자투자신탁[채권]",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5139420015",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5139420015.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5139420020",
+    "product_name": "흥국퇴직연금멀티크레딧증권자투자신탁[채권]",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5139420020",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5139420020.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5144420020",
+    "product_name": "NH-Amundi 국채 10 년 인덱스 증권자투자신탁[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 4,
+    "document_id": "r2_kr5144420020",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5144420020.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        9,
+        18
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5144420081",
+    "product_name": "NH-Amundi USD 초단기채권 증권자투자신탁(UH)[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 4,
+    "document_id": "r2_kr5144420081",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5144420081.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        9,
+        19
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5144420091",
+    "product_name": "NH-Amundi 하나로 단기채 증권투자신탁[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5144420091",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5144420091.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        9,
+        19
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5144450095",
+    "product_name": "NH-Amundi 필승 코리아 증권투자신탁 [주식]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5144450095",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5144450095.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        9,
+        19
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5147430065",
+    "product_name": "KCGI코리아목표전환형증권투자신탁4호[채권혼합](운용전환일 이후) KCGI코리아목표전환형 증권투자신탁 4 호[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 4,
+    "document_id": "r2_kr5147430065",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5147430065.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        9,
+        14
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr514x450008",
+    "product_name": "VIP한국형가치투자증권자투자신탁[주식]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr514x450008",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR514X450008.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        9,
+        16,
+        29
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5152420028",
+    "product_name": "다올전단채증권투자신탁[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5152420028",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5152420028.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        9,
+        14
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr515302022m",
+    "product_name": "KCGI코리아증권투자신탁1호[주식]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr515302022m",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR515302022M.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8,
+        15
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153420022",
+    "product_name": "미래에셋라이프사이클7090연금증권전환형자투자신탁1호(채권)",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5153420022",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153420022.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153420063",
+    "product_name": "미래에셋솔로몬단기국공채증권자투자신탁1호(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5153420063",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153420063.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        6,
+        14
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153420079",
+    "product_name": "미래에셋솔로몬중장기국공채증권자투자신탁1호(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5153420079",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153420079.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        6,
+        16
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153420105",
+    "product_name": "미래에셋솔로몬장기국공채증권자투자신탁1호(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5153420105",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153420105.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        16
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153420318",
+    "product_name": "미래에셋AI퀀트미국투자등급회사채증권자투자신탁(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 4,
+    "document_id": "r2_kr5153420318",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153420318.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8,
+        18
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153420339",
+    "product_name": "미래에셋프리미엄크레딧초단기증권투자신탁(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5153420339",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153420339.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8,
+        16
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153450009",
+    "product_name": "미래에셋퇴직플랜증권자투자신탁1호(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5153450009",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153450009.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        6,
+        12
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153450112",
+    "product_name": "미래에셋라이프사이클2030연금증권전환형자투자신탁1호(주식)",
+    "plan_types": null,
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5153450112",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153450112.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153450209",
+    "product_name": "미래에셋퇴직연금코어밸류증권자투자신탁1호(주식)",
+    "plan_types": [
+      "DB",
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5153450209",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153450209.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "DB": [
+        11,
+        18
+      ],
+      "IRP": [
+        6,
+        12
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153450250",
+    "product_name": "미래에셋퇴직연금고배당포커스증권자투자신탁1호(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 3,
+    "document_id": "r2_kr5153450250",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153450250.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        6,
+        12
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153450268",
+    "product_name": "미래에셋스마트롱숏70증권자투자신탁1호(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 4,
+    "document_id": "r2_kr5153450268",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153450268.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        16
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153450431",
+    "product_name": "미래에셋인덱스플러스연금증권전환형자투자신탁1호(주식)",
+    "plan_types": null,
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5153450431",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153450431.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153450658",
+    "product_name": "미래에셋솔로몬초단기국공채증권자투자신탁2호(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5153450658",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153450658.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8,
+        18
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153450772",
+    "product_name": "미래에셋그린뉴딜인덱스증권자투자신탁(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 1,
+    "document_id": "r2_kr5153450772",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153450772.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        16
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153450785",
+    "product_name": "미래에셋코어테크증권자투자신탁(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 1,
+    "document_id": "r2_kr5153450785",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153450785.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8,
+        17
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153450791",
+    "product_name": "미래에셋퇴직플랜KRX100인덱스증권자투자신탁1호(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5153450791",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153450791.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        6,
+        12
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153451009",
+    "product_name": "미래에셋연금아시아퍼시픽소비성장증권자투자신탁1호(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 3,
+    "document_id": "r2_kr5153451009",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153451009.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        15
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5153520012",
+    "product_name": "미래에셋퇴직플랜증권자투자신탁1호(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5153520012",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5153520012.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        6,
+        13
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5156450026",
+    "product_name": "베어링 고배당 증권자투자신탁(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 3,
+    "document_id": "r2_kr5156450026",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5156450026.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        13
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5157420003",
+    "product_name": "마이다스 우량채권 증권 자투자신탁 제1호(채권)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5157420003",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5157420003.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        14
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5157450017",
+    "product_name": "마이다스 책임투자 증권 투자신탁(주식)",
+    "plan_types": [
+      "DB"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5157450017",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5157450017.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "DB": [
+        7,
+        13,
+        24,
+        29
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5157450090",
+    "product_name": "마이다스 거북이 90 증권 자투자신탁 1호(주식)",
+    "plan_types": null,
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 4,
+    "document_id": "r2_kr5157450090",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5157450090.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5160420009",
+    "product_name": "코레이트셀렉트단기채증권투자신탁[채권]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 6,
+    "document_id": "r2_kr5160420009",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5160420009.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        10
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr516702010m",
+    "product_name": "에셋플러스 코리아 리치투게더 연금 증권 자투자신탁 1 호(주식)",
+    "plan_types": null,
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr516702010m",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR516702010M.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5169950018",
+    "product_name": "디에스Maestro증권자투자신탁[주식]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5169950018",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5169950018.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        16,
+        28,
+        33
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5172450019",
+    "product_name": "트러스톤칭기스칸증권투자신탁[주식]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5172450019",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5172450019.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        7,
+        14
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5174420011",
+    "product_name": "한국밸류 10년투자 연금 증권전환형자투자신탁 1호(채권)",
+    "plan_types": null,
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr5174420011",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5174420011.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr518101002m",
+    "product_name": "미래에셋퇴직플랜단기증권자투자신탁1호(채권)",
+    "plan_types": [
+      "DB",
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "채권",
+    "risk_level": 5,
+    "document_id": "r2_kr518101002m",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR518101002M.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "DB": [
+        12,
+        18
+      ],
+      "IRP": [
+        6,
+        13
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr518101012m",
+    "product_name": "한국투자 퇴직연금 증권 자투자신탁 1호(국공채)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "bond",
+    "asset_type": "국공채",
+    "risk_level": 5,
+    "document_id": "r2_kr518101012m",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR518101012M.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr518102001m",
+    "product_name": "미래에셋퇴직플랜증권자투자신탁1호(주식)",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr518102001m",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR518102001M.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        6,
+        12
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5185450009",
+    "product_name": "키움 차세대모빌리티 증권 자투자신탁 제1호[주식]",
+    "plan_types": null,
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5185450009",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5185450009.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr5194450018",
+    "product_name": "스팍스한국엄선투자증권자투자신탁[주식]",
+    "plan_types": [
+      "IRP"
+    ],
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr5194450018",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR5194450018.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {
+      "IRP": [
+        8
+      ]
+    },
+    "category_page": 1,
+    "risk_page": 1
+  },
+  {
+    "product_id": "r2_kr555202013m",
+    "product_name": "베어링 고배당 증권 투자회사(주식)",
+    "plan_types": null,
+    "category": "equity",
+    "asset_type": "주식",
+    "risk_level": 2,
+    "document_id": "r2_kr555202013m",
+    "page": 1,
+    "source": "app/data/raw/products/R2_KR555202013M.pdf",
+    "source_priority": 0,
+    "plan_type_pages": {},
+    "category_page": 1,
+    "risk_page": 1
+  }
+]

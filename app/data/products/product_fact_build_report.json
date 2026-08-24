@@ -1,0 +1,20 @@
+{
+  "raw_document_count": 100,
+  "loaded_product_count": 100,
+  "failed_product_count": 0,
+  "plan_types_known_count": 71,
+  "plan_types_null_count": 29,
+  "plan_type_distribution": {
+    "DB": 3,
+    "IRP": 70
+  },
+  "category_known_count": 100,
+  "category_null_count": 0,
+  "category_distribution": {
+    "bond": 53,
+    "equity": 44,
+    "mixed": 3
+  },
+  "risk_level_null_count": 0,
+  "failures": []
+}
