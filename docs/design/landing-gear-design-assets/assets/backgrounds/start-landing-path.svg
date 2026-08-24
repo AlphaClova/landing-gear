@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Landing Gear start background</title>
+  <desc id="desc">Abstract gold horizon, sun and landing path on warm ivory</desc>
+  <rect width="1440" height="900" fill="#F7F2EA"/>
+  <rect x="22" y="22" width="1396" height="856" rx="18" stroke="#A57A3C" stroke-opacity=".16"/>
+  <g stroke="#C99A4B" fill="none" stroke-linecap="round">
+    <path d="M840 530a150 150 0 0 1 300 0" stroke-opacity=".5"/>
+    <path d="M818 530a172 172 0 0 1 344 0" stroke-opacity=".28"/>
+    <path d="M794 530a196 196 0 0 1 392 0" stroke-opacity=".16"/>
+    <path d="M0 580c180-26 332-12 476 18 132 27 218 24 302 2 97-25 162-23 242 3 123 40 253 34 420 4" stroke-opacity=".34"/>
+    <path d="M0 596c186-23 340-8 482 22 129 27 214 22 296 2 100-24 167-19 248 7 119 38 248 34 414 16" stroke-opacity=".2"/>
+    <path d="M1440 624C1250 615 1112 635 1014 683c-77 37-126 82-180 137" stroke-opacity=".42"/>
+    <path d="M1440 646c-186-7-321 14-415 60-70 34-117 76-165 125" stroke-opacity=".28"/>
+    <path d="M1440 668c-178-5-307 17-395 61-62 31-105 69-148 112" stroke-opacity=".18"/>
+    <path d="M1036 603c-9 39-13 76-3 106 13 39 49 57 97 50 33-5 52-21 52-42 0-24-24-39-55-33-18 4-28 16-25 29 3 12 17 18 31 14" stroke-opacity=".38"/>
+    <circle cx="1133" cy="714" r="4" fill="#F7F2EA" stroke-opacity=".72"/>
+  </g>
+</svg>
