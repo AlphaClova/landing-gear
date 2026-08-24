@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Literal
+from typing import Any, Literal
 
 
 ResultType = Literal["exact", "scenario", "conditional"]
@@ -52,6 +52,22 @@ class ComparisonResult:
     scenarios: list[ComparisonScenario]
     result_type: Literal["exact"] = "exact"
     unit: Literal["KRW"] = "KRW"
+
+
+@dataclass(frozen=True)
+class AppliedRule:
+    rule_id: str
+    rule_version: str
+
+
+@dataclass(frozen=True)
+class WithdrawalComparisonResult:
+    """B-owned result that an A/C adapter can map to its response schema."""
+
+    comparison: ComparisonResult
+    evidence: list[dict[str, Any]]
+    applied_rules: list[AppliedRule]
+    claim_validation: dict[str, Any]
 
 
 @dataclass(frozen=True)

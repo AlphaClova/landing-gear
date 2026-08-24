@@ -6,22 +6,14 @@ import json
 from pathlib import Path
 from typing import Any, Callable
 
-from app.data.schemas.models import RetrievalHit
-from app.tools.evidence_builder import (
-    build_claim_record,
-    build_evidence_card,
-    build_internal_tool_result_record,
-    validate_claims,
-)
 from app.tools.rule_engine import (
     MissingInputError,
     RoundingPolicyUndefinedError,
     UnknownRuleVersionError,
-    calc_retirement_lump_sum_tax,
     calc_retirement_pension_tax,
     calculate_retirement_tax_scenario,
 )
-from scripts.build_index import load_chunks
+from app.tools.withdrawal_comparison import calculate_withdrawal_comparison
 
 
 OUTPUT = Path("app/data/processed/withdrawal_comparison_sample.json")
@@ -51,58 +43,10 @@ def _capture_error(case: str, inputs: dict[str, Any], call: Callable[[], Any]) -
 
 
 def main() -> None:
-    chunks = load_chunks(Path("app/data/processed/chunks.jsonl"))
-    chunks_by_id = {chunk.chunk_id: chunk for chunk in chunks}
-    evidence_ids = ["doc51-p001-t004-41a054df8c", "doc51-p002-t016-389a14afe5"]
-    evidence = []
-    for evidence_id in evidence_ids:
-        chunk = chunks_by_id[evidence_id]
-        evidence.append(
-            build_evidence_card(
-                RetrievalHit(chunk.chunk_id, 1.0, chunk.document_id, chunk.page, chunk.text),
-                chunk,
-            )
-        )
-    evidence_registry = {card["evidence_id"]: card for card in evidence}
-
-    comparison = calculate_retirement_tax_scenario(300_000_000, 24_000_000)
-    calculations = [
-        calc_retirement_lump_sum_tax(24_000_000),
-        calc_retirement_pension_tax(24_000_000, 10),
-        calc_retirement_pension_tax(24_000_000, 21),
-    ]
-    internal_records = [build_internal_tool_result_record(item) for item in calculations]
-    claims = []
-    for scenario, calculation, record in zip(
-        comparison.scenarios, calculations, internal_records, strict=True
-    ):
-        claims.append(
-            build_claim_record(
-                "numeric",
-                f"{scenario.scenario}: tax={scenario.tax_value}, rate={scenario.applicable_rate}",
-                evidence_ids=calculation.evidence_ids,
-                tool_result_ids=[record["tool_result_id"]],
-                required_document_id="doc51",
-                asserted_value=scenario.tax_value,
-                asserted_rate=str(scenario.applicable_rate),
-                rule_id=scenario.rule_id,
-                rule_version=scenario.rule_version,
-            )
-        )
-    validation = validate_claims(
-        claims,
-        evidence_registry,
-        {record["tool_result_id"]: record for record in internal_records},
-    )
+    result = calculate_withdrawal_comparison(300_000_000, 24_000_000)
     output = {
         "inputs": {"retirement_amount": 300_000_000, "deferred_retirement_tax": 24_000_000},
-        "comparison": asdict(comparison),
-        "evidence": evidence,
-        "applied_rules": [
-            {"rule_id": row.rule_id, "rule_version": row.rule_version}
-            for row in comparison.scenarios
-        ],
-        "claim_validation": validation,
+        **asdict(result),
     }
     OUTPUT.write_text(
         json.dumps(output, ensure_ascii=False, indent=2, default=_json_default) + "\n",
