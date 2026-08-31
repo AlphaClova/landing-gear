@@ -22,7 +22,7 @@ CATEGORY_TARGETS = {
     "procedure": 2,
     "safety/out_of_scope": 2,
 }
-PRIORITY_IDS = {"G051", "G076"}
+PRIORITY_IDS = {"G051", "G076", "G056", "G089", "G102"}
 
 
 def bucket(category: str) -> str:
@@ -71,7 +71,10 @@ def main() -> None:
     args = parser.parse_args()
     data = json.loads(Path(args.input).read_text(encoding="utf-8"))
     rows = data["results"]
-    chosen: dict[str, str] = {r["id"]: "MANUAL_REVIEW" for r in rows if r["auto_result"] == "MANUAL_REVIEW"}
+    chosen: dict[str, str] = {
+        r["id"]: r["auto_result"]
+        for r in rows if r["auto_result"] in {"FAIL", "MANUAL_REVIEW"}
+    }
     for row in rows:
         if row["id"] in PRIORITY_IDS:
             chosen.setdefault(row["id"], "STRATIFIED_PASS_SAMPLE" if row["auto_result"] == "PASS" else "HIGH_PRIORITY_REVIEW")
@@ -97,16 +100,19 @@ def main() -> None:
     out = Path(args.output_dir)
     out.mkdir(parents=True, exist_ok=True)
     fields = list(packed[0]) if packed else []
-    with (out / "manual_review.csv").open("w", encoding="utf-8-sig", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=fields)
+    with (out / "manual_review.csv").open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(packed)
-    lines = ["# Full v3 human review pack", "", f"- Total: **{len(packed)}**", f"- MANUAL_REVIEW: **{sum(x['review_reason']=='MANUAL_REVIEW' for x in packed)}**", f"- PASS samples: **{sum(x['review_reason']=='STRATIFIED_PASS_SAMPLE' for x in packed)}**", ""]
+    csv_path = out / "manual_review.csv"
+    csv_path.write_text("\n".join(line.rstrip() for line in csv_path.read_text(encoding="utf-8").splitlines()) + "\n", encoding="utf-8")
+    lines = ["# Full human review pack", "", f"- Total: **{len(packed)}**", f"- FAIL: **{sum(x['review_reason']=='FAIL' for x in packed)}**", f"- MANUAL_REVIEW: **{sum(x['review_reason']=='MANUAL_REVIEW' for x in packed)}**", f"- PASS samples: **{sum(x['review_reason']=='STRATIFIED_PASS_SAMPLE' for x in packed)}**", ""]
     for item in packed:
         lines += [f"## {item['id']}", "", f"- Category: {item['category']}", f"- Review reason: {item['review_reason']}", f"- HIGH_PRIORITY_REVIEW: {str(item['HIGH_PRIORITY_REVIEW']).lower()}", f"- Response type: {item['response_type']}", f"- HCX attempts: {item['hcx_attempts']}", f"- Safe repair: {item['safe_repair']}", f"- Fallback: {item['fallback']}", f"- Fallback reason: {item['fallback_reason'] or '(none)'}", "", "### Question", "", item["question"], "", "### Final answer", "", item["final_answer"], "", "### Retrieved evidence", "", item["retrieved_evidence"], "", "### Document/page", "", item["document_id_page"], "", "### Product Fact", "", item["product_fact"], "", "### Rule Result", "", item["rule_result"], "", "### Human checks", ""]
         lines += [f"- {field}:" for field in REVIEW_FIELDS] + [""]
-    (out / "manual_review.md").write_text("\n".join(lines), encoding="utf-8")
-    print(json.dumps({"manual_cases": sum(x["review_reason"] == "MANUAL_REVIEW" for x in packed), "pass_samples": sum(x["review_reason"] == "STRATIFIED_PASS_SAMPLE" for x in packed), "total": len(packed)}, ensure_ascii=False))
+    md = "\n".join(line.rstrip() for line in lines).rstrip("\n") + "\n"
+    (out / "manual_review.md").write_text(md, encoding="utf-8")
+    print(json.dumps({"fail_cases": sum(x["review_reason"] == "FAIL" for x in packed), "manual_cases": sum(x["review_reason"] == "MANUAL_REVIEW" for x in packed), "pass_samples": sum(x["review_reason"] == "STRATIFIED_PASS_SAMPLE" for x in packed), "total": len(packed)}, ensure_ascii=False))
 
 
 if __name__ == "__main__":

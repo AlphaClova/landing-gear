@@ -4,11 +4,12 @@ from dataclasses import dataclass, field
 import json
 import re
 
+from app.agent.canonical import detect_false_premise
 from app.agent.hcx_client import HCXClient
 from app.agent.router import Intent
 from app.agent.tools import ToolResult
 from app.api.schemas import CalculationResult, Citation, ComparisonResult, ComparisonRow, RequiredSlot, WithdrawalComparisonResponse
-from app.core.query_normalization import has_alias, has_legally_named_retirement_benefit, is_comparison_question, is_db_dc_question, is_tax_deduction_question, is_teacher_retirement_domain, needs_retirement_benefit_clarification, retirement_benefit_subtasks
+from app.core.query_normalization import has_alias, has_legally_named_retirement_benefit, is_comparison_question, is_db_dc_question, is_tax_deduction_question, is_teacher_retirement_domain, needs_retirement_benefit_clarification, retirement_benefit_subtasks, tax_intent
 from app.core.errors import ErrorCode, HCXError
 
 _SYSTEM_PROMPT = """제공된 계약만 자연스러운 한국어 답변으로 바꾸세요.
@@ -190,18 +191,21 @@ class Composer:
                         "doc26의 명예퇴직수당 규칙을 바로 적용하지 않고, 지급기관이 사용하는 정확한 수당 명칭과 법적 성격을 먼저 확인해야 합니다.")
             return GroundedContext(question, intent, "result", result.evidence, result.products, result.calculations,
                 [fallback], [], forbidden, [fallback], [], fallback)
-        correction = self._false_premise_correction(question, result)
-        if correction:
-            fallback, evidence_id = correction
-            return GroundedContext(question, intent, "result", result.evidence, result.products, result.calculations,
-                [fallback], self._allowed_numbers(result), forbidden, [], [], fallback,
-                false_premise=question, correction_fact=fallback, correction_evidence_id=evidence_id)
+        correction_pair = self._false_premise_correction(question, result)
         claim_plan = self._build_claim_plan(question, result)
+        if correction_pair:
+            fallback_correction, evidence_id = correction_pair
+            sourced = [item for item in result.evidence if item.id == evidence_id] or result.evidence[:1]
+            claim_plan.insert(0, self._claim("false_premise_correction", fallback_correction, evidence=sourced))
         if required_slots and any(slot.name in {"plan_type", "investment_horizon", "risk_tolerance"} for slot in required_slots):
             # Do not render an unfiltered catalog while recommendation constraints
             # are incomplete. Other answerable procedure/tax subtasks remain.
             claim_plan = [item for item in claim_plan if item.get("subtask") != "product_facts"]
         fallback = self._render_claim_plan(claim_plan) or self._grounded_message(question, result)
+        if correction_pair and fallback and correction_pair[0] not in fallback:
+            fallback = f"{correction_pair[0]}\n\n{fallback}"
+        elif correction_pair and not fallback:
+            fallback = correction_pair[0]
         if required_slots:
             prompts = "; ".join(slot.prompt for slot in required_slots)
             partial = fallback or "[한계] 현재 제공된 근거로 답할 수 있는 범위만 안내합니다."
@@ -209,13 +213,18 @@ class Composer:
         facts = self._required_facts(question, result, fallback)
         if fallback is None:
             fallback = "[한계] 제공된 근거 안에서만 답변할 수 있으며, 확인되지 않은 내용은 단정할 수 없습니다."
+        answerable = [item for item in claim_plan if item.get("status") == "answerable"]
+        if answerable and fallback.startswith("[한계] 제공된 근거 안에서만"):
+            fallback = self._render_claim_plan(claim_plan) or fallback
         if not result.evidence and not result.calculations and not result.products:
             return GroundedContext(question, intent, "limitation", limitations=[fallback], forbidden_behaviors=forbidden,
                 fallback_message=fallback, required_facts=[fallback])
         limits = [x.strip() for x in re.findall(r"\[(?:주의|한계)\][^\n]+", fallback)]
         if fallback.startswith("[한계] 비교할 특정 상품"):
             forbidden.append("상품 비교 한계 외 사실 추가")
-        allowed_numbers = self._allowed_numbers(result)
+        allowed_numbers = self._allowed_numbers(
+            result, question, include_question=tax_intent(question) is None
+        )
         # Claim-plan text is permitted only when its provenance is explicit. This
         # keeps the number verifier aligned with deterministic fallback claims.
         grounded_claim_text = " ".join(
@@ -224,6 +233,8 @@ class Composer:
             for claim in subtask.get("claims", [])  # type: ignore[union-attr]
             if isinstance(claim, dict)
         )
+        if correction_pair:
+            grounded_claim_text += " " + correction_pair[0]
         allowed_numbers = sorted(set(allowed_numbers) | set(re.findall(
             r"\d[\d,]*(?:\.\d+)?(?:\s*(?:억|천만|백만|만)\s*원|\s*원|\s*%)?", grounded_claim_text
         )))
@@ -235,13 +246,20 @@ class Composer:
             or result.procedure_type is not None
             or result.withdrawal_result is not None
             or bool(result.products)
+            or bool(correction_pair)
+            or bool(answerable)
             or len([part for part in fallback.split("\n\n") if part.strip()]) > 1
         )
         if sensitive_contract:
             forbidden.append("핵심 grounded contract 변경 또는 일부 누락")
-        return GroundedContext(question, intent, "result", result.evidence, result.products, result.calculations,
+        return GroundedContext(
+            question, intent, "result", result.evidence, result.products, result.calculations,
             facts, allowed_numbers, forbidden, limits, [], fallback,
-            claim_plan=claim_plan, recommendation_constraints=result.recommendation_constraints)
+            false_premise=question if correction_pair else None,
+            correction_fact=correction_pair[0] if correction_pair else None,
+            correction_evidence_id=correction_pair[1] if correction_pair else None,
+            claim_plan=claim_plan, recommendation_constraints=result.recommendation_constraints,
+        )
 
     @staticmethod
     def _required_facts(question: str, result: ToolResult, fallback: str | None) -> list[str]:
@@ -255,9 +273,11 @@ class Composer:
         return [x.strip() for x in fallback.splitlines() if x.strip()] if fallback and closed else [c.excerpt for c in result.evidence]
 
     @staticmethod
-    def _allowed_numbers(result: ToolResult) -> list[str]:
+    def _allowed_numbers(result: ToolResult, question: str = "", *, include_question: bool = True) -> list[str]:
         pattern = re.compile(r"\d[\d,]*(?:\.\d+)?(?:\s*(?:억|천만|백만|만)\s*원|\s*원|\s*%)?")
         values = {m for c in result.evidence for m in pattern.findall(c.excerpt)}
+        if include_question:
+            values.update(pattern.findall(question))
         for calculation in result.calculations:
             values.update(pattern.findall(" ".join(filter(None, (
                 str(calculation.value), calculation.rate, calculation.formula
@@ -284,11 +304,22 @@ class Composer:
     @staticmethod
     def _claim(subtask: str, text: str, *, evidence: list[Citation] | None = None,
                rules: list[CalculationResult] | None = None, products: list[dict] | None = None) -> dict[str, object]:
+        source_type = "evidence" if evidence else ("rule" if rules else ("product" if products else None))
+        source_id = None
+        if evidence:
+            source_id = evidence[0].id
+        elif rules:
+            source_id = f"{rules[0].rule_id}:{rules[0].label}"
+        elif products:
+            source_id = str(products[0].get("product_id") or "")
         return {
             "subtask": subtask,
             "status": "answerable",
             "claims": [{
                 "text": text,
+                "claim_type": "tax_numeric" if any(token in text for token in ("%", "만원", "세율", "공제")) else "factual",
+                "source_type": source_type,
+                "source_id": source_id,
                 "evidence_ids": [item.id for item in evidence or []],
                 "rule_result_ids": [f"{item.rule_id}:{item.label}" for item in rules or []],
                 "product_fact_ids": [str(item.get("product_id")) for item in products or [] if item.get("product_id")],
@@ -316,6 +347,17 @@ class Composer:
             for subtask in teacher_subtasks:
                 plan.append(self._claim(subtask, teacher_claims[subtask], evidence=doc26))
 
+        hours_evidence = [
+            item for item in result.evidence
+            if "15시간" in item.excerpt or ("근로시간" in item.excerpt and "가입" in item.excerpt)
+        ]
+        if hours_evidence and any(marker in question for marker in ("시간", "근무", "가입 대상", "대상인가요", "대상인가")):
+            plan.append(self._claim(
+                "eligibility_hours",
+                "제공 문서에 따르면 1주일 평균 근로시간이 15시간 이상이고 1년 이상 계속 근무하는 경우 퇴직연금 가입 대상입니다. 주 14시간 근무는 이 기준을 충족하지 않습니다.",
+                evidence=hours_evidence[:1],
+            ))
+
         if self._is_db_dc_explanation(question, result):
             db_dc_evidence = [item for item in result.evidence if item.document_id == "doc10"]
             plan.append(self._claim(
@@ -332,14 +374,19 @@ class Composer:
             ))
 
         asks_tax = (
-            any(x in question for x in ("세금", "과세", "절세", "납부비율", "수령 세율"))
+            any(x in question for x in ("세금", "과세", "절세", "납부비율", "수령 세율", "세율"))
             or result.tax_intent == "PENSION_WITHDRAWAL_TAX"
         ) and result.tax_intent != "TAX_CREDIT" and not is_tax_deduction_question(question)
-        if asks_tax and doc51:
+        tax_evidence = [
+            item for item in doc51
+            if any(marker in item.excerpt for marker in ("퇴직소득세", "이연퇴직소득세", "100%", "70%"))
+            and not (result.tax_intent != "TAX_CREDIT" and "세액공제율" in item.excerpt and "퇴직소득세" not in item.excerpt)
+        ] or doc51
+        if asks_tax and tax_evidence:
             plan.append(self._claim(
                 "retirement_tax",
                 "퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.",
-                evidence=doc51,
+                evidence=tax_evidence[:1],
             ))
 
         if len(result.tax_source_types) >= 3 and receipt_evidence:
@@ -404,12 +451,41 @@ class Composer:
                     f"[한계] 요청한 {entity} 상품은 현재 Product Fact에서 확인되지 않습니다.",
                 ))
         for constraint in result.recommendation_constraints:
-            if not constraint.get("applied") and str(constraint.get("constraint", "")).startswith("investment_horizon="):
-                years = str(constraint["constraint"]).split("=", 1)[1]
+            if not constraint.get("applied") and constraint.get("constraint") == "investment_horizon":
+                horizon = str(constraint.get("value", "요청한 기간"))
                 plan.append(self._unsupported(
                     "investment_horizon",
-                    f"[한계] 현재 Product Fact에는 {years} 투자기간 적합성을 직접 판정할 공식 field가 없어, 이 기간을 상품 필터에 적용하지 않았습니다.",
+                    f"[한계] 현재 Product Fact에는 {horizon} 투자기간 적합성을 직접 판정할 공식 field가 없어, 이 기간을 상품 필터에 적용하지 않았습니다.",
                 ))
+            if not constraint.get("applied") and constraint.get("constraint") == "principal_guarantee":
+                plan.append(self._unsupported(
+                    "principal_guarantee",
+                    "[한계] 현재 Product Fact에는 원금보장 여부를 직접 판정할 공식 field가 없습니다. 원금보장 필수 조건을 확인하지 못했으므로 상품 후보를 제시하지 않습니다.",
+                ))
+            if not constraint.get("applied") and constraint.get("constraint") == "fee_ceiling_percent":
+                plan.append(self._unsupported(
+                    "fee_ceiling_percent",
+                    f"[한계] 현재 Product Fact에는 상품 간 동일 기준으로 비교 가능한 보수 field가 없어 {constraint.get('value')}% 이하 조건을 적용할 수 없습니다. 조건 충족 상품 후보를 제시하지 않습니다.",
+                ))
+        distinctive_unapplied = [
+            item for item in result.recommendation_constraints
+            if item.get("constraint") not in {"account_type"} and not item.get("applied")
+        ]
+        if not result.products and distinctive_unapplied and not any(
+            item.get("constraint") in {"principal_guarantee", "fee_ceiling_percent", "investment_horizon"}
+            for item in distinctive_unapplied
+        ):
+            plan.append(self._unsupported(
+                "recommendation_candidates",
+                "[한계] 요청 조건을 현재 Product Fact의 공식 field로 확인할 수 없어 조건 충족 상품 후보를 특정할 수 없습니다.",
+            ))
+        elif not result.products and distinctive_unapplied and all(
+            item.get("constraint") == "investment_horizon" for item in distinctive_unapplied
+        ) and not any(item.get("subtask") == "investment_horizon" for item in plan):
+            plan.append(self._unsupported(
+                "recommendation_candidates",
+                "[한계] 투자기간 적합성을 직접 판정할 공식 field가 없어 조건 충족 상품 후보를 특정할 수 없습니다.",
+            ))
 
         requested_cost = any(x in question for x in ("비용", "보수", "수수료"))
         if requested_cost:
@@ -539,15 +615,9 @@ class Composer:
 
     @staticmethod
     def _false_premise_correction(question: str, result: ToolResult) -> tuple[str, str] | None:
-        doc10 = next((c for c in result.evidence if c.document_id == "doc10"), None)
-        dc_company_premise = any(x in question for x in ("회사", "고용주")) and any(
-            x in question for x in ("미리 확정", "사전에 확정", "확정돼", "수익률", "책임", "보장", "운용")
-        )
-        if doc10 and has_alias(question, "dc") and dc_company_premise:
-            return ("아닙니다. 확정기여형(DC)은 회사가 매년 일정 금액을 근로자의 계좌에 입금하고 근로자가 직접 운용하므로, 운용 수익률에 따라 최종 퇴직급여가 달라집니다.", doc10.id)
-        risk = next((c for c in result.evidence if "위험등급: 6등급(매우 낮은 위험)" in c.excerpt), None)
-        if risk and "6등급" in question and any(x in question for x in ("제일 위험", "가장 위험")):
-            return ("아닙니다. 제공된 Product Fact의 위험등급 체계에서 6등급은 매우 낮은 위험입니다.", risk.id)
+        hit = detect_false_premise(question, result.evidence, result.products)
+        if hit:
+            return hit.correction, hit.evidence_id
         return None
 
     @staticmethod

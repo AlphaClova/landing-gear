@@ -99,6 +99,7 @@ def score(c,status,b,lat,error,audit=None):
     indexed[excerpt]=(item["document_id"],item.get("page"))
   provenance=[{"document_id":indexed[x][0],"page":indexed[x][1]} for x in ctx if x in indexed]
  return {"id":c["id"],"category":c["category"],"difficulty":c["difficulty"],"question":c["question"],"subsets":c.get("subsets",[]),"manual_review_required":bool(c.get("manual_review_required")),"http_status":status,"latency_ms":round(lat,3),"auto_result":result,"fail_reasons":why,"details":detail,"answer":answer,"retrieved_context":ctx,"retrieved_provenance":provenance,"think_trace":b.get("think_trace",""),"hcx_invoked":hcx_invoked,"hcx_attempts":trace.get("hcx_attempts",0),"hcx_success":hcx_success,"hcx_first_pass":bool(trace.get("hcx_first_pass")),"hcx_regenerated":bool(trace.get("hcx_regenerated")),"deterministic_repaired":bool(trace.get("deterministic_repaired")),"hcx_timeout_count":trace.get("hcx_timeout_count",0),"hcx_audit":trace.get("hcx_audit",[]),"prompt_metrics":trace.get("prompt_metrics",{}),"fallback_used":fallback_used,"fallback_reason":trace.get("hcx_fallback_reason"),"request_audit":audit or {}}
+P0_REVIEW_IDS={"G056","G089","G102"}
 def reports(rows,out,subset,provider,run_kind=None):
  out=Path(out); out.mkdir(parents=True,exist_ok=True); counts=Counter(r["auto_result"] for r in rows); reasons=Counter(x for r in rows for x in r["fail_reasons"]); lats=[r["latency_ms"] for r in rows]; cats=defaultdict(list)
  for r in rows: cats[r["category"]].append(r)
@@ -117,20 +118,26 @@ def reports(rows,out,subset,provider,run_kind=None):
  review=["id","category","question","answer","retrieved_context","accuracy","evidence_completeness","requirement_coverage","groundedness","reasoning","safety","limit_handling","unsupported_claim_found","wrong_number_found","wrong_evidence_found","overconfident_recommendation","unnecessary_clarification","overall_pass","reviewer","comment"]
  with (out/"manual_review.csv").open("w",encoding="utf-8-sig",newline="") as f:
   w=csv.DictWriter(f,fieldnames=review); w.writeheader()
-  for r in rows:
-   if r["auto_result"]=="MANUAL_REVIEW": w.writerow({k:(json.dumps(r["retrieved_context"],ensure_ascii=False) if k=="retrieved_context" else r.get(k,"")) for k in review})
- manual=[r for r in rows if r["auto_result"]=="MANUAL_REVIEW"]
+  review_rows=[r for r in rows if r["auto_result"] in {"FAIL","MANUAL_REVIEW"} or r["id"] in P0_REVIEW_IDS]
+  seen={r["id"] for r in review_rows}
+  sample_targets={"institution":2,"tax":2,"combined":2,"product_compare":2,"conditional_recommendation":2,"procedure":2,"safety":2,"out_of_scope":1}
+  for category,target in sample_targets.items():
+   review_rows.extend([r for r in rows if r["auto_result"]=="PASS" and r["category"]==category and r["id"] not in seen][:target])
+   seen.update(r["id"] for r in review_rows)
+  for r in review_rows:
+   w.writerow({k:(json.dumps(r["retrieved_context"],ensure_ascii=False) if k=="retrieved_context" else r.get(k,"")) for k in review})
+ manual=review_rows
  review_md=["# Full manual review pack","",f"- Cases: **{len(manual)}**",""]
  for r in manual:
   review_md += [f"## {r['id']}","",f"- Category: {r['category']}",f"- Latency: {r['latency_ms']} ms",f"- HCX invoked/success: {r['hcx_invoked']} / {r['hcx_success']}","","### Question","",r["question"],"","### Answer","",r["answer"],"","### Retrieved context",""]
   review_md += [f"- {x}" for x in r["retrieved_context"]] or ["- (none)"]
   review_md += ["","### Human checks","","- Accuracy:","- Evidence completeness:","- Requirement coverage:","- Groundedness:","- Reasoning:","- Safety:","- Limit handling:","- Unsupported claim found:","- Wrong number found:","- Wrong evidence found:","- Overconfident recommendation:","- Unnecessary clarification:","- Overall pass:","- Reviewer:","- Comment:",""]
- (out/"manual_review.md").write_text("\n".join(review_md),encoding="utf-8")
+ (out/"manual_review.md").write_text("\n".join(line.rstrip() for line in review_md).rstrip("\n")+"\n",encoding="utf-8")
  md=[f"# Golden evaluation: {subset}","",f"- Run kind: **{run_kind or 'UNSPECIFIED'}**",f"- Production-valid: **{valid}**",f"- HCX: **{provider.get('hcx_mode','unknown')}**",f"- Evidence/Rule/Product: **{provider.get('evidence_provider_mode','unknown')} / {provider.get('rule_provider_mode','unknown')} / {provider.get('product_provider_mode','unknown')}**",f"- PASS: **{counts['PASS']}/{len(rows)} ({percent(counts['PASS'],len(rows))})**",f"- FAIL: **{counts['FAIL']}**",f"- MANUAL_REVIEW: **{counts['MANUAL_REVIEW']}**",f"- Latency avg/p50/p95/max: **{summary['average_latency_ms']:.1f} / {pct(lats,.5):.1f} / {pct(lats,.95):.1f} / {max(lats,default=0):.1f} ms**",f"- HTTP error rate: **{percent(sum(r['http_status']!=200 for r in rows),len(rows))}**","","## Category pass rates",""]
  md += [f"- {c}: {percent(sum(r['auto_result']=='PASS' for r in rs),len(rs))} ({sum(r['auto_result']=='PASS' for r in rs)}/{len(rs)})" for c,rs in sorted(cats.items())]
  md += ["","## Official cases",""]+[f"- {r['id']}: {r['auto_result']} ({', '.join(r['fail_reasons']) or 'deterministic checks passed'})" for r in rows if "official" in r["subsets"]]+["","## Failure types",""]+[f"- {x}: {n}" for x,n in reasons.most_common()]+["","## Failures grouped by type",""]
  for x,_ in reasons.most_common(): md += [f"### {x}",""]+[f"- {r['id']}: {r['question']}" for r in rows if x in r["fail_reasons"]]+[""]
- (out/"summary.md").write_text("\n".join(md),encoding="utf-8")
+ (out/"summary.md").write_text("\n".join(line.rstrip() for line in md).rstrip("\n")+"\n",encoding="utf-8")
 def legacy(path):
  total=bad=0
  for line in Path(path).read_text().splitlines():

@@ -30,6 +30,34 @@ def test_false_premise_dc_responsibility_is_corrected() -> None:
     assert "근로자가 직접 운용" in context.fallback_message
 
 
+@pytest.mark.parametrize("question", [
+    "DC는 퇴직급여가 미리 확정돼 있죠?",
+    "DC는 퇴직금이 미리 정해지는 거죠?",
+    "DC는 회사가 투자해주는 거죠?",
+])
+def test_false_dc_premise_requires_correction(question: str) -> None:
+    _, _, result, context = grounded(question)
+    assert context.false_premise == question
+    assert context.fallback_message.startswith("아닙니다")
+    draft = Draft(message="네, 맞습니다. DC는 회사가 운용합니다.", citations=result.evidence, context=context)
+    verifier = Verifier()
+    issues = verifier.check(draft)
+    assert "false-premise affirmation" in issues
+    assert verifier.repair_safe(draft, issues)
+    assert draft.message == context.fallback_message
+
+
+@pytest.mark.parametrize("question", [
+    "DB는 제가 직접 운용하는 거죠?",
+    "DB는 수익률이 낮으면 퇴직금도 줄죠?",
+])
+def test_false_db_premise_requires_correction(question: str) -> None:
+    _, _, _, context = grounded(question)
+    assert context.false_premise == question
+    assert context.fallback_message.startswith("아닙니다")
+    assert "회사가 적립금을 운용" in context.fallback_message
+
+
 def test_db_dc_direct_question_preserves_comparison_contract() -> None:
     _, _, result, context = grounded("DB형과 DC형은 퇴직급여가 정해지는 방식과 운용 주체가 어떻게 다른가요?")
     assert result.procedure_type is None
@@ -225,10 +253,76 @@ def test_requested_product_cost_is_value_or_explicit_limitation() -> None:
 
 def test_unapplied_horizon_constraint_is_disclosed() -> None:
     _, _, result, context = grounded("IRP에서 3년 투자할 안정형 상품 후보를 보여줘")
-    horizon = next(item for item in result.recommendation_constraints if str(item["constraint"]).startswith("investment_horizon="))
+    horizon = next(item for item in result.recommendation_constraints if item["constraint"] == "investment_horizon")
     assert horizon["applied"] is False
-    assert "3y 투자기간 적합성을 직접 판정할 공식 field가 없어" in context.fallback_message
+    assert horizon["value"] == "3년"
+    assert "3년 투자기간 적합성을 직접 판정할 공식 field가 없어" in context.fallback_message
     assert "3년 투자할 안정형 상품 후보" not in context.fallback_message
+
+
+def test_unsupported_principal_guarantee_hard_constraint_prevents_dump() -> None:
+    _, slots, result, context = grounded("투자기간 6개월, 원금보장 필요, IRP 상품 비교")
+    assert slots["investment_horizon_months"] == 6
+    assert slots["principal_guarantee_required"] is True
+    guarantee = next(item for item in result.recommendation_constraints if item["constraint"] == "principal_guarantee")
+    assert guarantee == {
+        "constraint": "principal_guarantee", "value": True, "kind": "hard",
+        "applied": False, "support": None, "reason": "no supported principal guarantee field",
+    }
+    assert result.products == []
+    assert "상품 후보를 제시하지 않습니다" in context.fallback_message
+    assert "미래에셋장기성장" not in context.fallback_message
+
+
+def test_hours_eligibility_does_not_invent_hour_rule() -> None:
+    _, _, result, context = grounded("주 14시간 근무자도 퇴직연금 대상인가요?")
+    assert any("15시간" in item.excerpt for item in result.evidence)
+    assert "15시간 이상" in context.fallback_message
+    assert "14시간" in context.fallback_message
+    assert not context.fallback_message.startswith("[한계] 제공된 근거 안에서만")
+
+
+def test_already_stated_horizon_and_principal_do_not_reask() -> None:
+    missing = SlotManager().required("상품", {}, "6개월 안에 쓸 돈인데 손실 없는 IRP 상품만 골라줘")
+    assert missing == []
+    _, _, result, context = grounded("3년 투자에 적합한 IRP 상품만 보여줘")
+    horizon = next(item for item in result.recommendation_constraints if item["constraint"] == "investment_horizon")
+    assert horizon["applied"] is False
+    assert result.products == []
+    assert "상품 후보를 특정할 수 없습니다" in context.fallback_message or "투자기간 적합성" in context.fallback_message
+
+
+
+def test_supported_exact_risk_constraint_filters_products() -> None:
+    _, _, result, context = grounded("IRP에서 위험등급 6등급 상품만 보여줘")
+    assert len(result.products) == 1
+    assert result.products[0]["risk_level"] == 6
+    risk = next(item for item in result.recommendation_constraints if item["constraint"] == "risk_grade")
+    assert risk["applied"] is True
+    assert "6등급(매우 낮은 위험)" in context.fallback_message
+
+
+def test_unsupported_fee_ceiling_is_hard_and_prevents_dump() -> None:
+    _, slots, result, context = grounded("IRP, 위험 낮은 상품, 수수료 0.3% 이하만 보여줘")
+    assert slots["fee_ceiling_percent"] == 0.3
+    fee = next(item for item in result.recommendation_constraints if item["constraint"] == "fee_ceiling_percent")
+    assert fee["kind"] == "hard" and fee["applied"] is False
+    assert result.products == []
+    assert "0.3% 이하 조건을 적용할 수 없습니다" in context.fallback_message
+
+
+def test_no_evidence_limitation_blocks_hcx_factual_expansion() -> None:
+    context = GroundedContext(
+        question="자료 없는 사실을 알려줘", intent="상품", response_mode="limitation",
+        fallback_message="[한계] 현재 자료에서 확인할 수 없습니다.",
+        limitations=["[한계] 현재 자료에서 확인할 수 없습니다."],
+    )
+    draft = Draft(message="일반적으로 5%가 적용됩니다. [한계] 확인할 수 없습니다.", context=context)
+    verifier = Verifier()
+    issues = verifier.check(draft)
+    assert "limitation contract expansion" in issues
+    assert verifier.repair_safe(draft, issues)
+    assert draft.message == context.fallback_message
 
 
 def test_grounded_fallback_does_not_add_generic_advice() -> None:

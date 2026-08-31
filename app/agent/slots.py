@@ -79,6 +79,17 @@ class SlotManager:
                     inferred_plan_type = self._plan_type_from_question(question)
                     if inferred_plan_type is not None:
                         effective_slots["plan_type"] = inferred_plan_type
+                if effective_slots.get("investment_horizon") is None and (
+                    effective_slots.get("investment_horizon_months") is not None
+                    or effective_slots.get("investment_horizon_label")
+                ):
+                    effective_slots["investment_horizon"] = (
+                        effective_slots.get("investment_horizon")
+                        or effective_slots.get("investment_horizon_months")
+                        or 1
+                    )
+                if effective_slots.get("risk_tolerance") is None and effective_slots.get("principal_guarantee_required"):
+                    effective_slots["risk_tolerance"] = "principal_protection"
                 specs = (
                     SlotSpec("plan_type", "IRP·DC 중 어떤 계좌 기준인가요?", "가입 가능한 상품 범위 확인"),
                     SlotSpec("investment_horizon", "예상 투자기간은 얼마나 되나요?", "만기·변동성 기준 확인"),
@@ -107,6 +118,23 @@ class SlotManager:
         horizon = re.search(r"(\d+)\s*년(?:\s*(?:이상|이하))?\s*(?:투자|운용)", question)
         if horizon:
             extracted["investment_horizon"] = int(horizon.group(1))
+            extracted["investment_horizon_label"] = f"{horizon.group(1)}년"
+        else:
+            year_use = re.search(r"(\d+)\s*년\s*(?:내|안|이내)", question)
+            months = re.search(r"(\d+)\s*개월(?:\s*(?:이상|이하|내|안|이내))?", question)
+            if months:
+                extracted["investment_horizon_months"] = int(months.group(1))
+                extracted["investment_horizon_label"] = f"{months.group(1)}개월"
+            elif year_use:
+                extracted["investment_horizon"] = int(year_use.group(1))
+                extracted["investment_horizon_label"] = f"{year_use.group(1)}년"
+        if has_alias(question, "principal_protection") or any(
+            marker in question for marker in ("원금 보장", "손실 없는", "손실이 없는", "손실 안")
+        ):
+            extracted["principal_guarantee_required"] = True
+        fee_ceiling = re.search(r"(?:보수|수수료)\s*(\d+(?:\.\d+)?)\s*%\s*이하", question)
+        if fee_ceiling:
+            extracted["fee_ceiling_percent"] = float(fee_ceiling.group(1))
         if any(x in question for x in ("안정형", "안정적", "낮은 위험", "저위험", "위험이 낮", "손실위험이 낮")):
             extracted["risk_tolerance"] = "stable"
         return extracted

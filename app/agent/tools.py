@@ -382,13 +382,65 @@ class ToolRouter:
             result.traces.append(trace)
             result.evidence.extend(self._product_citations(products))
 
-        if any(marker in question for marker in ("후보", "추천", "골라", "상품 선택")):
+        recommendation_or_compare = any(marker in question for marker in ("후보", "추천", "골라", "상품 선택", "상품 비교", "상품만", "상품을", "보여"))
+        if recommendation_or_compare:
             if slots.get("plan_type"):
-                result.recommendation_constraints.append({"constraint": f"plan_type={slots['plan_type']}", "applied": bool(result.products), "source": "product_fact"})
+                result.recommendation_constraints.append({
+                    "constraint": "account_type", "value": slots["plan_type"], "kind": "hard",
+                    "applied": bool(result.products), "support": "product_fact.plan_types",
+                    "reason": "filtered by supported account field" if result.products else "no matching products",
+                })
             if slots.get("risk_tolerance") == "stable":
-                result.recommendation_constraints.append({"constraint": "risk_preference=stable", "applied": bool(result.products), "mapping": "risk_level>=5"})
-            if slots.get("investment_horizon") is not None:
-                result.recommendation_constraints.append({"constraint": f"investment_horizon={slots['investment_horizon']}y", "applied": False, "reason": "no supported horizon field"})
+                result.recommendation_constraints.append({
+                    "constraint": "risk_preference", "value": "stable", "kind": "soft",
+                    "applied": bool(result.products), "support": "product_fact.risk_level>=5",
+                    "reason": "mapped to supported risk scale",
+                })
+            requested_grade = re.search(r"([1-6])\s*등급", question)
+            if requested_grade:
+                grade = int(requested_grade.group(1))
+                result.recommendation_constraints.append({
+                    "constraint": "risk_grade", "value": grade, "kind": "hard",
+                    "applied": bool(result.products) and all(item.get("risk_level") == grade for item in result.products),
+                    "support": "product_fact.risk_level", "reason": "filtered by supported risk field",
+                })
+            horizon_label = slots.get("investment_horizon_label")
+            if horizon_label:
+                result.recommendation_constraints.append({
+                    "constraint": "investment_horizon", "value": horizon_label, "kind": "soft",
+                    "applied": False, "support": None, "reason": "no supported horizon suitability field",
+                })
+            if slots.get("principal_guarantee_required"):
+                result.recommendation_constraints.append({
+                    "constraint": "principal_guarantee", "value": True, "kind": "hard",
+                    "applied": False, "support": None, "reason": "no supported principal guarantee field",
+                })
+            if slots.get("fee_ceiling_percent") is not None:
+                result.recommendation_constraints.append({
+                    "constraint": "fee_ceiling_percent", "value": slots["fee_ceiling_percent"], "kind": "hard",
+                    "applied": False, "support": None, "reason": "no normalized comparable fee field",
+                })
+
+        distinctive = [
+            item for item in result.recommendation_constraints
+            if item.get("constraint") not in {"account_type"}
+        ]
+        unsupported_hard = any(
+            item.get("kind") == "hard" and not item.get("applied")
+            for item in result.recommendation_constraints
+        )
+        cannot_narrow = bool(distinctive) and not any(item.get("applied") for item in distinctive)
+        catalog_dump = not distinctive and len(result.products) > 8
+        if (unsupported_hard or cannot_narrow or catalog_dump) and result.products:
+            result.products = []
+            result.evidence = [item for item in result.evidence if not str(item.id).startswith("product-")]
+        elif result.products and not has_alias(question, "product_family"):
+            kept_ids = {str(item.get("product_id")) for item in result.products[:5]}
+            result.products = result.products[:5]
+            result.evidence = [
+                item for item in result.evidence
+                if not str(item.id).startswith("product-") or str(item.id) in {f"product-{pid}" for pid in kept_ids}
+            ]
 
         return result
 
@@ -405,6 +457,10 @@ class ToolRouter:
             queries.append(("연금저축 IRP 세액공제 납입한도 합산 600만원 900만원", "세제"))
         if result.tax_intent == "PENSION_WITHDRAWAL_TAX":
             queries.append((f"{question} 실제수령연차 이연퇴직소득세 70% 60% 50%", "세제"))
+        if result.tax_intent == "RETIREMENT_INCOME_TAX":
+            queries.append(("퇴직금 일시금 연금수령 퇴직소득세 100% 이연퇴직소득세", "세제"))
+        if any(marker in question for marker in ("근무", "근로시간", "가입 대상", "대상인가요", "대상인가")):
+            queries.append(("퇴직연금 가입 대상 근로시간 계속근로기간", "제도"))
         if result.tax_source_types:
             queries.append((f"{question} 연금계좌 재원별 인출 과세 퇴직금 운용수익", "세제"))
         if result.procedure_type == "ACCOUNT_TERMINATION":

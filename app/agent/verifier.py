@@ -7,10 +7,15 @@ type을 "limitation"으로 낮춘다 (문서 7장 Verifier 기준).
 import re
 from decimal import Decimal, InvalidOperation
 
+from app.agent.canonical import (
+    answer_affirms_false_premise,
+    answer_asserts_false_numeric_premise,
+    detect_false_premise,
+)
 from app.agent.composer import Draft
 from app.agent.router import RouteDecision
 from app.api.schemas import CalculationResult, Citation, InternalAnswer, RequiredSlot, ThinkTrace, ToolCallTrace
-from app.core.query_normalization import is_db_dc_question, is_teacher_retirement_domain
+from app.core.query_normalization import is_db_dc_question, is_tax_deduction_question, is_teacher_retirement_domain, tax_intent
 
 _ASSERTIVE_PHRASES = (
     "무조건",
@@ -46,7 +51,7 @@ class Verifier:
         context = draft.context
         if not context:
             return False
-        if "안전 거절 확장" in issues or "Rule 밖 금액 계산" in issues or "민감정보 응답 확장" in issues or "반올림 실패 응답 확장" in issues or "상품 한계 응답 확장" in issues or "핵심 grounded contract 변경 또는 일부 누락" in issues or "DB/DC fact inversion" in issues:
+        if "안전 거절 확장" in issues or "Rule 밖 금액 계산" in issues or "민감정보 응답 확장" in issues or "반올림 실패 응답 확장" in issues or "상품 한계 응답 확장" in issues or "핵심 grounded contract 변경 또는 일부 누락" in issues or "DB/DC fact inversion" in issues or "false-premise affirmation" in issues or "false-premise correction 누락" in issues or "limitation contract expansion" in issues or "unsupported hard constraint product dump" in issues or "unsupported factual claim" in issues or any(issue.startswith("근거 없는 숫자") for issue in issues):
             draft.message = context.fallback_message
             draft.hcx_audit.append({"phase":"deterministic_repair", "violations":issues, "action":"restore_grounded_contract"})
             return not self.check(draft)
@@ -218,6 +223,8 @@ class Verifier:
         if context and context.response_mode == "limitation":
             if not any(x in draft.message for x in ("어렵", "범위를 벗어나", "한계", "제공할 수 없")):
                 issues.append("필수 limitation 누락")
+            if draft.message.strip() != context.fallback_message.strip():
+                issues.append("limitation contract expansion")
             return issues
 
         if not draft.citations and not draft.calculation_results:
@@ -271,6 +278,50 @@ class Verifier:
             if inverted_operator or inverted_benefit:
                 issues.append("DB/DC fact inversion")
 
+        if context:
+            support_blob = evidence_text + "\n" + "\n".join(context.required_facts + context.limitations) + repr(context.products)
+            for term in ("TDF", "EMP"):
+                if term in draft.message and term not in support_blob and term not in context.question:
+                    issues.append("unsupported factual claim")
+            if re.search(r"국민연금.{0,80}(?:5\.5|3\.3)|(?:5\.5|3\.3).{0,80}국민연금", draft.message) and "국민연금" not in evidence_text:
+                issues.append("unsupported factual claim")
+            if context.claim_plan:
+                sourced = False
+                for subtask in context.claim_plan:
+                    for claim in subtask.get("claims", []) or []:
+                        if not isinstance(claim, dict):
+                            continue
+                        if claim.get("evidence_ids") or claim.get("rule_result_ids") or claim.get("product_fact_ids"):
+                            sourced = True
+                if not sourced and any(marker in draft.message for marker in ("적용됩니다", "부과됩니다", "납부하게", "보장됩니다")):
+                    if draft.message.strip() != (context.fallback_message or "").strip():
+                        issues.append("unsupported factual claim")
+
+        if context:
+            hit = detect_false_premise(context.question, context.evidence, context.products)
+            if context.false_premise or hit:
+                if answer_affirms_false_premise(draft.message):
+                    issues.append("false-premise affirmation")
+                if hit and answer_asserts_false_numeric_premise(draft.message, hit.user_claim.value):
+                    issues.append("false-premise affirmation")
+                correction = context.correction_fact or (hit.correction if hit else None)
+                if correction and correction not in draft.message:
+                    issues.append("false-premise correction 누락")
+
+            if any(marker in draft.message for marker in ("건강보험료", "건강보험")) and not any(
+                marker in context.question for marker in ("건강보험료", "건강보험")
+            ):
+                issues.append("unsupported factual claim")
+
+            classified = tax_intent(context.question)
+            if classified and classified != "TAX_CREDIT" and not is_tax_deduction_question(context.question):
+                support = "\n".join(citation.excerpt for citation in draft.citations)
+                support += "\n" + "\n".join(context.required_facts + [context.correction_fact or ""])
+                for marker in ("16.5%", "13.2%", "600만원", "900만원"):
+                    if marker in draft.message and marker not in support and marker not in (context.correction_fact or ""):
+                        issues.append("unsupported factual claim")
+                        break
+
         if context and is_teacher_retirement_domain(context.question) and any(
             item.document_id == "doc26" for item in context.evidence
         ):
@@ -288,10 +339,12 @@ class Verifier:
                 if constraint.get("applied"):
                     continue
                 raw = str(constraint.get("constraint", ""))
-                if raw.startswith("investment_horizon="):
-                    years = raw.split("=", 1)[1].removesuffix("y")
-                    if re.search(rf"{re.escape(years)}년\s*(?:투자\s*)?(?:후보|적합|추천)", draft.message):
+                if raw == "investment_horizon":
+                    horizon = str(constraint.get("value", ""))
+                    if horizon and re.search(rf"{re.escape(horizon)}\s*(?:투자\s*)?(?:후보|적합|추천)", draft.message):
                         issues.append("미적용 추천 조건을 적용한 표현")
+                if constraint.get("kind") == "hard" and not constraint.get("applied") and context.products:
+                    issues.append("unsupported hard constraint product dump")
 
         if context and context.calculations:
             money_pattern = re.compile(r"\d[\d,]*(?:\.\d+)?\s*(?:억|천만|백만|만)?\s*원")
@@ -302,8 +355,18 @@ class Verifier:
 
         if self._contradicts_limitation(draft.message):
             issues.append("한계와 모순되는 단정")
+        answerable_plan = [
+            item for item in (context.claim_plan if context else [])
+            if item.get("status") == "answerable"
+        ]
+        generic_limit_only = bool(
+            context
+            and context.limitations
+            and all("제공된 근거 안에서만" in item for item in context.limitations)
+        )
         if context and context.limitations and not any(x in draft.message for x in ("[한계]", "[주의]")):
-            issues.append("필수 limitation 누락")
+            if not (answerable_plan and generic_limit_only):
+                issues.append("필수 limitation 누락")
 
         unverified = self._unverified_numbers(draft.message, draft.calculation_results, draft.citations)
         if context:

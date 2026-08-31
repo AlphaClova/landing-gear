@@ -151,7 +151,7 @@ def is_comparison_question(question: str) -> bool:
 
 
 def is_tax_deduction_question(question: str) -> bool:
-    return has_alias(question, "tax_deduction") or any(x in question.replace(" ", "") for x in ("납입한도", "공제대상", "공제상한")) or ("공제" in question and any(x in question for x in ("한도", "최대", "상한", "환급액")))
+    return has_alias(question, "tax_deduction") or any(x in question.replace(" ", "") for x in ("납입한도", "공제대상", "공제상한", "세금에서빠")) or ("공제" in question and any(x in question for x in ("한도", "최대", "상한", "환급액")))
 
 
 def is_closed_tax_faq(question: str) -> bool:
@@ -218,6 +218,8 @@ def tax_intent(question: str) -> str | None:
         return "PENSION_WITHDRAWAL_TAX"
     if any(x in question for x in ("퇴직소득세", "퇴직금", "세금")):
         return "RETIREMENT_INCOME_TAX"
+    if any(x in question for x in ("세율", "과세", "절세", "공제율", "감면율", "건강보험료")):
+        return "OTHER_TAX_OR_UNKNOWN"
     return None
 
 
