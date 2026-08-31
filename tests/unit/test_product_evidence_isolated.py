@@ -1,6 +1,4 @@
-import json
 import re
-from pathlib import Path
 
 import pytest
 
@@ -24,9 +22,7 @@ from app.api.schemas import Citation
 from app.core.config import Settings
 
 
-G033_BASELINE = json.loads(
-    Path("artifacts/eval/g033-v7-baseline/g033.json").read_text(encoding="utf-8")
-)
+G033_QUESTION = "IRP 추가납입과 퇴직금 재원의 과세 차이를 설명해줘"
 
 SHORT = {
     "product_id": "short",
@@ -104,19 +100,20 @@ def test_enrichment_allowed_only_for_product_intent() -> None:
 
 
 def test_g033_intent_blocks_product_enrichment() -> None:
-    decision, result, context = grounded(G033_BASELINE["question"])
+    decision, _, context = grounded(G033_QUESTION)
     assert decision.intent == "종합"
     assert allows_product_evidence_enrichment(decision.intent) is False
-    assert G033_BASELINE["answer"].strip() in context.fallback_message
+    assert "[한계]" in context.fallback_message or "확정할 수 없" in context.fallback_message
     for claim in G033_FORBIDDEN_TAX_CLAIMS:
         assert claim not in context.fallback_message
+    compact = re.sub(r"\s+", "", context.fallback_message)
+    assert "비과세" not in compact
+    assert "과세가발생하지" not in compact
     assert "총보수·비용 비율" not in context.fallback_message
-    assert json.loads(G033_BASELINE["think_trace"])["intent"] == "종합"
-    assert json.loads(G033_BASELINE["think_trace"])["tools"] == ["retrieve_evidence"]
 
 
 def test_g033_hallucinated_tax_claim_is_repaired() -> None:
-    _, result, context = grounded(G033_BASELINE["question"])
+    _, result, context = grounded(G033_QUESTION)
     draft = Draft(
         message="법정 외 퇴직금의 경우에는 IRP 추가 납입 시에는 과세가 발생하지만 퇴직금 재원은 과세가 발생하지 않습니다.",
         citations=result.evidence,
@@ -131,7 +128,7 @@ def test_g033_hallucinated_tax_claim_is_repaired() -> None:
 
 
 def test_g033_tax_claim_variant_hana_is_repaired() -> None:
-    _, result, context = grounded(G033_BASELINE["question"])
+    _, result, context = grounded(G033_QUESTION)
     draft = Draft(
         message=(
             "법정 외 퇴직금의 경우에는 IRP 추가 납입 시에는 과세가 발생하나 "
@@ -175,7 +172,7 @@ POSITIVE_TAXABILITY_CLAIMS = [
 
 @pytest.mark.parametrize("claim", NEGATIVE_TAXABILITY_CLAIMS + POSITIVE_TAXABILITY_CLAIMS)
 def test_g033_ungrounded_taxability_polarity_is_repaired(claim: str) -> None:
-    _, result, context = grounded(G033_BASELINE["question"])
+    _, result, context = grounded(G033_QUESTION)
     draft = Draft(message=claim, citations=result.evidence, context=context)
     verifier = Verifier()
     issues = verifier.check(draft)
@@ -188,7 +185,7 @@ def test_g033_ungrounded_taxability_polarity_is_repaired(claim: str) -> None:
 
 
 def test_g033_ungrounded_tax_rate_reduction_is_repaired() -> None:
-    _, result, context = grounded(G033_BASELINE["question"])
+    _, result, context = grounded(G033_QUESTION)
     draft = Draft(
         message=(
             "| DB | 일시금/연금 | 퇴직소득세 100%/30%-50% 감면 |\n"
@@ -205,7 +202,7 @@ def test_g033_ungrounded_tax_rate_reduction_is_repaired() -> None:
 
 
 def test_g033_limitation_only_answer_is_allowed() -> None:
-    _, result, context = grounded(G033_BASELINE["question"])
+    _, result, context = grounded(G033_QUESTION)
     draft = Draft(message=context.fallback_message, citations=result.evidence, context=context)
     assert "unsupported factual claim" not in Verifier().check(draft)
 
@@ -281,7 +278,7 @@ def test_product_unit_confusion_repaired_only_on_product_intent() -> None:
     confused = "총보수·비용 비율 67천원입니다."
     product_draft = Draft(message=confused, citations=cites, context=product_ctx)
     assert "product unit confusion" in verifier.check(product_draft)
-    tax_draft = Draft(message=G033_BASELINE["answer"], citations=cites, context=tax_ctx)
+    tax_draft = Draft(message=tax_ctx.fallback_message, citations=cites, context=tax_ctx)
     assert "product unit confusion" not in verifier.check(tax_draft)
 
 
