@@ -5,6 +5,8 @@ from app.agent.hcx_client import HCXClient
 from app.agent.router import IntentRouter
 from app.agent.slots import SlotManager
 from app.agent.tools import BEvidenceProvider, BProductCatalog, BRuleEngine, ToolRouter
+from app.agent.verifier import Verifier
+from app.agent.composer import Draft, GroundedContext
 from app.core.config import Settings
 from app.core.query_normalization import procedure_type, tax_intent
 
@@ -26,6 +28,57 @@ def test_false_premise_dc_responsibility_is_corrected() -> None:
     assert context.false_premise
     assert "아닙니다" in context.fallback_message
     assert "근로자가 직접 운용" in context.fallback_message
+
+
+@pytest.mark.parametrize("question", [
+    "DC는 퇴직급여가 미리 확정돼 있죠?",
+    "DC는 퇴직금이 미리 정해지는 거죠?",
+    "DC는 회사가 투자해주는 거죠?",
+])
+def test_false_dc_premise_requires_correction(question: str) -> None:
+    _, _, result, context = grounded(question)
+    assert context.false_premise == question
+    assert context.fallback_message.startswith("아닙니다")
+    draft = Draft(message="네, 맞습니다. DC는 회사가 운용합니다.", citations=result.evidence, context=context)
+    verifier = Verifier()
+    issues = verifier.check(draft)
+    assert "false-premise affirmation" in issues
+    assert verifier.repair_safe(draft, issues)
+    assert draft.message == context.fallback_message
+
+
+@pytest.mark.parametrize("question", [
+    "DB는 제가 직접 운용하는 거죠?",
+    "DB는 수익률이 낮으면 퇴직금도 줄죠?",
+])
+def test_false_db_premise_requires_correction(question: str) -> None:
+    _, _, _, context = grounded(question)
+    assert context.false_premise == question
+    assert context.fallback_message.startswith("아닙니다")
+    assert "회사가 적립금을 운용" in context.fallback_message
+
+
+def test_db_dc_direct_question_preserves_comparison_contract() -> None:
+    _, _, result, context = grounded("DB형과 DC형은 퇴직급여가 정해지는 방식과 운용 주체가 어떻게 다른가요?")
+    assert result.procedure_type is None
+    assert any(item["subtask"] == "db_dc_difference" for item in context.claim_plan)
+    assert "확정급여형(DB)" in context.fallback_message
+    assert "확정기여형(DC)" in context.fallback_message
+    assert "해지 절차" not in context.fallback_message
+
+
+def test_db_dc_fact_inversion_is_rejected_and_repaired() -> None:
+    _, _, result, context = grounded("DB와 DC의 퇴직급여 결정 방식과 운용 주체를 비교해 주세요")
+    draft = Draft(
+        message="DB는 가입자가 직접 운용하고 DC는 회사가 직접 운용합니다.",
+        citations=result.evidence,
+        context=context,
+    )
+    verifier = Verifier()
+    issues = verifier.check(draft)
+    assert "DB/DC fact inversion" in issues
+    assert verifier.repair_safe(draft, issues)
+    assert draft.message == context.fallback_message
 
 
 def test_irp_only_nine_million_tax_credit_limit_semantics() -> None:
@@ -59,7 +112,7 @@ def test_zero_deferred_tax_is_valid_rule_input() -> None:
 
 def test_retirement_withdrawal_tax_does_not_route_to_tax_credit() -> None:
     question = "예상 퇴직소득세를 기준으로 10년과 21년 연금수령 부담을 비교하고 싶어요"
-    assert tax_intent(question) == "PENSION_WITHDRAWAL_TAX"
+    assert tax_intent(question) == "RETIREMENT_PENSION_RECEIPT_TAX"
     assert IntentRouter().classify(question).intent == "종합"
 
 
@@ -173,7 +226,8 @@ def test_answerable_subtasks_survive_deterministic_fallback() -> None:
 def test_multi_intent_keeps_transfer_when_tax_detail_is_limited() -> None:
     _, _, _, context = grounded("DC 가입자가 퇴직 후 연금저축에서 운용하려면 절차와 세금은?")
     assert "먼저 IRP로 이전" in context.fallback_message
-    assert "실제 세액 계산에는 예상 퇴직소득세" in context.fallback_message
+    assert "세부 세율·세액을 확정할 수 없습니다" in context.fallback_message
+    assert "70%" not in context.fallback_message
 
 
 def test_three_tax_sources_are_present_in_claim_plan() -> None:
@@ -200,10 +254,76 @@ def test_requested_product_cost_is_value_or_explicit_limitation() -> None:
 
 def test_unapplied_horizon_constraint_is_disclosed() -> None:
     _, _, result, context = grounded("IRP에서 3년 투자할 안정형 상품 후보를 보여줘")
-    horizon = next(item for item in result.recommendation_constraints if str(item["constraint"]).startswith("investment_horizon="))
+    horizon = next(item for item in result.recommendation_constraints if item["constraint"] == "investment_horizon")
     assert horizon["applied"] is False
-    assert "3y 투자기간 적합성을 직접 판정할 공식 field가 없어" in context.fallback_message
+    assert horizon["value"] == "3년"
+    assert "3년 투자기간 적합성을 직접 판정할 공식 field가 없어" in context.fallback_message
     assert "3년 투자할 안정형 상품 후보" not in context.fallback_message
+
+
+def test_unsupported_principal_guarantee_hard_constraint_prevents_dump() -> None:
+    _, slots, result, context = grounded("투자기간 6개월, 원금보장 필요, IRP 상품 비교")
+    assert slots["investment_horizon_months"] == 6
+    assert slots["principal_guarantee_required"] is True
+    guarantee = next(item for item in result.recommendation_constraints if item["constraint"] == "principal_guarantee")
+    assert guarantee == {
+        "constraint": "principal_guarantee", "value": True, "kind": "hard",
+        "applied": False, "support": None, "reason": "no supported principal guarantee field",
+    }
+    assert result.products == []
+    assert "상품 후보를 제시하지 않습니다" in context.fallback_message
+    assert "미래에셋장기성장" not in context.fallback_message
+
+
+def test_hours_eligibility_does_not_invent_hour_rule() -> None:
+    _, _, result, context = grounded("주 14시간 근무자도 퇴직연금 대상인가요?")
+    assert any("15시간" in item.excerpt for item in result.evidence)
+    assert "15시간 이상" in context.fallback_message
+    assert "14시간" in context.fallback_message
+    assert not context.fallback_message.startswith("[한계] 제공된 근거 안에서만")
+
+
+def test_already_stated_horizon_and_principal_do_not_reask() -> None:
+    missing = SlotManager().required("상품", {}, "6개월 안에 쓸 돈인데 손실 없는 IRP 상품만 골라줘")
+    assert missing == []
+    _, _, result, context = grounded("3년 투자에 적합한 IRP 상품만 보여줘")
+    horizon = next(item for item in result.recommendation_constraints if item["constraint"] == "investment_horizon")
+    assert horizon["applied"] is False
+    assert result.products == []
+    assert "상품 후보를 특정할 수 없습니다" in context.fallback_message or "투자기간 적합성" in context.fallback_message
+
+
+
+def test_supported_exact_risk_constraint_filters_products() -> None:
+    _, _, result, context = grounded("IRP에서 위험등급 6등급 상품만 보여줘")
+    assert len(result.products) == 1
+    assert result.products[0]["risk_level"] == 6
+    risk = next(item for item in result.recommendation_constraints if item["constraint"] == "risk_grade")
+    assert risk["applied"] is True
+    assert "6등급(매우 낮은 위험)" in context.fallback_message
+
+
+def test_unsupported_fee_ceiling_is_hard_and_prevents_dump() -> None:
+    _, slots, result, context = grounded("IRP, 위험 낮은 상품, 수수료 0.3% 이하만 보여줘")
+    assert slots["fee_ceiling_percent"] == 0.3
+    fee = next(item for item in result.recommendation_constraints if item["constraint"] == "fee_ceiling_percent")
+    assert fee["kind"] == "hard" and fee["applied"] is False
+    assert result.products == []
+    assert "0.3% 이하 조건을 적용할 수 없습니다" in context.fallback_message
+
+
+def test_no_evidence_limitation_blocks_hcx_factual_expansion() -> None:
+    context = GroundedContext(
+        question="자료 없는 사실을 알려줘", intent="상품", response_mode="limitation",
+        fallback_message="[한계] 현재 자료에서 확인할 수 없습니다.",
+        limitations=["[한계] 현재 자료에서 확인할 수 없습니다."],
+    )
+    draft = Draft(message="일반적으로 5%가 적용됩니다. [한계] 확인할 수 없습니다.", context=context)
+    verifier = Verifier()
+    issues = verifier.check(draft)
+    assert "limitation contract expansion" in issues
+    assert verifier.repair_safe(draft, issues)
+    assert draft.message == context.fallback_message
 
 
 def test_grounded_fallback_does_not_add_generic_advice() -> None:
@@ -217,6 +337,42 @@ def test_product_fact_contract_preserves_risk_scale_direction() -> None:
     assert "1등급이 매우 높은 위험" in context.fallback_message
     assert "6등급이 매우 낮은 위험" in context.fallback_message
     assert "숫자가 작을수록 위험이 낮" not in context.fallback_message
+
+
+def test_three_explicit_product_entities_are_resolved() -> None:
+    _, _, result, context = grounded("솔로몬 국공채 단기형과 중장기형, 장기형은 어떤 차이가 있나요?")
+    assert [item["entity"] for item in result.product_resolutions] == ["단기", "중장기", "장기"]
+    assert all(item["status"] == "RESOLVED" for item in result.product_resolutions)
+    names = [item["product_name"] for item in result.products]
+    assert len(names) == 3
+    assert any("단기국공채" in name and "초단기" not in name for name in names)
+    assert any("중장기국공채" in name for name in names)
+    assert any("장기국공채" in name and "중장기" not in name for name in names)
+    assert all(name in context.fallback_message for name in names)
+
+
+def test_missing_explicit_product_keeps_resolved_products_and_local_limitation() -> None:
+    class MissingLongCatalog(BProductCatalog):
+        def query_products(self, *, plan_type=None, category=None):
+            return [item for item in super().query_products(plan_type=plan_type, category=category)
+                    if "장기국공채" not in item["product_name"] or "중장기" in item["product_name"]]
+
+    question = "솔로몬 국공채 단기형과 중장기형, 장기형을 비교해 주세요"
+    decision = IntentRouter().classify(question)
+    result = ToolRouter(BEvidenceProvider(), BRuleEngine(), MissingLongCatalog()).run(
+        decision.intent, SlotManager.extract(question), question=question
+    )
+    context = Composer(HCXClient(Settings(hcx_api_key=""))).build_context(question, decision.intent, result)
+    assert len(result.products) == 2
+    assert {item["status"] for item in result.product_resolutions} == {"RESOLVED", "NOT_FOUND"}
+    assert "장기 상품은 현재 Product Fact에서 확인되지 않습니다" in context.fallback_message
+
+
+def test_tax_credit_intent_does_not_change_to_retirement_tax() -> None:
+    _, _, result, context = grounded("IRP는 1년에 1,800만원 전부 세액공제되죠?")
+    assert result.tax_intent == "TAX_CREDIT"
+    assert "600만원" in context.fallback_message and "900만원" in context.fallback_message
+    assert "이연퇴직소득세" not in context.fallback_message
 
 
 @pytest.mark.parametrize(

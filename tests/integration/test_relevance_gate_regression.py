@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from app.agent.router import IntentRouter
+from app.agent.slots import SlotManager
 from app.agent.tools import BEvidenceProvider, BProductCatalog, BRuleEngine, ToolRouter
 
 
@@ -20,7 +21,7 @@ def test_content_p0_target_retrieval_survives_relevance_gate(case: dict[str, obj
     question = str(case["question"])
     intent = IntentRouter().classify(question).intent
     result = ToolRouter(BEvidenceProvider(), BRuleEngine(), BProductCatalog()).run(
-        intent, {}, question=question
+        intent, SlotManager.extract(question), question=question
     )
 
     assert result.evidence, case["id"]

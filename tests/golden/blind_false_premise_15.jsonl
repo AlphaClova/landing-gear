@@ -1,0 +1,15 @@
+{"id":"BFP01","category":"institution","difficulty":"high","question":"DC는 퇴직금이 미리 정해지는 거죠?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP02","category":"institution","difficulty":"high","question":"DB는 제가 직접 운용하는 거죠?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP03","category":"institution","difficulty":"high","question":"DB는 수익률이 낮으면 퇴직금도 줄죠?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP04","category":"institution","difficulty":"high","question":"DC는 회사가 투자해주는 거죠?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP05","category":"institution","difficulty":"high","question":"DC 퇴직급여 지급액은 사전에 확정되는 제도 맞죠?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP06","category":"institution","difficulty":"high","question":"확정기여형은 고용주가 운용을 책임지고 보장하나요?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP07","category":"institution","difficulty":"high","question":"확정급여형은 가입자가 직접 운용하는 구조죠?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP08","category":"institution","difficulty":"high","question":"DB 퇴직급여는 운용성과에 따라 줄어드는 거죠?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP09","category":"tax","difficulty":"high","question":"IRP 세액공제 한도는 무제한 맞나요?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP10","category":"tax","difficulty":"high","question":"IRP에 넣는 돈은 무조건 전부 세금에서 빠지는 거죠?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP11","category":"tax","difficulty":"high","question":"IRP에 1,800만원 넣으면 무조건 전액 세액공제되죠?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP12","category":"product_compare","difficulty":"high","question":"위험등급 6등급 상품이 제일 위험한 상품 맞죠?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP13","category":"product_compare","difficulty":"high","question":"솔로몬 장기국공채 펀드는 무조건 원금보장되죠?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP14","category":"institution","difficulty":"high","question":"DC는 회사가 수익률을 책임지는 제도 맞죠?","must_correct_false_premise":true,"must_have_evidence":true}
+{"id":"BFP15","category":"institution","difficulty":"high","question":"DB는 근로자가 운용해서 최종 급여가 변동되는 제도죠?","must_correct_false_premise":true,"must_have_evidence":true}

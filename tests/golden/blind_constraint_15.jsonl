@@ -1,0 +1,15 @@
+{"id":"BC01","category":"conditional_recommendation","difficulty":"high","question":"원금보장되는 IRP 펀드만 보여줘","must_have_evidence":false,"must_show_limit":true}
+{"id":"BC02","category":"conditional_recommendation","difficulty":"high","question":"6개월 안에 쓸 돈인데 손실 없는 IRP 상품만 골라줘","must_have_evidence":false,"must_show_limit":true}
+{"id":"BC03","category":"conditional_recommendation","difficulty":"medium","question":"1년 투자, IRP 위험 6등급 상품만 보여줘","must_have_evidence":true}
+{"id":"BC04","category":"conditional_recommendation","difficulty":"high","question":"IRP, 위험 낮은 상품, 수수료 0.3% 이하만 보여줘","must_have_evidence":false,"must_show_limit":true}
+{"id":"BC05","category":"conditional_recommendation","difficulty":"high","question":"3년 투자에 적합한 IRP 상품만 보여줘","must_have_evidence":false,"must_show_limit":true,"expected_response_type":"limitation"}
+{"id":"BC06","category":"conditional_recommendation","difficulty":"high","question":"투자기간 6개월, 원금보장 필요, IRP 상품 비교","must_have_evidence":false,"must_show_limit":true}
+{"id":"BC07","category":"conditional_recommendation","difficulty":"medium","question":"IRP에서 안정형 상품 후보를 보여줘","must_have_evidence":true}
+{"id":"BC08","category":"conditional_recommendation","difficulty":"medium","question":"IRP 위험등급 6등급 상품 후보만 보여줘","must_have_evidence":true}
+{"id":"BC09","category":"conditional_recommendation","difficulty":"high","question":"DC에서 원금 손실 없는 펀드만 추천해줘","must_have_evidence":false,"must_show_limit":true}
+{"id":"BC10","category":"conditional_recommendation","difficulty":"high","question":"IRP 보수 0.2% 이하 상품만 비교해줘","must_have_evidence":false,"must_show_limit":true}
+{"id":"BC11","category":"conditional_recommendation","difficulty":"medium","question":"IRP에서 3년 투자할 안정형 상품 후보를 보여줘","must_have_evidence":true,"must_show_limit":true}
+{"id":"BC12","category":"conditional_recommendation","difficulty":"high","question":"1년 안에 쓸 돈이라 원금보장 필수인 IRP 상품만 보여줘","must_have_evidence":false,"must_show_limit":true}
+{"id":"BC13","category":"conditional_recommendation","difficulty":"medium","question":"IRP 위험등급 5등급 상품만 보여줘","must_have_evidence":true}
+{"id":"BC14","category":"conditional_recommendation","difficulty":"high","question":"DC 수수료 0.5% 이하 채권 상품만 골라줘","must_have_evidence":false,"must_show_limit":true}
+{"id":"BC15","category":"conditional_recommendation","difficulty":"high","question":"10년 투자에 딱 맞는 IRP 펀드만 추천해줘","must_have_evidence":true,"must_show_limit":true}

@@ -1,0 +1,158 @@
+{
+  "metadata": {
+    "subset": "stability-2",
+    "run_kind": "ORIGINAL_SINGLE_RUN",
+    "provider": {
+      "ready": true,
+      "hcx_mode": "real",
+      "evidence_provider_mode": "real",
+      "rule_provider_mode": "real",
+      "product_provider_mode": "real"
+    },
+    "production_valid": true,
+    "note": null
+  },
+  "summary": {
+    "total": 2,
+    "PASS": 2,
+    "hcx_invoked": 2,
+    "hcx_success": 2,
+    "hcx_first_pass": 0,
+    "hcx_regenerated": 0,
+    "deterministic_repaired": 0,
+    "hcx_timeout_count": 0,
+    "hcx_transport_attempts": 0,
+    "hcx_retry_count": 0,
+    "upstream_status_distribution": {},
+    "upstream_429": 0,
+    "upstream_5xx": 0,
+    "transport_timeout_count": 0,
+    "transport_other_error_count": 0,
+    "retry_exhausted_count": 0,
+    "fallback_used": 0,
+    "manual_review_required": 0,
+    "pass_rate": 1.0,
+    "average_latency_ms": 2427.6620000000003,
+    "p50_latency_ms": 2158.733,
+    "p95_latency_ms": 2696.591,
+    "max_latency_ms": 2696.591,
+    "http_error_rate": 0.0,
+    "failure_reasons": {}
+  },
+  "results": [
+    {
+      "id": "STAB-001",
+      "category": "tax",
+      "difficulty": "low",
+      "question": "퇴직금을 일시금으로 받으면 세율이 무조건 16.5%인가요?",
+      "subsets": [],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 2696.591,
+      "auto_result": "PASS",
+      "fail_reasons": [],
+      "details": [],
+      "answer": "아닙니다. 일시금으로 받으면 퇴직소득세를 100% 납부하며, 세액공제율과 같은 단일 세율로 단정하지 않습니다. 제공된 자료만으로 해당 세율을 세액공제율과 같은 값으로 확인할 수 없습니다.\n\n일시금으로 받으면 퇴직소득세를 100% 납부합니다. [한계] 제공된 자료만으로 일시금 세율을 세액공제율과 같은 단일 값으로 단정할 수 없습니다.",
+      "retrieved_context": [
+        "만 55세 미만인 근로자가 퇴직하면 근로자퇴직급여보장법에 따라 법정퇴직금을 IRP(개인형 퇴직연금계좌)로 의무 이전해야 한다. 만 55세가 되기전에 중도인출 하고 싶다면 근퇴법상 중도인출 사유에 해당해야 한다. 그렇지 않다면 계좌를 해지하여 전액 일시금으로 인출하는 방법 밖에 없다. 만55세 미만은 IRP로 받는 것이 선택이 아닌 법적 의무임을 먼저 인식하라.",
+        "일시금으로 받으면 퇴직소득세를 100% 즉시 납부해야한다. 이후 남은 돈을 금융상품에 운용하면 발생하는 이자·배당은 금융소득으로 과세되고, 금융소득 종합과세 기준(연 2,000만원)에 포함된다. 또한 이자·배당이 연 1,000만원을 초과한다면 건강보험료 부과 대상 소득에 포함되어 건강보험료에 영향을 준다. 반면 연금으로 받으면 세 가지 혜택이 동시에 생긴다. 퇴직소득세를 30% ~ 50% 감면받고, IRP 내 운용수익은 연금을 받을 때까지 과세가 이연되며, 사적연금소득은 건강보험료 산정에서 제외된다. 먼저 이 차이를 한눈에 파악하자.",
+        "① 일시금으로 퇴직금을 수령한 퇴직자가 수령일 기준 60일 이내에 세후 퇴직급여를 IRP계좌로 입금",
+        "퇴직금을 수령하는 방식은 크게 두 가지다. 퇴직 즉시 전액을 받는 ‘일시금’과 연금계좌(IRP·연금저축)에 이전한 뒤 만55세 이후 나눠받는 ‘연금’이다. 이 두 가지는 단순한 수령 시기의 차이가 아니라 과세 체계 자체가 다르다."
+      ],
+      "retrieved_provenance": [
+        {
+          "document_id": "doc51",
+          "page": 1
+        },
+        {
+          "document_id": "doc51",
+          "page": 1
+        },
+        {
+          "document_id": "doc55",
+          "page": 17
+        },
+        {
+          "document_id": "doc51",
+          "page": 1
+        }
+      ],
+      "think_trace": "{\"intent\": \"세제\", \"route\": \"deep_path\", \"retrieval\": \"completed\", \"tools\": [\"retrieve_evidence\"], \"composition\": \"grounded\", \"verification\": \"repaired\", \"hcx_invoked\": true, \"hcx_success\": true, \"degraded\": false, \"fallback_used\": false}",
+      "hcx_invoked": true,
+      "hcx_attempts": 0,
+      "hcx_success": true,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-31T11:36:51.339678+00:00",
+        "response_error": null,
+        "request_id": "req_72728df7972643a1b636",
+        "call_sequence": 1,
+        "previous_request_gap_ms": null
+      }
+    },
+    {
+      "id": "STAB-002",
+      "category": "tax",
+      "difficulty": "low",
+      "question": "퇴직금을 일시금으로 받으면 세율이 무조건 16.5%인가요?",
+      "subsets": [],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 2158.733,
+      "auto_result": "PASS",
+      "fail_reasons": [],
+      "details": [],
+      "answer": "아닙니다. 일시금으로 받으면 퇴직소득세를 100% 납부하며, 세액공제율과 같은 단일 세율로 단정하지 않습니다. 제공된 자료만으로 해당 세율을 세액공제율과 같은 값으로 확인할 수 없습니다.\n\n일시금으로 받으면 퇴직소득세를 100% 납부합니다. [한계] 제공된 자료만으로 일시금 세율을 세액공제율과 같은 단일 값으로 단정할 수 없습니다.",
+      "retrieved_context": [
+        "만 55세 미만인 근로자가 퇴직하면 근로자퇴직급여보장법에 따라 법정퇴직금을 IRP(개인형 퇴직연금계좌)로 의무 이전해야 한다. 만 55세가 되기전에 중도인출 하고 싶다면 근퇴법상 중도인출 사유에 해당해야 한다. 그렇지 않다면 계좌를 해지하여 전액 일시금으로 인출하는 방법 밖에 없다. 만55세 미만은 IRP로 받는 것이 선택이 아닌 법적 의무임을 먼저 인식하라.",
+        "일시금으로 받으면 퇴직소득세를 100% 즉시 납부해야한다. 이후 남은 돈을 금융상품에 운용하면 발생하는 이자·배당은 금융소득으로 과세되고, 금융소득 종합과세 기준(연 2,000만원)에 포함된다. 또한 이자·배당이 연 1,000만원을 초과한다면 건강보험료 부과 대상 소득에 포함되어 건강보험료에 영향을 준다. 반면 연금으로 받으면 세 가지 혜택이 동시에 생긴다. 퇴직소득세를 30% ~ 50% 감면받고, IRP 내 운용수익은 연금을 받을 때까지 과세가 이연되며, 사적연금소득은 건강보험료 산정에서 제외된다. 먼저 이 차이를 한눈에 파악하자.",
+        "① 일시금으로 퇴직금을 수령한 퇴직자가 수령일 기준 60일 이내에 세후 퇴직급여를 IRP계좌로 입금",
+        "퇴직금을 수령하는 방식은 크게 두 가지다. 퇴직 즉시 전액을 받는 ‘일시금’과 연금계좌(IRP·연금저축)에 이전한 뒤 만55세 이후 나눠받는 ‘연금’이다. 이 두 가지는 단순한 수령 시기의 차이가 아니라 과세 체계 자체가 다르다."
+      ],
+      "retrieved_provenance": [
+        {
+          "document_id": "doc51",
+          "page": 1
+        },
+        {
+          "document_id": "doc51",
+          "page": 1
+        },
+        {
+          "document_id": "doc55",
+          "page": 17
+        },
+        {
+          "document_id": "doc51",
+          "page": 1
+        }
+      ],
+      "think_trace": "{\"intent\": \"세제\", \"route\": \"deep_path\", \"retrieval\": \"completed\", \"tools\": [\"retrieve_evidence\"], \"composition\": \"grounded\", \"verification\": \"repaired\", \"hcx_invoked\": true, \"hcx_success\": true, \"degraded\": false, \"fallback_used\": false}",
+      "hcx_invoked": true,
+      "hcx_attempts": 0,
+      "hcx_success": true,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-31T11:36:54.072345+00:00",
+        "response_error": null,
+        "request_id": "req_ef06c112e7444cf0bc51",
+        "call_sequence": 2,
+        "previous_request_gap_ms": 0.001
+      }
+    }
+  ]
+}

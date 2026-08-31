@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from app.api.schemas import parse_retrieved_context
+
 FIELDS={"question_id","question","retrieved_context","think_trace","answer"}
 ORDER=["HTTP_ERROR","TIMEOUT","SCHEMA_ERROR","WRONG_INTENT","WRONG_NUMBER","MISSING_EVIDENCE","WRONG_EVIDENCE","UNSUPPORTED_CLAIM","MISSED_CLARIFICATION","MISSED_LIMITATION","FALSE_PREMISE_ACCEPTED","UNSAFE_RESPONSE"]
 RISK_LABELS={1:"매우 높은 위험",2:"높은 위험",3:"다소 높은 위험",4:"보통 위험",5:"낮은 위험",6:"매우 낮은 위험"}
@@ -43,9 +45,12 @@ def score(c,status,b,lat,error,audit=None):
  if error and error.startswith("TIMEOUT"): why+=["TIMEOUT"]
  elif status!=200: why+=["HTTP_ERROR"]
  if not isinstance(b,dict): why+=["SCHEMA_ERROR"]; b={}
- elif set(b)!=FIELDS or not isinstance(b.get("retrieved_context"),list): why+=["SCHEMA_ERROR"]
+ elif set(b)!=FIELDS or not all(isinstance(b.get(k),str) for k in FIELDS): why+=["SCHEMA_ERROR"]
  if b.get("question_id")!=c["id"] or b.get("question")!=c["question"]: why+=["SCHEMA_ERROR"]; detail+=["question echo mismatch"]
- answer=b.get("answer","") if isinstance(b.get("answer",""),str) else ""; ctx=b.get("retrieved_context",[]) if isinstance(b.get("retrieved_context",[]),list) else []; context="\n".join(map(str,ctx)); combined=answer+"\n"+context
+ answer=b.get("answer","") if isinstance(b.get("answer",""),str) else ""
+ public_context=b.get("retrieved_context","") if isinstance(b.get("retrieved_context"),str) else ""
+ ctx=parse_retrieved_context(public_context)
+ context=public_context; combined=answer+"\n"+context
  if not answer.strip(): why+=["SCHEMA_ERROR"]
  asks=any(x in answer for x in ("필요한 조건","알려주세요","확인이 필요","정보가 없어")) or answer.rstrip().endswith("?")
  limits=any(x in answer for x in ("[한계]","[주의]","[거절]","범위를 벗어나","제공된 자료로 확인하기 어렵","확인할 수 없","답변하기 어렵","답변드리기 어렵","답변을 드릴 수 없","제공할 수 없","근거가 없","정보가 부족")) or bool(re.search(r"정확한.{0,20}(?:말씀|안내|답변|확인|제공).{0,12}(?:수 없|어렵)",answer))
@@ -99,6 +104,7 @@ def score(c,status,b,lat,error,audit=None):
     indexed[excerpt]=(item["document_id"],item.get("page"))
   provenance=[{"document_id":indexed[x][0],"page":indexed[x][1]} for x in ctx if x in indexed]
  return {"id":c["id"],"category":c["category"],"difficulty":c["difficulty"],"question":c["question"],"subsets":c.get("subsets",[]),"manual_review_required":bool(c.get("manual_review_required")),"http_status":status,"latency_ms":round(lat,3),"auto_result":result,"fail_reasons":why,"details":detail,"answer":answer,"retrieved_context":ctx,"retrieved_provenance":provenance,"think_trace":b.get("think_trace",""),"hcx_invoked":hcx_invoked,"hcx_attempts":trace.get("hcx_attempts",0),"hcx_success":hcx_success,"hcx_first_pass":bool(trace.get("hcx_first_pass")),"hcx_regenerated":bool(trace.get("hcx_regenerated")),"deterministic_repaired":bool(trace.get("deterministic_repaired")),"hcx_timeout_count":trace.get("hcx_timeout_count",0),"hcx_audit":trace.get("hcx_audit",[]),"prompt_metrics":trace.get("prompt_metrics",{}),"fallback_used":fallback_used,"fallback_reason":trace.get("hcx_fallback_reason"),"request_audit":audit or {}}
+P0_REVIEW_IDS={"G056","G089","G102"}
 def reports(rows,out,subset,provider,run_kind=None):
  out=Path(out); out.mkdir(parents=True,exist_ok=True); counts=Counter(r["auto_result"] for r in rows); reasons=Counter(x for r in rows for x in r["fail_reasons"]); lats=[r["latency_ms"] for r in rows]; cats=defaultdict(list)
  for r in rows: cats[r["category"]].append(r)
@@ -117,20 +123,26 @@ def reports(rows,out,subset,provider,run_kind=None):
  review=["id","category","question","answer","retrieved_context","accuracy","evidence_completeness","requirement_coverage","groundedness","reasoning","safety","limit_handling","unsupported_claim_found","wrong_number_found","wrong_evidence_found","overconfident_recommendation","unnecessary_clarification","overall_pass","reviewer","comment"]
  with (out/"manual_review.csv").open("w",encoding="utf-8-sig",newline="") as f:
   w=csv.DictWriter(f,fieldnames=review); w.writeheader()
-  for r in rows:
-   if r["auto_result"]=="MANUAL_REVIEW": w.writerow({k:(json.dumps(r["retrieved_context"],ensure_ascii=False) if k=="retrieved_context" else r.get(k,"")) for k in review})
- manual=[r for r in rows if r["auto_result"]=="MANUAL_REVIEW"]
+  review_rows=[r for r in rows if r["auto_result"] in {"FAIL","MANUAL_REVIEW"} or r["id"] in P0_REVIEW_IDS]
+  seen={r["id"] for r in review_rows}
+  sample_targets={"institution":2,"tax":2,"combined":2,"product_compare":2,"conditional_recommendation":2,"procedure":2,"safety":2,"out_of_scope":1}
+  for category,target in sample_targets.items():
+   review_rows.extend([r for r in rows if r["auto_result"]=="PASS" and r["category"]==category and r["id"] not in seen][:target])
+   seen.update(r["id"] for r in review_rows)
+  for r in review_rows:
+   w.writerow({k:(json.dumps(r["retrieved_context"],ensure_ascii=False) if k=="retrieved_context" else r.get(k,"")) for k in review})
+ manual=review_rows
  review_md=["# Full manual review pack","",f"- Cases: **{len(manual)}**",""]
  for r in manual:
   review_md += [f"## {r['id']}","",f"- Category: {r['category']}",f"- Latency: {r['latency_ms']} ms",f"- HCX invoked/success: {r['hcx_invoked']} / {r['hcx_success']}","","### Question","",r["question"],"","### Answer","",r["answer"],"","### Retrieved context",""]
   review_md += [f"- {x}" for x in r["retrieved_context"]] or ["- (none)"]
   review_md += ["","### Human checks","","- Accuracy:","- Evidence completeness:","- Requirement coverage:","- Groundedness:","- Reasoning:","- Safety:","- Limit handling:","- Unsupported claim found:","- Wrong number found:","- Wrong evidence found:","- Overconfident recommendation:","- Unnecessary clarification:","- Overall pass:","- Reviewer:","- Comment:",""]
- (out/"manual_review.md").write_text("\n".join(review_md),encoding="utf-8")
+ (out/"manual_review.md").write_text("\n".join(line.rstrip() for line in review_md).rstrip("\n")+"\n",encoding="utf-8")
  md=[f"# Golden evaluation: {subset}","",f"- Run kind: **{run_kind or 'UNSPECIFIED'}**",f"- Production-valid: **{valid}**",f"- HCX: **{provider.get('hcx_mode','unknown')}**",f"- Evidence/Rule/Product: **{provider.get('evidence_provider_mode','unknown')} / {provider.get('rule_provider_mode','unknown')} / {provider.get('product_provider_mode','unknown')}**",f"- PASS: **{counts['PASS']}/{len(rows)} ({percent(counts['PASS'],len(rows))})**",f"- FAIL: **{counts['FAIL']}**",f"- MANUAL_REVIEW: **{counts['MANUAL_REVIEW']}**",f"- Latency avg/p50/p95/max: **{summary['average_latency_ms']:.1f} / {pct(lats,.5):.1f} / {pct(lats,.95):.1f} / {max(lats,default=0):.1f} ms**",f"- HTTP error rate: **{percent(sum(r['http_status']!=200 for r in rows),len(rows))}**","","## Category pass rates",""]
  md += [f"- {c}: {percent(sum(r['auto_result']=='PASS' for r in rs),len(rs))} ({sum(r['auto_result']=='PASS' for r in rs)}/{len(rs)})" for c,rs in sorted(cats.items())]
  md += ["","## Official cases",""]+[f"- {r['id']}: {r['auto_result']} ({', '.join(r['fail_reasons']) or 'deterministic checks passed'})" for r in rows if "official" in r["subsets"]]+["","## Failure types",""]+[f"- {x}: {n}" for x,n in reasons.most_common()]+["","## Failures grouped by type",""]
  for x,_ in reasons.most_common(): md += [f"### {x}",""]+[f"- {r['id']}: {r['question']}" for r in rows if x in r["fail_reasons"]]+[""]
- (out/"summary.md").write_text("\n".join(md),encoding="utf-8")
+ (out/"summary.md").write_text("\n".join(line.rstrip() for line in md).rstrip("\n")+"\n",encoding="utf-8")
 def legacy(path):
  total=bad=0
  for line in Path(path).read_text().splitlines():

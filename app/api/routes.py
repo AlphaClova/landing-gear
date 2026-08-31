@@ -6,8 +6,7 @@ from app.api.schemas import (
     AnswerRequest,
     ChatRequest,
     ChatResponse,
-    EvalResponse,
-    InternalAnswer,
+    PublicAnswerResponse,
     to_chat_response,
     to_eval_response,
 )
@@ -54,7 +53,7 @@ def _answer(
     orchestrator: Orchestrator,
     settings: Settings,
     request_id: str,
-) -> EvalResponse | InternalAnswer:
+) -> PublicAnswerResponse:
     internal = orchestrator.handle(
         question=request.question,
         request_id=request_id,
@@ -63,27 +62,27 @@ def _answer(
         evaluation_question_id=request.question_id,
     )
 
-    if settings.eval_schema_mode == "strict":
-        return to_eval_response(internal, question_id=request.question_id, question=request.question)
-    return internal
+    # /answer is the competition endpoint and always has the official contract.
+    # /v1/chat remains the internal/frontend contract.
+    return to_eval_response(internal, question_id=request.question_id, question=request.question)
 
 
-@router.post("/answer", response_model=None)
+@router.post("/answer", response_model=PublicAnswerResponse)
 def answer_post(
     request: AnswerRequest,
     orchestrator: Orchestrator = Depends(get_orchestrator),
     settings: Settings = Depends(get_settings),
     request_id: str = Depends(get_request_id),
-) -> EvalResponse | InternalAnswer:
+) -> PublicAnswerResponse:
     return _answer(request, orchestrator, settings, request_id)
 
 
-@router.get("/answer", response_model=None)
+@router.get("/answer", response_model=PublicAnswerResponse)
 def answer_get(
     question_id: str = Query(...),
     question: str = Query(...),
     orchestrator: Orchestrator = Depends(get_orchestrator),
     settings: Settings = Depends(get_settings),
     request_id: str = Depends(get_request_id),
-) -> EvalResponse | InternalAnswer:
+) -> PublicAnswerResponse:
     return _answer(AnswerRequest(question_id=question_id, question=question), orchestrator, settings, request_id)

@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     hcx_total_budget_seconds: float = 10.0
 
     # 평가 계약
-    eval_schema_mode: str = "loose"  # "strict"면 5필드로 직렬화
+    eval_schema_mode: str = "strict"  # compatibility setting; /answer is always strict
 
     # 세션
     session_ttl_seconds: int = 1800

@@ -6,6 +6,7 @@ from app.agent.composer import Composer
 from app.agent.tools import ToolResult
 from app.agent.verifier import Verifier
 from app.api.schemas import CalculationResult, Citation
+from app.api.schemas import serialize_retrieved_context
 from app.core.errors import ErrorCode, HCXError
 
 
@@ -60,11 +61,12 @@ def test_degraded_trace_can_preserve_strict_five_field_contract() -> None:
     draft = Composer(FailingHCX()).compose("퇴직금 연금수령 세금을 알려줘", "세제", evidence_result())
     payload = {
         "question_id": "T1", "question": draft.context.question,
-        "retrieved_context": [item.excerpt for item in draft.citations],
+        "retrieved_context": serialize_retrieved_context(draft.citations),
         "think_trace": json.dumps({"degraded": draft.degraded, "degraded_reason": draft.degraded_reason}),
         "answer": draft.message,
     }
     assert set(payload) == {"question_id", "question", "retrieved_context", "think_trace", "answer"}
+    assert all(isinstance(value, str) for value in payload.values())
 
 
 def test_degraded_calculation_keeps_matching_rule_result() -> None:

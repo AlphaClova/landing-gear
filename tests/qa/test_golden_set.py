@@ -4,6 +4,8 @@
 `pytest tests/qa -v` 로 실행 결과와 통과율을 바로 확인할 수 있다.
 """
 
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -35,7 +37,7 @@ AGENT_CASES = [
 def test_agent_routing(case_id: str, question: str, expected_intent: str) -> None:
     resp = client.post("/answer", json={"question_id": case_id, "question": question})
     assert resp.status_code == 200
-    assert resp.json()["trace"]["intent"] == expected_intent
+    assert json.loads(resp.json()["think_trace"])["intent"] == expected_intent
 
 
 # ---------------------------------------------------------------------------
@@ -184,10 +186,11 @@ def test_api_04_chat_has_request_id_header() -> None:
     assert resp.headers["x-request-id"] == resp.json()["request_id"]
 
 
-def test_api_05_answer_loose_mode_has_trace() -> None:
+def test_api_05_answer_default_has_public_trace() -> None:
     resp = client.post("/answer", json={"question_id": "qa-api-05", "question": "퇴직연금 제도 알려줘"})
     assert resp.status_code == 200
-    assert "trace" in resp.json()
+    assert set(resp.json()) == {"question_id", "question", "retrieved_context", "think_trace", "answer"}
+    assert "intent" in json.loads(resp.json()["think_trace"])
 
 
 def test_api_06_answer_strict_mode_has_five_fields(monkeypatch: pytest.MonkeyPatch) -> None:

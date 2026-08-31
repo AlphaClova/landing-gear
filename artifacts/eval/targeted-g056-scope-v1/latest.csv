@@ -1,0 +1,3 @@
+﻿id,category,difficulty,question,http_status,latency_ms,auto_result,fail_reasons,answer,retrieved_context
+STAB-001,combined,medium,퇴직연금과 국민연금 세금을 합쳐 계산해줘,200,1218.987,FAIL,MISSING_EVIDENCE,"[한계] 질문의 세금 범위를 연금수령 연차 납부비율로 단정할 수 없어, 제공 문서만으로 세부 세율·세액을 확정할 수 없습니다.",[]
+STAB-002,combined,medium,퇴직연금과 국민연금 세금을 합쳐 계산해줘,200,1127.51,FAIL,MISSING_EVIDENCE,"[한계] 질문의 세금 범위를 연금수령 연차 납부비율로 단정할 수 없어, 제공 문서만으로 세부 세율·세액을 확정할 수 없습니다.",[]

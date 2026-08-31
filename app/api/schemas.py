@@ -5,6 +5,8 @@ B(검색/계산)와 C(프론트)가 그대로 참조하는 파일이다. 필드�
 받은 뒤 여기를 고친다 (구두 합의 금지).
 """
 
+import json
+import re
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -250,16 +252,50 @@ class ErrorResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# /answer 평가 응답 — EVAL_SCHEMA_MODE=strict일 때 공식 5필드로 직렬화
+# /answer 공개 평가 응답 — 공식 5필드, 모든 value는 string
+# 내부 Agent는 citations: list[Citation] / retrieved_context: list[str]를 유지한다.
 # ---------------------------------------------------------------------------
 
+_CONTEXT_BLOCK = re.compile(
+    r"\[DOC\s+[^\]]+\](?:\[PAGE\s+[^\]]+\])?(?:\[EVIDENCE\s+[^\]]+\])?\n"
+    r"(.*?)(?=\n\[DOC\s+|\Z)",
+    re.S,
+)
 
-class EvalResponse(BaseModel):
+
+class PublicAnswerResponse(BaseModel):
     question_id: str
     question: str
-    retrieved_context: list[str]
+    retrieved_context: str
     think_trace: str
     answer: str
+
+
+EvalResponse = PublicAnswerResponse
+
+
+def serialize_retrieved_context(citations: list[Citation]) -> str:
+    """Internal citation list → public retrieved_context string. Empty is ''."""
+    if not citations:
+        return ""
+    blocks: list[str] = []
+    for item in citations:
+        header = f"[DOC {item.document_id}]"
+        if item.page is not None:
+            header += f"[PAGE {item.page}]"
+        header += f"[EVIDENCE {item.id}]"
+        blocks.append(f"{header}\n{item.excerpt}")
+    return "\n\n".join(blocks)
+
+
+def parse_retrieved_context(raw: str) -> list[str]:
+    """Public retrieved_context string → excerpt list for internal evaluation."""
+    if not raw:
+        return []
+    matches = list(_CONTEXT_BLOCK.finditer(raw))
+    if matches:
+        return [match.group(1).rstrip("\n") for match in matches]
+    return [raw]
 
 
 def to_chat_response(internal: InternalAnswer) -> ChatResponse:
@@ -274,8 +310,8 @@ def to_chat_response(internal: InternalAnswer) -> ChatResponse:
     )
 
 
-def to_eval_response(internal: InternalAnswer, question_id: str, question: str) -> EvalResponse:
-    """EvalResponseSerializer: InternalAnswer -> 공식 5필드.
+def to_eval_response(internal: InternalAnswer, question_id: str, question: str) -> PublicAnswerResponse:
+    """Public /answer serializer: InternalAnswer -> 공식 5 string fields.
 
     정보가 부족해도 역질문만 반환하지 않고
     '현재 답 가능한 내용 → 한계 → 필요한 조건' 순서로 answer를 구성한다.
@@ -290,10 +326,23 @@ def to_eval_response(internal: InternalAnswer, question_id: str, question: str) 
     else:
         answer = internal.message
 
-    return EvalResponse(
-        question_id=question_id,
-        question=question,
-        retrieved_context=[c.excerpt for c in internal.citations],
-        think_trace=internal.trace.model_dump_json(),
-        answer=answer,
+    tool_names = list(dict.fromkeys(call.tool_name for call in internal.trace.tool_calls))
+    public_trace = {
+        "intent": internal.trace.intent,
+        "route": internal.trace.route,
+        "retrieval": "completed" if "retrieve_evidence" in tool_names else "not_used",
+        "tools": tool_names,
+        "composition": "grounded",
+        "verification": "repaired" if internal.trace.deterministic_repaired else "passed",
+        "hcx_invoked": internal.trace.hcx_invoked,
+        "hcx_success": internal.trace.hcx_success,
+        "degraded": internal.trace.degraded,
+        "fallback_used": internal.trace.fallback_used,
+    }
+    return PublicAnswerResponse(
+        question_id=str(question_id or ""),
+        question=str(question or ""),
+        retrieved_context=serialize_retrieved_context(internal.citations),
+        think_trace=json.dumps(public_trace, ensure_ascii=False),
+        answer=str(answer or ""),
     )

@@ -39,12 +39,12 @@ def test_chat_out_of_scope() -> None:
     assert resp.json()["type"] == "limitation"
 
 
-def test_answer_loose_mode_returns_internal_answer() -> None:
+def test_answer_default_returns_exact_official_contract() -> None:
     resp = client.post("/answer", json={"question_id": "q-1", "question": "퇴직연금 제도 알려줘"})
     assert resp.status_code == 200
     body = resp.json()
-    assert "trace" in body
-    assert body["request_id"]
+    assert set(body) == {"question_id", "question", "retrieved_context", "think_trace", "answer"}
+    assert all(isinstance(value, str) for value in body.values())
 
 
 def test_answer_get_is_backward_compatible_with_strict_contract(monkeypatch) -> None:
@@ -58,6 +58,20 @@ def test_answer_get_is_backward_compatible_with_strict_contract(monkeypatch) -> 
         assert resp.json()["question_id"] == "q-get"
     finally:
         config_module.get_settings.cache_clear()
+
+
+def test_public_think_trace_excludes_internal_diagnostics() -> None:
+    import json
+
+    resp = client.get("/answer", params={"question_id": "trace-safe", "question": "DB와 DC 차이"})
+    trace_text = resp.json()["think_trace"]
+    trace = json.loads(trace_text)
+    assert set(trace) == {
+        "intent", "route", "retrieval", "tools", "composition", "verification",
+        "hcx_invoked", "hcx_success", "degraded", "fallback_used",
+    }
+    for forbidden in ("hcx_audit", "request_id", "claim_plan", "prompt_metrics", "violations", "output"):
+        assert forbidden not in trace_text
 
 
 def test_ready_reports_production_b_provider_wiring() -> None:
