@@ -156,7 +156,7 @@ export class HttpChatApiClient implements ChatApiClient {
   constructor(
     private readonly baseUrl: string = apiClientConfig.baseUrl,
     private readonly timeoutMs: number = chatTimeoutMs,
-    private readonly fetcher: typeof fetch = fetch,
+    private readonly fetcher: typeof fetch = fetch.bind(globalThis),
   ) {}
 
   async chat(request: ChatApiRequest, options: ChatApiClientOptions = {}): Promise<ChatApiResponseTransport> {
