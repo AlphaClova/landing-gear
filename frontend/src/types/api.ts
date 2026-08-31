@@ -6,9 +6,13 @@ export type ResponseMode = 'pension-chat' | 'withdrawal-decision'
 
 export interface Citation {
   id: string
+  documentId?: string
   documentTitle: string
-  page: string | null
+  page: number | string | null
+  section?: string | null
+  source?: string
   excerpt: string | null
+  url?: string | null
 }
 
 export interface RequiredSlot {
@@ -17,6 +21,7 @@ export interface RequiredSlot {
   inputType: 'text' | 'number' | 'select'
   unit: string | null
   options: string[] | null
+  reason?: string | null
 }
 
 export interface ComparisonRow {
@@ -38,7 +43,7 @@ export interface ComparisonResult {
 }
 
 export type ChatResponse =
-  | { type: 'clarification'; requestId: string; requiredSlots: RequiredSlot[] }
+  | { type: 'clarification'; requestId: string; message?: string; requiredSlots: RequiredSlot[] }
   | { type: 'result'; requestId: string; mode: ResponseMode; conclusion: string; explanation: string; comparison: ComparisonResult | null; citations: Citation[] }
   | { type: 'limitation'; requestId: string; availableAnswer: string | null; message: string; requiredConditions: string[] }
   | { type: 'error'; requestId: string | null; code: string; message: string; retryable: boolean }
