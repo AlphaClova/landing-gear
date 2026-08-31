@@ -163,6 +163,7 @@ h1, h2, h3, p, li, button { overflow-wrap: break-word; word-break: keep-all; }
 .pension-details article { padding: 18px; border-top: 2px solid var(--gold-300); background: var(--ivory-100); }
 .pension-details article h3 { margin: 0 0 8px; }
 .pension-caution { padding: 19px 22px; display: flex; align-items: flex-start; gap: 14px; border-radius: 10px; background: #f5ead7; }
+.pension-caution .status-badge { flex-shrink: 0; white-space: nowrap; }
 .pension-caution p { margin: 1px 0 0; color: #654d2c; line-height: 1.65; }
 .pension-evidence .evidence-list { display: grid; gap: 12px; }
 .pension-evidence .evidence-item { overflow: hidden; border: 1px solid var(--stone-200); border-radius: 10px; background: var(--ivory-50); transition: border-color .18s ease, box-shadow .18s ease; }
@@ -253,6 +254,7 @@ h1, h2, h3, p, li, button { overflow-wrap: break-word; word-break: keep-all; }
 .basis-badge { width: fit-content; padding: 4px 7px; display: inline-flex; border-radius: 999px; font-size: 10px; font-weight: 700; white-space: nowrap; }
 .basis-badge--exact { color: white; background: var(--navy-800); }.basis-badge--scenario { color: #6d4b18; background: #efe0c5; }.basis-badge--conditional { color: #704b16; background: #f1d9aa; }.basis-badge--unavailable { color: #5e5a56; background: #e5e0d9; }
 .withdrawal-table-scroll { max-width: 100%; overflow-x: auto; border: 1px solid var(--stone-200); border-radius: 10px; }
+.withdrawal-table-section { min-width: 0; }
 .withdrawal-table-section table { width: 100%; min-width: 760px; border-collapse: collapse; background: rgba(255,253,249,.75); font-size: 13px; }
 .withdrawal-table-section th, .withdrawal-table-section td { padding: 14px; border-bottom: 1px solid var(--stone-200); text-align: left; font-variant-numeric: tabular-nums; }
 .withdrawal-table-section thead th { color: var(--ivory-50); background: var(--navy-900); }.withdrawal-table-section tbody th { background: var(--ivory-100); }
