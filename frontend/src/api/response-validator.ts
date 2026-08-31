@@ -18,7 +18,7 @@ const isRequiredSlot = (value: unknown): value is RequiredSlot => isRecord(value
 const isCitation = (value: unknown) => isRecord(value)
   && isString(value.id)
   && isString(value.documentTitle)
-  && isNullableString(value.page)
+  && (isNullableString(value.page) || Number.isSafeInteger(value.page))
   && isNullableString(value.excerpt)
 
 const isComparison = (value: unknown): value is ComparisonResult => {

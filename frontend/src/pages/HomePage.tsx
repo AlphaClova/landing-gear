@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right.mjs'
-import { pensionApi } from '../api'
-import { ApiNetworkError, ApiTimeoutError } from '../api/errors'
+import { ChatApiClientError, pensionChatProvider } from '../features/pension-chat/pension-chat-provider'
 import { AppShell, Button, Card } from '../components/ui'
 import type { AppPage } from '../components/ui'
 import { PensionChat } from '../features/pension-chat/PensionChat'
@@ -52,11 +51,19 @@ export function HomePage() {
     requestRef.current?.abort(); const controller = new AbortController(); requestRef.current = controller
     setLoading(true); setError(null); setCancelled(false); setPendingQuestion(question)
     if (page === 'withdrawal-decision') setResponse(null)
-    let timedOut = false
-    const timeout = window.setTimeout(() => { timedOut = true; controller.abort() }, 20_000)
-    try { const nextResponse = await pensionApi.answer({ message: question, mode: page }, { signal: controller.signal }); setResponse(nextResponse); setAnsweredQuestion(question); setPendingQuestion('') }
-    catch (caught) { if (caught instanceof DOMException && caught.name === 'AbortError') { if (timedOut) setError('응답 시간이 초과되었습니다. 입력한 질문을 유지한 채 다시 시도할 수 있습니다.'); return }; if (caught instanceof ApiTimeoutError) setError('응답 시간이 초과되었습니다. 입력한 질문을 유지한 채 다시 시도할 수 있습니다.'); else if (caught instanceof ApiNetworkError) setError('네트워크 연결을 확인한 뒤 다시 시도해 주세요.'); else setError(caught instanceof Error ? caught.message : '알 수 없는 오류가 발생했습니다.') }
-    finally { window.clearTimeout(timeout); if (requestRef.current === controller) setLoading(false) }
+    try {
+      const nextResponse = await pensionChatProvider.answer(question, controller.signal)
+      if (requestRef.current !== controller) return
+      setResponse(nextResponse); setAnsweredQuestion(question); setPendingQuestion('')
+    } catch (caught) {
+      if (requestRef.current !== controller) return
+      if (caught instanceof ChatApiClientError && caught.kind === 'cancelled') return
+      setError(caught instanceof ChatApiClientError
+        ? caught.userMessage
+        : '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.')
+    } finally {
+      if (requestRef.current === controller) setLoading(false)
+    }
   }
 
   if (page === 'start') return <main className="start-page">

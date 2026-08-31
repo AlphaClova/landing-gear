@@ -31,6 +31,27 @@ function PensionHarness() {
 }
 
 describe('연금 상담 회귀', () => {
+  it('HTTP citation은 숫자 페이지를 표시하고 null 페이지는 페이지 표기만 생략한다', () => {
+    const props = {
+      value: '', onChange: () => undefined, onSubmit: () => undefined, onCancel: () => undefined,
+      onRetry: () => undefined, answeredQuestion: '질문', pendingQuestion: '', loading: false,
+      error: null, cancelled: false,
+    }
+    const response = (page: number | null): ChatResponse => ({
+      type: 'result', requestId: 'request-http', mode: 'pension-chat', conclusion: '실제 답변',
+      explanation: '', comparison: null,
+      citations: [{
+        id: `citation-${page}`, documentId: 'doc-1', documentTitle: '제1장', page,
+        section: '제1장', source: '공식 기관', excerpt: '근거 문장', url: 'https://example.test/source',
+      }],
+    })
+    const { rerender } = render(<PensionChat {...props} response={response(12)} />)
+    expect(screen.getByText('12페이지')).toBeInTheDocument()
+    rerender(<PensionChat {...props} response={response(null)} />)
+    expect(screen.queryByText('null페이지')).not.toBeInTheDocument()
+    expect(screen.getByText('제1장')).toBeInTheDocument()
+  })
+
   it('화면명과 행동 제목을 반복하지 않고 하나의 h1을 사용한다', () => {
     render(<PensionHarness />)
     expect(screen.getByText('연금 상담')).toBeInTheDocument()
