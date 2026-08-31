@@ -68,7 +68,7 @@ def test_tax_factual_claim_without_evidence_is_rejected() -> None:
 
 
 def test_wrong_tax_subtype_rate_is_not_claimed() -> None:
-    assert tax_intent("퇴직금을 일시금으로 받으면 세율이 무조건 16.5%인가요?") == "RETIREMENT_INCOME_TAX"
+    assert tax_intent("퇴직금을 일시금으로 받으면 세율이 무조건 16.5%인가요?") == "RETIREMENT_LUMP_SUM_TAX"
     _, _, result, context = grounded("퇴직금을 일시금으로 받으면 세율이 무조건 16.5%인가요?")
     assert context.false_premise
     assert "아닙니다" in context.fallback_message

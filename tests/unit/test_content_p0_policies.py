@@ -112,7 +112,7 @@ def test_zero_deferred_tax_is_valid_rule_input() -> None:
 
 def test_retirement_withdrawal_tax_does_not_route_to_tax_credit() -> None:
     question = "예상 퇴직소득세를 기준으로 10년과 21년 연금수령 부담을 비교하고 싶어요"
-    assert tax_intent(question) == "PENSION_WITHDRAWAL_TAX"
+    assert tax_intent(question) == "RETIREMENT_PENSION_RECEIPT_TAX"
     assert IntentRouter().classify(question).intent == "종합"
 
 
@@ -226,7 +226,8 @@ def test_answerable_subtasks_survive_deterministic_fallback() -> None:
 def test_multi_intent_keeps_transfer_when_tax_detail_is_limited() -> None:
     _, _, _, context = grounded("DC 가입자가 퇴직 후 연금저축에서 운용하려면 절차와 세금은?")
     assert "먼저 IRP로 이전" in context.fallback_message
-    assert "실제 세액 계산에는 예상 퇴직소득세" in context.fallback_message
+    assert "세부 세율·세액을 확정할 수 없습니다" in context.fallback_message
+    assert "70%" not in context.fallback_message
 
 
 def test_three_tax_sources_are_present_in_claim_plan() -> None:

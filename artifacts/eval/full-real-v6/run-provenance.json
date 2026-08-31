@@ -1,0 +1,100 @@
+{
+  "run_kind": "ORIGINAL_SINGLE_RUN",
+  "branch": "fix/submission-p0",
+  "commit": "0a2c23c844f344d2f7c172c26d793380dae42c75",
+  "base_main": "13336ce1ea1a1f4eaa07262d718be7b3db59721c",
+  "working_tree_before": "clean",
+  "code_freeze_started_at_utc": "2026-08-31T10:44:14.601756+00:00",
+  "eval_schema_mode": "default (no override; /answer always official 5 fields)",
+  "providers_expected": {
+    "HCX": "real",
+    "EVIDENCE": "real",
+    "RULE": "real",
+    "PRODUCT": "real"
+  },
+  "single_run_policy": "No failed-case rerun, recovery, or result replacement. Production retries only.",
+  "timeout_seconds": 12,
+  "dataset": "tests/golden/mirae_eval_120.jsonl",
+  "output": "artifacts/eval/full-real-v6",
+  "sha256": {
+    "app/core/query_normalization.py": "e8b8bf5f1bb5e9f637d78eab91fd686e945bc3383b2876b4a260588aaf6c106b",
+    "app/tools/retriever.py": "761ace7ed31fdae2a87040857af7bf046aa4a875671e009ba68b16d733168f58",
+    "app/agent/composer.py": "f29cecb3b9eaec8741e750d501dfb25c8aa0ad9b66aab7c8ce8ffc793f13c5c5",
+    "app/agent/canonical.py": "56e3a2137458b6176b06dfcae974dc91407e6e11bb09bc33a475c70827dcac43",
+    "app/agent/hcx_client.py": "8ccc0936a8ccafe42c77c9fb781074598c0a90761431460c1d83a1df1ef45d87",
+    "app/agent/orchestrator.py": "cc08950d8b7e58c9a3cb9525dda46da243c56e64ba90e4c28ec18b67d2e28ba1",
+    "app/agent/verifier.py": "175be56bd4a71c397485c338aeb8f12c3a5021db4f58a39a1e3fc4b8ffb16b5c",
+    "app/agent/tools.py": "d66925a85aeb93b4249952cf21fc904679d8fc0e2bf3476992df25c62c026dd8",
+    "app/agent/slots.py": "bf5c0aebeebe8e66cde3746d64d2b164873fe08f92bf26ee902057e099bf1f86",
+    "app/api/schemas.py": "d97068e0260f6e4b5ea745e1d17af4acc58a7d1a37eeddd27de8cbe53f783fe4",
+    "tests/golden/mirae_eval_120.jsonl": "9851f27d3501f25ce9f56906314772737ac2700073b53841505cfeaeaff4d746"
+  },
+  "server_pid": 8556,
+  "server_port": 8010,
+  "evaluation_started_at_utc": "2026-08-31T10:47:56.317381+00:00",
+  "ready": {
+    "HCX_PROVIDER": "real",
+    "EVIDENCE_PROVIDER": "real",
+    "RULE_PROVIDER": "real",
+    "PRODUCT_PROVIDER": "real",
+    "hcx_mock_mode": false
+  },
+  "schema_probe": {
+    "GET": true,
+    "POST": true,
+    "fields": [
+      "question_id",
+      "question",
+      "retrieved_context",
+      "think_trace",
+      "answer"
+    ],
+    "think_trace_public_keys": [
+      "intent",
+      "route",
+      "retrieval",
+      "tools",
+      "composition",
+      "verification",
+      "hcx_invoked",
+      "hcx_success",
+      "degraded",
+      "fallback_used"
+    ]
+  },
+  "SCHEMA_VALID_PREFLIGHT": true,
+  "invalid_preflight_note": "First evaluate.py invocation hit connection refused because the preflight uvicorn process exited with the setup shell. That 120-FAIL artifact was archived under _invalid_connection_refused and is not Full v6. This timestamp is the actual ORIGINAL_SINGLE_RUN start.",
+  "server_pid_live": 9017,
+  "evaluation_finished_at_utc": "2026-08-31T10:53:31Z",
+  "working_tree_after": "artifacts/eval/full-real-v6 only (untracked)",
+  "head_after": "0a2c23c844f344d2f7c172c26d793380dae42c75",
+  "head_unchanged_during_evaluation": true,
+  "source_hash_unchanged": true,
+  "pytest_after": "334 passed",
+  "git_diff_check": "PASS",
+  "auto_counts": {
+    "PASS": 72,
+    "FAIL": 22,
+    "MANUAL_REVIEW": 26
+  },
+  "http_success": "120/120",
+  "reconstructed_from_server_log": {
+    "hcx_transport_attempts": 124,
+    "upstream_200": 124,
+    "upstream_429": 0,
+    "upstream_5xx": 0,
+    "timeout_attempts": 0,
+    "retry_exhausted": 0,
+    "verification_passed": 25,
+    "verification_repaired": 95,
+    "fallback_used_ids": [
+      "G021",
+      "G028",
+      "G032",
+      "G100"
+    ],
+    "degraded": 0
+  },
+  "SCHEMA_VALID": true,
+  "full_v3_v4_v5_untouched": true
+}

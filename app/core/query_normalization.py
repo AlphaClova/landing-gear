@@ -203,30 +203,116 @@ def needs_retirement_benefit_clarification(question: str) -> bool:
     return is_teacher_retirement_domain(question) and (ambiguous_label or generic_amount)
 
 
+TAX_CREDIT = "TAX_CREDIT"
+RETIREMENT_PENSION_RECEIPT_TAX = "RETIREMENT_PENSION_RECEIPT_TAX"
+EARLY_WITHDRAWAL_TAX = "EARLY_WITHDRAWAL_TAX"
+ACCOUNT_TERMINATION_TAX = "ACCOUNT_TERMINATION_TAX"
+RETIREMENT_LUMP_SUM_TAX = "RETIREMENT_LUMP_SUM_TAX"
+UNKNOWN_TAX = "UNKNOWN_TAX"
+# Historical alias used by withdrawal-comparison routing.
+PENSION_WITHDRAWAL_TAX = RETIREMENT_PENSION_RECEIPT_TAX
+
+
+def _compact_question(question: str) -> str:
+    return question.replace(" ", "")
+
+
+def is_early_withdrawal_question(question: str) -> bool:
+    """Detect mid-term / pre-55 withdrawal without requiring the exact token 중도인출."""
+    compact = _compact_question(question)
+    if any(marker in question for marker in ("중도인출", "일부 인출", "일부인출")):
+        return True
+    pre_55 = any(marker in compact for marker in ("55세전", "55세이전", "만55세전", "55세미만", "만55세미만"))
+    withdrawal = any(marker in compact for marker in ("찾으면", "찾아도", "인출하면", "인출하", "빼면", "빼고", "에서찾"))
+    if pre_55 and withdrawal:
+        return True
+    account = has_alias(question, "irp") or has_alias(question, "dc") or "퇴직연금" in question
+    return bool(account and withdrawal and any(marker in question for marker in ("세금", "과세", "세율")))
+
+
+def is_account_termination_question(question: str) -> bool:
+    if is_db_dc_question(question):
+        return False
+    compact = _compact_question(question)
+    return any(marker in question for marker in ("해지", "해약", "끝내")) or "전액일시인출" in compact or "전액 일시 인출" in question
+
+
+def pension_year_rate_block_allowed(scope: str | None) -> bool:
+    """70/60/50 actual-receipt-year rates apply only to pension-receipt tax."""
+    return scope == RETIREMENT_PENSION_RECEIPT_TAX
+
+
+def tax_scope_compatible(original: str | None, repaired: str | None) -> bool:
+    """Repair may only keep the original scope or a compatible specialization."""
+    if original == repaired:
+        return True
+    compatible = {
+        UNKNOWN_TAX: {
+            RETIREMENT_PENSION_RECEIPT_TAX,
+            EARLY_WITHDRAWAL_TAX,
+            ACCOUNT_TERMINATION_TAX,
+            RETIREMENT_LUMP_SUM_TAX,
+            TAX_CREDIT,
+        },
+    }
+    return repaired in compatible.get(original, set())
+
+
+def _is_pension_receipt_tax(question: str) -> bool:
+    compact = _compact_question(question)
+    if is_early_withdrawal_question(question) or is_account_termination_question(question):
+        return False
+    if any(marker in question for marker in ("연금수령", "연금 수령", "수령연차", "이연퇴직소득세")):
+        return True
+    if re.search(r"\d+\s*년차", question):
+        return True
+    year_horizon = any(marker in compact for marker in ("10년", "11년", "21년", "20년"))
+    receipt_context = any(marker in question for marker in ("수령", "감면", "절세액", "부담", "세율", "세금", "연금으로"))
+    if year_horizon and receipt_context and ("연금저축" not in question or "수령" in question or "년차" in question):
+        return True
+    if "일시금" in question and any(
+        marker in question for marker in ("연금수령", "연금으로", "연금 비교", "일시금과 연금")
+    ):
+        return True
+    if "수령계좌" in question and any(marker in question for marker in ("세금", "과세")):
+        return True
+    return False
+
+
+def _is_lump_sum_tax(question: str) -> bool:
+    if is_early_withdrawal_question(question):
+        return False
+    if _is_pension_receipt_tax(question):
+        return False
+    return "일시금" in question or "일시수령" in question or "일시 수령" in question
+
+
 def tax_intent(question: str) -> str | None:
     """Classify tax semantics without embedding evaluation questions."""
     if is_tax_deduction_question(question):
-        return "TAX_CREDIT"
-    compact = question.replace(" ", "")
+        return TAX_CREDIT
+    compact = _compact_question(question)
     if "연말정산" in question and any(x in question for x in ("인정", "상한", "한도")):
-        return "TAX_CREDIT"
+        return TAX_CREDIT
     if has_alias(question, "irp") and "넣" in question and "세금" in question and "줄" in question and "연금수령" not in compact:
-        return "TAX_CREDIT"
-    if any(x in question for x in ("연금수령", "연금 수령", "수령연차", "절세액", "이연퇴직소득세", "10년", "21년")):
-        return "PENSION_WITHDRAWAL_TAX"
-    if "일시금" in question and "연금" in question:
-        return "PENSION_WITHDRAWAL_TAX"
-    if any(x in question for x in ("퇴직소득세", "퇴직금", "세금")):
-        return "RETIREMENT_INCOME_TAX"
-    if any(x in question for x in ("세율", "과세", "절세", "공제율", "감면율", "건강보험료")):
-        return "OTHER_TAX_OR_UNKNOWN"
+        return TAX_CREDIT
+    if is_early_withdrawal_question(question):
+        return EARLY_WITHDRAWAL_TAX
+    if is_account_termination_question(question) and any(marker in question for marker in ("세금", "과세", "세율")):
+        return ACCOUNT_TERMINATION_TAX
+    if _is_pension_receipt_tax(question):
+        return RETIREMENT_PENSION_RECEIPT_TAX
+    if _is_lump_sum_tax(question):
+        return RETIREMENT_LUMP_SUM_TAX
+    if any(x in question for x in ("세금", "과세", "절세", "세율", "공제율", "감면율", "건강보험료", "퇴직소득세")):
+        return UNKNOWN_TAX
     return None
 
 
 def procedure_type(question: str) -> str | None:
-    if "중도인출" in question:
+    if is_early_withdrawal_question(question):
         return "EARLY_WITHDRAWAL"
-    if "해지" in question or "끝내" in question:
+    if is_account_termination_question(question):
         return "ACCOUNT_TERMINATION"
     if "개설" in question or "처음 만들" in question:
         return "ACCOUNT_OPENING"

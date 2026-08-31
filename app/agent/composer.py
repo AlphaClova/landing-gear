@@ -9,7 +9,7 @@ from app.agent.hcx_client import HCXClient
 from app.agent.router import Intent
 from app.agent.tools import ToolResult
 from app.api.schemas import CalculationResult, Citation, ComparisonResult, ComparisonRow, RequiredSlot, WithdrawalComparisonResponse
-from app.core.query_normalization import has_alias, has_legally_named_retirement_benefit, is_comparison_question, is_db_dc_question, is_tax_deduction_question, is_teacher_retirement_domain, needs_retirement_benefit_clarification, retirement_benefit_subtasks, tax_intent
+from app.core.query_normalization import ACCOUNT_TERMINATION_TAX, EARLY_WITHDRAWAL_TAX, has_alias, has_legally_named_retirement_benefit, is_comparison_question, is_db_dc_question, is_tax_deduction_question, is_teacher_retirement_domain, needs_retirement_benefit_clarification, pension_year_rate_block_allowed, retirement_benefit_subtasks, tax_intent
 from app.core.errors import ErrorCode, HCXError
 
 _SYSTEM_PROMPT = """제공된 계약만 자연스러운 한국어 답변으로 바꾸세요.
@@ -373,21 +373,30 @@ class Composer:
                 evidence=receipt_evidence,
             ))
 
-        asks_tax = (
-            any(x in question for x in ("세금", "과세", "절세", "납부비율", "수령 세율", "세율"))
-            or result.tax_intent == "PENSION_WITHDRAWAL_TAX"
-        ) and result.tax_intent != "TAX_CREDIT" and not is_tax_deduction_question(question)
+        tax_scope = result.tax_intent or tax_intent(question)
         tax_evidence = [
             item for item in doc51
             if any(marker in item.excerpt for marker in ("퇴직소득세", "이연퇴직소득세", "100%", "70%"))
-            and not (result.tax_intent != "TAX_CREDIT" and "세액공제율" in item.excerpt and "퇴직소득세" not in item.excerpt)
-        ] or doc51
-        if asks_tax and tax_evidence:
+            and not (tax_scope != "TAX_CREDIT" and "세액공제율" in item.excerpt and "퇴직소득세" not in item.excerpt)
+            and ("연금수령" in item.excerpt or "실제수령연차" in item.excerpt or "이연퇴직소득세" in item.excerpt)
+        ] or ([item for item in doc51 if "연금수령" in item.excerpt] if pension_year_rate_block_allowed(tax_scope) else [])
+        if pension_year_rate_block_allowed(tax_scope) and (tax_evidence or doc51):
             plan.append(self._claim(
                 "retirement_tax",
                 "퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.",
-                evidence=tax_evidence[:1],
+                evidence=(tax_evidence or doc51)[:1],
             ))
+        elif tax_scope == "RETIREMENT_LUMP_SUM_TAX":
+            lump_evidence = [
+                item for item in result.evidence
+                if "일시금" in item.excerpt and "100%" in item.excerpt
+            ]
+            if lump_evidence:
+                plan.append(self._claim(
+                    "lump_sum_tax",
+                    "일시금으로 받으면 퇴직소득세를 100% 납부합니다. [한계] 제공된 자료만으로 일시금 세율을 세액공제율과 같은 단일 값으로 단정할 수 없습니다.",
+                    evidence=lump_evidence[:1],
+                ))
 
         if len(result.tax_source_types) >= 3 and receipt_evidence:
             plan.append(self._claim(
@@ -408,15 +417,36 @@ class Composer:
             if dc_irp_evidence:
                 plan.append(self._claim("account_transfer", "DC 법정퇴직금은 IRP로 이전할 수 있습니다.", evidence=dc_irp_evidence))
 
-        if result.procedure_type == "EARLY_WITHDRAWAL" or "중도인출" in question:
-            procedure_evidence = [item for item in result.evidence if item.document_id == "doc55"]
+        if tax_scope == EARLY_WITHDRAWAL_TAX or result.procedure_type == "EARLY_WITHDRAWAL":
+            procedure_evidence = [
+                item for item in result.evidence
+                if any(marker in item.excerpt for marker in ("중도인출", "해지", "인출"))
+            ] or [item for item in result.evidence if item.document_id == "doc55"]
             if procedure_evidence:
                 plan.append(self._claim(
                     "early_withdrawal",
-                    "중도인출과 계좌 전체 해지는 구분해야 합니다. 제공 문서상 중도인출은 정해진 사유와 증빙이 필요한 절차입니다.",
-                    evidence=procedure_evidence,
+                    "55세 전 IRP 인출·중도인출은 연금수령 연차에 따른 이연퇴직소득세 납부비율 규칙과 같은 질문이 아닙니다. 중도인출과 계좌 전체 해지는 구분해야 합니다. 제공 문서상 중도인출은 정해진 사유와 증빙이 필요한 절차입니다.",
+                    evidence=procedure_evidence[:1],
                 ))
-            plan.append(self._unsupported("early_withdrawal_tax_detail", "[한계] 중도인출 세금은 인출 재원과 수령 방식에 따라 달라 현재 정보만으로 세부 세액을 계산할 수 없습니다."))
+            plan.append(self._unsupported(
+                "early_withdrawal_tax_detail",
+                "[한계] 중도인출·조기인출 세금은 인출 재원과 수령 방식에 따라 달라 제공 문서만으로 세부 세율·세액을 확정할 수 없습니다.",
+            ))
+        if tax_scope == ACCOUNT_TERMINATION_TAX:
+            plan.append(self._unsupported(
+                "termination_tax_detail",
+                "[한계] 계좌 해지 시 세금은 인출 재원과 수령 방식에 따라 달라 제공 문서만으로 세부 세율·세액을 확정할 수 없습니다.",
+            ))
+        if (
+            tax_scope == "UNKNOWN_TAX"
+            and any(marker in question for marker in ("세금", "과세"))
+            and result.withdrawal_result is None
+            and len(result.tax_source_types) < 3
+        ):
+            plan.append(self._unsupported(
+                "unknown_tax_detail",
+                "[한계] 질문의 세금 범위를 연금수령 연차 납부비율로 단정할 수 없어, 제공 문서만으로 세부 세율·세액을 확정할 수 없습니다.",
+            ))
 
         if result.procedure_type == "PENSION_START":
             procedure_evidence = [item for item in result.evidence if item.document_id in {"doc51", "doc55"}]
@@ -555,7 +585,7 @@ class Composer:
                 for scenario in result.withdrawal_result.comparison.scenarios
             ]
             parts.append("Rule Result에 포함된 수령 시나리오별 퇴직소득세입니다.\n" + "\n".join(lines))
-        elif result.tax_intent == "PENSION_WITHDRAWAL_TAX" and any("70%" in c.excerpt and "50%" in c.excerpt for c in result.evidence):
+        elif pension_year_rate_block_allowed(result.tax_intent or tax_intent(question)) and any("70%" in c.excerpt and "50%" in c.excerpt for c in result.evidence):
             parts.append("제공 문서의 실제수령연차 기준으로 1~10년차에는 이연퇴직소득세의 70%, 11~20년차에는 60%, 21년차부터는 50%를 납부합니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요합니다.")
         if self._is_db_dc_explanation(question, result):
             parts.append("확정급여형(DB)은 근로자가 퇴직할 때 받을 금액이 사전에 확정되어 있고 회사가 적립금을 운용합니다. 확정기여형(DC)은 회사가 매년 일정 금액을 근로자의 계좌에 입금하고 근로자가 직접 운용하므로, 운용 수익률에 따라 최종 퇴직금이 달라집니다.")
@@ -581,7 +611,7 @@ class Composer:
             parts.append("계좌 이전, 상품 선택, 연금 개시는 서로 별도 단계로 구분해야 합니다.")
         if any(x in question for x in ("수령계좌", "받을 계좌")) and any(c.document_id in {"doc51", "doc55"} for c in result.evidence):
             parts.append("제공 문서에 따르면 법정퇴직금의 수령 가능 계좌는 연령과 DB·DC 유형에 따라 구분됩니다. 만 55세 미만 법정퇴직금은 IRP 의무이전 대상이며, 만 55세 이상은 제도별로 선택 가능한 수령계좌가 달라집니다.")
-        if result.tax_intent != "TAX_CREDIT" and any(x in question for x in ("세금", "과세", "절세")) and any(c.document_id == "doc51" for c in result.evidence):
+        if pension_year_rate_block_allowed(result.tax_intent or tax_intent(question)) and any(c.document_id == "doc51" for c in result.evidence):
             parts.append("퇴직금 재원을 연금으로 수령할 때는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%를 납부합니다. [한계] 실제 세액은 예상 퇴직소득세와 수령 일정이 있어야 계산할 수 있습니다.")
         if "유동성" in question:
             parts.append("[한계] 제공 문서는 수령연차별 세율은 제시하지만 수령 주기·회차별 금액은 제시하지 않으므로, 10년과 21년 안의 실제 유동성 차이는 수령 일정을 정하기 전에는 단정할 수 없습니다.")

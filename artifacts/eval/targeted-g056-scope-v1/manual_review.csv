@@ -1,0 +1,3 @@
+﻿id,category,question,answer,retrieved_context,accuracy,evidence_completeness,requirement_coverage,groundedness,reasoning,safety,limit_handling,unsupported_claim_found,wrong_number_found,wrong_evidence_found,overconfident_recommendation,unnecessary_clarification,overall_pass,reviewer,comment
+STAB-001,combined,퇴직연금과 국민연금 세금을 합쳐 계산해줘,"[한계] 질문의 세금 범위를 연금수령 연차 납부비율로 단정할 수 없어, 제공 문서만으로 세부 세율·세액을 확정할 수 없습니다.",[],,,,,,,,,,,,,,,
+STAB-002,combined,퇴직연금과 국민연금 세금을 합쳐 계산해줘,"[한계] 질문의 세금 범위를 연금수령 연차 납부비율로 단정할 수 없어, 제공 문서만으로 세부 세율·세액을 확정할 수 없습니다.",[],,,,,,,,,,,,,,,

@@ -15,7 +15,14 @@ from app.agent.canonical import (
 from app.agent.composer import Draft
 from app.agent.router import RouteDecision
 from app.api.schemas import CalculationResult, Citation, InternalAnswer, RequiredSlot, ThinkTrace, ToolCallTrace
-from app.core.query_normalization import is_db_dc_question, is_tax_deduction_question, is_teacher_retirement_domain, tax_intent
+from app.core.query_normalization import (
+    is_db_dc_question,
+    is_tax_deduction_question,
+    is_teacher_retirement_domain,
+    pension_year_rate_block_allowed,
+    tax_intent,
+    tax_source_types,
+)
 
 _ASSERTIVE_PHRASES = (
     "무조건",
@@ -321,6 +328,11 @@ class Verifier:
                     if marker in draft.message and marker not in support and marker not in (context.correction_fact or ""):
                         issues.append("unsupported factual claim")
                         break
+            if not pension_year_rate_block_allowed(classified):
+                uses_year_rates = all(marker in draft.message.replace(" ", "") for marker in ("70%", "60%", "50%"))
+                mixed_source = len(tax_source_types(context.question)) >= 3 and "재원" in draft.message
+                if uses_year_rates and not mixed_source:
+                    issues.append("wrong tax scope")
 
         if context and is_teacher_retirement_domain(context.question) and any(
             item.document_id == "doc26" for item in context.evidence

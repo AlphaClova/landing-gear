@@ -27,7 +27,7 @@ from app.api.schemas import (
 )
 from app.core.errors import ErrorCode, ToolError
 from app.core.logging import get_logger
-from app.core.query_normalization import ALIASES, has_alias, is_db_dc_question, is_teacher_retirement_domain, procedure_type, tax_intent, tax_source_types
+from app.core.query_normalization import ALIASES, ACCOUNT_TERMINATION_TAX, EARLY_WITHDRAWAL_TAX, RETIREMENT_LUMP_SUM_TAX, RETIREMENT_PENSION_RECEIPT_TAX, has_alias, is_db_dc_question, is_teacher_retirement_domain, procedure_type, tax_intent, tax_source_types
 from app.tools.withdrawal_comparison import calculate_withdrawal_comparison as b_calculate_withdrawal_comparison
 from app.tools.product_query import query_products as b_query_products
 from app.tools.retriever import retrieve_evidence as b_retrieve_evidence
@@ -455,10 +455,14 @@ class ToolRouter:
             queries.append(("DB DC 회사 근로자 운용 퇴직금", "제도"))
         if result.tax_intent == "TAX_CREDIT":
             queries.append(("연금저축 IRP 세액공제 납입한도 합산 600만원 900만원", "세제"))
-        if result.tax_intent == "PENSION_WITHDRAWAL_TAX":
+        if result.tax_intent == RETIREMENT_PENSION_RECEIPT_TAX:
             queries.append((f"{question} 실제수령연차 이연퇴직소득세 70% 60% 50%", "세제"))
-        if result.tax_intent == "RETIREMENT_INCOME_TAX":
-            queries.append(("퇴직금 일시금 연금수령 퇴직소득세 100% 이연퇴직소득세", "세제"))
+        if result.tax_intent == RETIREMENT_LUMP_SUM_TAX:
+            queries.append(("퇴직금 일시금 퇴직소득세 100% 즉시 납부", "세제"))
+        if result.tax_intent == EARLY_WITHDRAWAL_TAX:
+            queries.append((f"{question} IRP 중도인출 해지 과세 사유", "세제"))
+        if result.tax_intent == ACCOUNT_TERMINATION_TAX:
+            queries.append((f"{question} IRP 해지 과세 인출 재원", "세제"))
         if any(marker in question for marker in ("근무", "근로시간", "가입 대상", "대상인가요", "대상인가")):
             queries.append(("퇴직연금 가입 대상 근로시간 계속근로기간", "제도"))
         if result.tax_source_types:

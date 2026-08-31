@@ -10,6 +10,7 @@ import re
 from typing import Literal
 
 from app.core.query_normalization import (
+    RETIREMENT_PENSION_RECEIPT_TAX,
     has_alias,
     is_comparison_question,
     is_db_dc_question,
@@ -91,7 +92,7 @@ class IntentRouter:
         ):
             matched = {"종합": 3}
 
-        if tax_intent(question) == "PENSION_WITHDRAWAL_TAX" and any(
+        if tax_intent(question) == RETIREMENT_PENSION_RECEIPT_TAX and any(
             marker in question for marker in ("비교", "절세액", "10년", "21년", "수령")
         ):
             matched = {"종합": 3}

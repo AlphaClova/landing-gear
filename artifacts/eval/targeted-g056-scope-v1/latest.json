@@ -1,0 +1,120 @@
+{
+  "metadata": {
+    "subset": "stability-2",
+    "run_kind": "ORIGINAL_SINGLE_RUN",
+    "provider": {
+      "ready": true,
+      "hcx_mode": "real",
+      "evidence_provider_mode": "real",
+      "rule_provider_mode": "real",
+      "product_provider_mode": "real"
+    },
+    "production_valid": true,
+    "note": null
+  },
+  "summary": {
+    "total": 2,
+    "FAIL": 2,
+    "hcx_invoked": 2,
+    "hcx_success": 2,
+    "hcx_first_pass": 0,
+    "hcx_regenerated": 0,
+    "deterministic_repaired": 0,
+    "hcx_timeout_count": 0,
+    "hcx_transport_attempts": 0,
+    "hcx_retry_count": 0,
+    "upstream_status_distribution": {},
+    "upstream_429": 0,
+    "upstream_5xx": 0,
+    "transport_timeout_count": 0,
+    "transport_other_error_count": 0,
+    "retry_exhausted_count": 0,
+    "fallback_used": 0,
+    "manual_review_required": 2,
+    "pass_rate": 0.0,
+    "average_latency_ms": 1173.2485000000001,
+    "p50_latency_ms": 1127.51,
+    "p95_latency_ms": 1218.987,
+    "max_latency_ms": 1218.987,
+    "http_error_rate": 0.0,
+    "failure_reasons": {
+      "MISSING_EVIDENCE": 2
+    }
+  },
+  "results": [
+    {
+      "id": "STAB-001",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "퇴직연금과 국민연금 세금을 합쳐 계산해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1218.987,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "[한계] 질문의 세금 범위를 연금수령 연차 납부비율로 단정할 수 없어, 제공 문서만으로 세부 세율·세액을 확정할 수 없습니다.",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "{\"intent\": \"세제\", \"route\": \"deep_path\", \"retrieval\": \"completed\", \"tools\": [\"retrieve_evidence\"], \"composition\": \"grounded\", \"verification\": \"repaired\", \"hcx_invoked\": true, \"hcx_success\": true, \"degraded\": false, \"fallback_used\": false}",
+      "hcx_invoked": true,
+      "hcx_attempts": 0,
+      "hcx_success": true,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-31T11:36:56.329675+00:00",
+        "response_error": null,
+        "request_id": "req_19277b907411496499f8",
+        "call_sequence": 1,
+        "previous_request_gap_ms": null
+      }
+    },
+    {
+      "id": "STAB-002",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "퇴직연금과 국민연금 세금을 합쳐 계산해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1127.51,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "[한계] 질문의 세금 범위를 연금수령 연차 납부비율로 단정할 수 없어, 제공 문서만으로 세부 세율·세액을 확정할 수 없습니다.",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "{\"intent\": \"세제\", \"route\": \"deep_path\", \"retrieval\": \"completed\", \"tools\": [\"retrieve_evidence\"], \"composition\": \"grounded\", \"verification\": \"repaired\", \"hcx_invoked\": true, \"hcx_success\": true, \"degraded\": false, \"fallback_used\": false}",
+      "hcx_invoked": true,
+      "hcx_attempts": 0,
+      "hcx_success": true,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-31T11:36:57.582286+00:00",
+        "response_error": null,
+        "request_id": "req_600212a7c22d443ab25f",
+        "call_sequence": 2,
+        "previous_request_gap_ms": 0.001
+      }
+    }
+  ]
+}
