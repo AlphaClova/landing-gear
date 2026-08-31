@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="360" viewBox="0 0 1000 360" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Landing Gear home horizon</title>
+  <desc id="desc">Subtle abstract sun and route line for the home header</desc>
+  <g stroke="#C99A4B" fill="none" stroke-linecap="round">
+    <path d="M625 176a90 90 0 0 1 180 0" stroke-opacity=".46"/>
+    <path d="M611 176a104 104 0 0 1 208 0" stroke-opacity=".25"/>
+    <path d="M596 176a119 119 0 0 1 238 0" stroke-opacity=".14"/>
+    <path d="M0 208c120-19 228-13 326 6 103 20 181 19 260 2 92-19 154-16 229 6 60 18 121 23 185 20" stroke-opacity=".34"/>
+    <path d="M0 224c126-16 235-8 332 10 101 19 177 17 255 2 91-18 154-12 228 10 58 17 119 23 185 24" stroke-opacity=".18"/>
+    <path d="M1000 246c-127 0-224 17-292 50-27 13-52 30-76 50" stroke-opacity=".26"/>
+  </g>
+</svg>
