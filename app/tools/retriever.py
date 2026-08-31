@@ -10,6 +10,9 @@ from pathlib import Path
 
 from app.data.schemas.models import Chunk, EvidenceResult, RetrievalHit
 from app.core.query_normalization import (
+    domain_query_coverage,
+    meaningful_query_tokens,
+    query_domain_anchors,
     has_alias,
     is_tax_deduction_question,
     is_teacher_retirement_domain,
@@ -19,6 +22,9 @@ from app.core.query_normalization import (
 
 TOKEN_PATTERN = re.compile(r"[0-9A-Za-z가-힣]+")
 DEFAULT_CHUNKS_PATH = Path(__file__).resolve().parents[1] / "data" / "processed" / "chunks.jsonl"
+RETRIEVAL_MIN_SCORE = 0.01
+RETRIEVAL_MIN_QUERY_COVERAGE = 0.51
+RETRIEVAL_MIN_DOMAIN_COVERAGE = 0.40
 
 
 def _tokenize(text: str) -> list[str]:
@@ -176,6 +182,7 @@ def retrieve_evidence(
         top_k=max(top_k * 20, 80),
         topics=[topic] if topic is not None else None,
     )
+    hits = _apply_relevance_gate(query, hits, chunks_by_id)
     hits = _rerank_and_diversify(hits, chunks_by_id, query_kind, top_k)
     return [
         EvidenceResult(
@@ -190,6 +197,72 @@ def retrieve_evidence(
             score=hit.score,
         )
         for hit in hits
+    ]
+
+
+def relevance_diagnostics(
+    query: str,
+    hit: RetrievalHit,
+    chunk: Chunk,
+    aggregate_coverage: float | None = None,
+) -> dict[str, object]:
+    """Explain the deterministic relevance gate for tests and audit artifacts."""
+    meaningful = meaningful_query_tokens(query)
+    searchable = f"{chunk.title} {chunk.section} {chunk.text}".lower()
+    compact = searchable.replace(" ", "")
+    matched = tuple(token for token in meaningful if token in compact)
+    coverage = len(matched) / len(meaningful) if meaningful else 0.0
+    anchors = query_domain_anchors(query)
+    matched_anchors = tuple(anchor for anchor in anchors if anchor.lower() in compact)
+    domain_coverage = domain_query_coverage(query)
+    effective_coverage = coverage if aggregate_coverage is None else aggregate_coverage
+    custom_exact_match = not anchors and effective_coverage == 1.0
+    accepted = (
+        hit.score >= RETRIEVAL_MIN_SCORE
+        and bool(meaningful)
+        and (
+            custom_exact_match
+            or (
+                effective_coverage >= RETRIEVAL_MIN_QUERY_COVERAGE
+                and domain_coverage >= RETRIEVAL_MIN_DOMAIN_COVERAGE
+                and bool(matched_anchors)
+            )
+        )
+    )
+    return {
+        "normalized_query": " ".join(meaningful),
+        "meaningful_query_tokens": list(meaningful),
+        "matched_query_tokens": list(matched),
+        "token_coverage": coverage,
+        "domain_anchors": list(anchors),
+        "matched_domain_anchors": list(matched_anchors),
+        "domain_query_coverage": domain_coverage,
+        "aggregate_token_coverage": effective_coverage,
+        "raw_retrieval_score": hit.score,
+        "accepted": accepted,
+    }
+
+
+def _apply_relevance_gate(
+    query: str,
+    hits: list[RetrievalHit],
+    chunks_by_id: dict[str, Chunk],
+) -> list[RetrievalHit]:
+    meaningful = meaningful_query_tokens(query)
+    if not meaningful or not hits:
+        return []
+    candidate_text = " ".join(
+        f"{chunks_by_id[hit.chunk_id].title} {chunks_by_id[hit.chunk_id].section} "
+        f"{chunks_by_id[hit.chunk_id].text}"
+        for hit in hits
+    ).lower().replace(" ", "")
+    aggregate_matched = [token for token in meaningful if token in candidate_text]
+    aggregate_coverage = len(aggregate_matched) / len(meaningful)
+    return [
+        hit for hit in hits
+        if relevance_diagnostics(
+            query, hit, chunks_by_id[hit.chunk_id], aggregate_coverage
+        )["accepted"]
     ]
 
 

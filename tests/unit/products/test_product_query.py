@@ -4,6 +4,8 @@ import pytest
 
 from app.tools import product_query
 from app.tools.product_query import ProductQueryInputError, ProductQueryService
+from app.agent.composer import Composer
+from app.agent.tools import ToolResult
 
 
 def _rows() -> list[dict[str, object]]:
@@ -141,3 +143,17 @@ def test_production_entry_rejects_invalid_filters(
 ) -> None:
     with pytest.raises(ProductQueryInputError, match=error):
         product_query.query_products(plan_type, category)
+
+
+def test_production_dc_query_is_source_limited_empty_result() -> None:
+    # The corpus audit found no DIRECT_DC eligibility statement. An empty result
+    # means "not directly verified in the provided sources", not "no DC product exists".
+    assert product_query.query_products("DC", None) == []
+
+
+def test_empty_dc_catalog_is_described_as_source_limited() -> None:
+    context = Composer(object()).build_context("DC 상품을 보여줘", "상품", ToolResult())  # type: ignore[arg-type]
+
+    assert context.response_mode == "limitation"
+    assert "제공된 근거" in (context.fallback_message or "")
+    assert "상품이 없습니다" not in (context.fallback_message or "")
