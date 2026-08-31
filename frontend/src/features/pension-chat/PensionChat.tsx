@@ -9,7 +9,7 @@ import { ProductComparison } from './ProductComparison'
 interface PensionChatProps {
   value: string
   onChange: (value: string) => void
-  onSubmit: () => void
+  onSubmit: (question: string) => void
   onCancel: () => void
   onRetry: () => void
   response: ChatResponse | null
@@ -24,7 +24,7 @@ function QuestionForm({ value, onChange, onSubmit, disabled, inputRef }: Pick<Pe
   return <div className="pension-prompt">
     <label htmlFor="pension-question">질문 입력</label>
     <textarea ref={inputRef} id="pension-question" value={value} onChange={(event) => onChange(event.target.value)} placeholder="궁금한 연금 제도나 수령 방식을 질문해 보세요." rows={3} disabled={disabled} />
-    <button type="button" onClick={onSubmit} disabled={disabled || !value.trim()}>질문하기</button>
+    <button type="button" onClick={() => onSubmit(value)} disabled={disabled || !value.trim()}>질문하기</button>
   </div>
 }
 

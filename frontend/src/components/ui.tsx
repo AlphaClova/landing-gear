@@ -50,7 +50,7 @@ export function LoadingState({ onCancel }: { onCancel: () => void }) {
 }
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
-  return <div className="state-panel state-panel--amber" role="alert"><span className="state-symbol" aria-hidden="true">!</span><div><strong>요청을 완료하지 못했습니다.</strong><p>{message}</p>{onRetry && <button className="secondary-button" onClick={onRetry}>다시 시도</button>}</div></div>
+  return <div className="state-panel state-panel--amber" role="alert"><span className="state-symbol" aria-hidden="true">!</span><div><strong>요청을 완료하지 못했습니다.</strong><p>{message}</p>{onRetry && <button type="button" className="secondary-button" onClick={onRetry}>다시 시도</button>}</div></div>
 }
 
 const menu = [

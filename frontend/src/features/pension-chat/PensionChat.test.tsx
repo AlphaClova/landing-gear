@@ -27,7 +27,7 @@ function PensionHarness() {
     finally { setLoading(false); setPendingQuestion('') }
   }
   const cancel = () => { controller.current?.abort(); setLoading(false); setCancelled(true) }
-  return <PensionChat value={value} onChange={setValue} onSubmit={submit} onCancel={cancel} onRetry={submit} response={response} answeredQuestion={answeredQuestion} pendingQuestion={pendingQuestion} loading={loading} error={error} cancelled={cancelled} />
+  return <PensionChat value={value} onChange={setValue} onSubmit={() => submit()} onCancel={cancel} onRetry={submit} response={response} answeredQuestion={answeredQuestion} pendingQuestion={pendingQuestion} loading={loading} error={error} cancelled={cancelled} />
 }
 
 describe('연금 상담 회귀', () => {

@@ -73,6 +73,28 @@ describe('/v1/chat response transport', () => {
     expect(parseChatApiResponse(baseResponse()).withdrawal_result).toBeNull()
   })
 
+  it('accepts and preserves nullable latest citation ranking metadata', () => {
+    const payload = {
+      ...baseResponse(),
+      citations: [{ ...citation(null), source_priority: null, score: null }],
+    }
+    expect(parseChatApiResponse(payload).citations[0]).toMatchObject({
+      source_priority: null,
+      score: null,
+    })
+  })
+
+  it.each([
+    ['source_priority', 1.5],
+    ['score', 'high'],
+  ])('rejects invalid citation %s when the latest field is present', (field, invalidValue) => {
+    const payload = {
+      ...baseResponse(),
+      citations: [{ ...citation(), [field]: invalidValue }],
+    }
+    expect(() => parseChatApiResponse(payload)).toThrow(ChatApiResponseValidationError)
+  })
+
   it('validates a withdrawal result comparison, evidence, rules, and claims', () => {
     const result = parseChatApiResponse({ ...baseResponse(), withdrawal_result: withdrawalResult() })
     expect(result.withdrawal_result?.claim_validation.unsupported_claim_count).toBe(0)

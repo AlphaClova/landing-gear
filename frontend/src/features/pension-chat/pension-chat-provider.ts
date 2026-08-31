@@ -23,6 +23,8 @@ const mapCitation = (citation: ChatApiCitation): Citation => ({
   source: citation.source,
   excerpt: citation.excerpt || null,
   url: citation.url,
+  sourcePriority: citation.source_priority,
+  score: citation.score,
 })
 
 const mapComparison = (

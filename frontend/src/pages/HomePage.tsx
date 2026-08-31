@@ -22,6 +22,7 @@ export function HomePage() {
   const [error, setError] = useState<string | null>(null)
   const [answeredQuestion, setAnsweredQuestion] = useState('')
   const [pendingQuestion, setPendingQuestion] = useState('')
+  const [failedQuestion, setFailedQuestion] = useState('')
   const [cancelled, setCancelled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const requestRef = useRef<AbortController | null>(null)
@@ -38,33 +39,39 @@ export function HomePage() {
       }
     })
   }, [page])
-  const navigate = (next: Page) => { requestRef.current?.abort(); setPage(next); setResponse(null); setError(null); setAnsweredQuestion(''); setPendingQuestion(''); setCancelled(false); window.location.hash = next === 'start' ? '' : next }
+  const navigate = (next: Page) => { requestRef.current?.abort(); setPage(next); setResponse(null); setError(null); setAnsweredQuestion(''); setPendingQuestion(''); setFailedQuestion(''); setCancelled(false); window.location.hash = next === 'start' ? '' : next }
   const goToStart = () => { requestRef.current?.abort(); requestRef.current = null; setLoading(false); setMenuOpen(false); setPage('start'); window.location.hash = '' }
   const enterHome = () => { setPage('home'); window.location.hash = 'home' }
   const selectMode = (mode: ResponseMode) => navigate(mode)
   const askFromHome = () => { if (message.trim()) navigate('pension-chat') }
   const cancel = () => { requestRef.current?.abort(); requestRef.current = null; setLoading(false); setPendingQuestion(''); setError(null); setCancelled(true) }
-  const submit = async () => {
+  const sendQuestion = async (question: string) => {
     if (page !== 'pension-chat' && page !== 'withdrawal-decision') return
-    const question = message.trim()
-    if (!question || loading) return
-    requestRef.current?.abort(); const controller = new AbortController(); requestRef.current = controller
-    setLoading(true); setError(null); setCancelled(false); setPendingQuestion(question)
-    if (page === 'withdrawal-decision') setResponse(null)
+    if (!question.trim() || requestRef.current) return
+    const submittedQuestion = question.trim()
+    const controller = new AbortController(); requestRef.current = controller
+    setLoading(true); setError(null); setResponse(null); setCancelled(false); setPendingQuestion(submittedQuestion); setFailedQuestion('')
     try {
-      const nextResponse = await pensionChatProvider.answer(question, controller.signal)
+      const nextResponse = await pensionChatProvider.answer(submittedQuestion, controller.signal)
       if (requestRef.current !== controller) return
-      setResponse(nextResponse); setAnsweredQuestion(question); setPendingQuestion('')
+      setResponse(nextResponse); setAnsweredQuestion(submittedQuestion); setPendingQuestion('')
+      if (nextResponse.type === 'error') setFailedQuestion(submittedQuestion)
     } catch (caught) {
       if (requestRef.current !== controller) return
       if (caught instanceof ChatApiClientError && caught.kind === 'cancelled') return
+      setFailedQuestion(submittedQuestion); setPendingQuestion('')
       setError(caught instanceof ChatApiClientError
         ? caught.userMessage
         : '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.')
     } finally {
-      if (requestRef.current === controller) setLoading(false)
+      if (requestRef.current === controller) {
+        requestRef.current = null
+        setLoading(false)
+      }
     }
   }
+  const submit = (question: string) => { void sendQuestion(question) }
+  const retry = () => { if (failedQuestion) void sendQuestion(failedQuestion) }
 
   if (page === 'start') return <main className="start-page">
     <header className="start-header"><button className="login-link">로그인</button></header>
@@ -80,7 +87,7 @@ export function HomePage() {
       {page === 'home' ? <>
         <section className="home-hero"><div><h1>무엇을 도와드릴까요?</h1><p>궁금한 내용을 묻거나 필요한 계산을 시작해 보세요.</p></div><div className="home-prompt"><label className="sr-only" htmlFor="home-question">연금 질문</label><input id="home-question" value={message} onChange={(e) => setMessage(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && askFromHome()} placeholder="연금에 대해 궁금한 점을 입력해 주세요." /><Button onClick={askFromHome} disabled={!message.trim()}><span aria-hidden="true">✦</span> 질문하기</Button></div></section>
         <div className="home-grid"><div><div className="feature-cards"><button className="card feature-card" onClick={() => selectMode('pension-chat')}><img src="/assets/icons/pension-chat.svg" alt="" /><div><h2>연금 상담</h2><p>연금 제도와 수령 방식을 간단히 확인해 보세요.</p></div><span aria-hidden="true">→</span></button><button className="card feature-card" onClick={() => selectMode('withdrawal-decision')}><img src="/assets/icons/withdrawal-decision.svg" alt="" /><div><h2>인출 의사결정</h2><p>일시금과 연금 수령 방식의 차이를 비교해 보세요.</p></div><span aria-hidden="true">→</span></button></div><Card className="examples"><h2>이런 질문으로 시작해 보세요</h2><div>{examples.map((example) => <button key={example} onClick={() => { setMessage(example); navigate('pension-chat') }}><span aria-hidden="true">?</span>{example}<b aria-hidden="true">›</b></button>)}</div></Card></div><Card className="principles"><h2>답변 원칙</h2><ul><li><img src="/assets/icons/exact-estimate.svg" alt="" />확정값과 예상값 구분</li><li><img src="/assets/icons/evidence.svg" alt="" />근거와 출처 제공</li><li><img src="/assets/icons/condition.svg" alt="" />필요한 조건만 확인</li></ul></Card></div>
-      </> : page === 'pension-chat' ? <PensionChat value={message} onChange={setMessage} onSubmit={submit} onCancel={cancel} onRetry={submit} response={response} answeredQuestion={answeredQuestion} pendingQuestion={pendingQuestion} loading={loading} error={error} cancelled={cancelled} /> : page === 'withdrawal-decision' ? <WithdrawalDecision /> : <AuxiliaryPage page={page} />}
+      </> : page === 'pension-chat' ? <PensionChat value={message} onChange={setMessage} onSubmit={submit} onCancel={cancel} onRetry={retry} response={response} answeredQuestion={answeredQuestion} pendingQuestion={pendingQuestion} loading={loading} error={error} cancelled={cancelled} /> : page === 'withdrawal-decision' ? <WithdrawalDecision /> : <AuxiliaryPage page={page} />}
     </main>
   </AppShell>
 }

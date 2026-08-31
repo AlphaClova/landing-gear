@@ -13,6 +13,8 @@ export interface Citation {
   source?: string
   excerpt: string | null
   url?: string | null
+  sourcePriority?: number | null
+  score?: number | null
 }
 
 export interface RequiredSlot {

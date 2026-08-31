@@ -14,6 +14,8 @@ export interface ChatApiCitation {
   source: string
   excerpt: string
   url: string | null
+  source_priority?: number | null
+  score?: number | null
 }
 
 export interface ChatApiComparisonRow {
@@ -165,6 +167,9 @@ const isCitation = (value: unknown): value is ChatApiCitation => isRecord(value)
   && isString(value.source)
   && isString(value.excerpt)
   && isNullableString(value.url)
+  && (value.source_priority === undefined || value.source_priority === null || Number.isSafeInteger(value.source_priority))
+  && (value.score === undefined || value.score === null
+    || (typeof value.score === 'number' && Number.isFinite(value.score)))
 
 const isComparisonRow = (value: unknown, optionIds: Set<string>): value is ChatApiComparisonRow => {
   if (!isRecord(value) || !isString(value.label) || !isRecord(value.values)) return false

@@ -88,12 +88,12 @@ describe('pension chat HTTP provider', () => {
     const response = adaptPensionChatResponse(transport('result', {
       citations: [{
         id: 'evidence-1', document_id: 'doc-1', page, section: '제1장', source: '기관',
-        excerpt: '근거 문장', url: 'https://example.test/source',
+        excerpt: '근거 문장', url: 'https://example.test/source', source_priority: 2, score: 0.875,
       }],
     }))
     expect(response.type === 'result' && response.citations[0]).toMatchObject({
       documentId: 'doc-1', page, section: '제1장', source: '기관', excerpt: '근거 문장',
-      url: 'https://example.test/source',
+      url: 'https://example.test/source', sourcePriority: 2, score: 0.875,
     })
   })
 
