@@ -89,7 +89,7 @@ class Composer:
                 message=context.fallback_message,
                 citations=result.evidence,
                 calculation_results=result.calculations,
-                comparison=self._build_comparison(intent, result.calculations),
+                comparison=self._build_comparison(intent, result.calculations, result.withdrawal_result),
                 withdrawal_result=result.withdrawal_result,
                 context=context,
                 hcx_invoked=True,
@@ -108,7 +108,7 @@ class Composer:
                 case_id=case_id,
             )
         return Draft(message=message, citations=result.evidence, calculation_results=result.calculations,
-                     comparison=self._build_comparison(intent, result.calculations), withdrawal_result=result.withdrawal_result,
+                     comparison=self._build_comparison(intent, result.calculations, result.withdrawal_result), withdrawal_result=result.withdrawal_result,
                      context=context, hcx_invoked=True, hcx_attempts=getattr(self._hcx, "last_attempts", 1) or 1,
                      hcx_success=getattr(self._hcx, "last_success", True), hcx_timeout_count=getattr(self._hcx, "last_timeout_count", 0),
                      hcx_audit=[{"phase":"initial", "output":message, "transport":getattr(self._hcx, "last_attempt_details", [])}],
@@ -556,6 +556,11 @@ class Composer:
         return message
 
     @staticmethod
-    def _build_comparison(intent, calculations):
-        if intent != "종합" or len(calculations) < 2: return None
+    def _build_comparison(intent, calculations, withdrawal_result=None):
+        # withdrawal_result가 있으면 그 안에 이미 3개 시나리오 비교가 원형으로 담겨
+        # 프론트가 그것만 읽는다. 여기서 rule_id 기준 options를 만들면 세 시나리오가
+        # 같은 rule_id(RETIRE_TAX_RATE_BY_YEAR)를 공유해 중복 options가 생기고,
+        # 프론트 스키마의 options 고유성 검증에 걸려 응답 전체가 파싱 실패한다.
+        if intent != "종합" or len(calculations) < 2 or withdrawal_result is not None:
+            return None
         return ComparisonResult(title="옵션 비교", options=[c.rule_id for c in calculations], rows=[ComparisonRow(label=c.label, values={"value":f"{c.value}{c.unit}"}) for c in calculations], note="단정적인 추천이 아닌 참고용 비교입니다.")
