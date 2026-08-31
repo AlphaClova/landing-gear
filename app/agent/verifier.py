@@ -10,7 +10,7 @@ from decimal import Decimal, InvalidOperation
 from app.agent.composer import Draft
 from app.agent.router import RouteDecision
 from app.api.schemas import CalculationResult, Citation, InternalAnswer, RequiredSlot, ThinkTrace, ToolCallTrace
-from app.core.query_normalization import is_teacher_retirement_domain
+from app.core.query_normalization import is_db_dc_question, is_teacher_retirement_domain
 
 _ASSERTIVE_PHRASES = (
     "무조건",
@@ -46,7 +46,7 @@ class Verifier:
         context = draft.context
         if not context:
             return False
-        if "안전 거절 확장" in issues or "Rule 밖 금액 계산" in issues or "민감정보 응답 확장" in issues or "반올림 실패 응답 확장" in issues or "상품 한계 응답 확장" in issues or "핵심 grounded contract 변경 또는 일부 누락" in issues:
+        if "안전 거절 확장" in issues or "Rule 밖 금액 계산" in issues or "민감정보 응답 확장" in issues or "반올림 실패 응답 확장" in issues or "상품 한계 응답 확장" in issues or "핵심 grounded contract 변경 또는 일부 누락" in issues or "DB/DC fact inversion" in issues:
             draft.message = context.fallback_message
             draft.hcx_audit.append({"phase":"deterministic_repair", "violations":issues, "action":"restore_grounded_contract"})
             return not self.check(draft)
@@ -67,6 +67,10 @@ class Verifier:
         ):
             draft.message = "정확한 답변을 위해 " + "; ".join(slot.prompt for slot in context.required_clarifications)
             draft.hcx_audit.append({"phase":"deterministic_repair", "violations":issues, "action":"restrict_to_required_slots"})
+            return not self.check(draft)
+        if context.response_mode == "clarification" and "필수 clarification correction 누락" in issues:
+            draft.message = context.fallback_message
+            draft.hcx_audit.append({"phase":"deterministic_repair", "violations":issues, "action":"restore_clarification_correction"})
             return not self.check(draft)
         return False
 
@@ -208,6 +212,8 @@ class Verifier:
             factual_markers = ("계산됩니다", "부과됩니다", "감면됩니다", "적용됩니다", "유리합니다", "책임입니다", "보장됩니다")
             if any(marker in draft.message for marker in factual_markers):
                 issues.append("clarification factual expansion")
+            if context.required_facts and not all(fact in draft.message for fact in context.required_facts):
+                issues.append("필수 clarification correction 누락")
             return issues
         if context and context.response_mode == "limitation":
             if not any(x in draft.message for x in ("어렵", "범위를 벗어나", "한계", "제공할 수 없")):
@@ -251,6 +257,19 @@ class Verifier:
         if context and "핵심 grounded contract 변경 또는 일부 누락" in context.forbidden_behaviors:
             if draft.message.strip() != context.fallback_message.strip():
                 issues.append("핵심 grounded contract 변경 또는 일부 누락")
+
+        if context and is_db_dc_question(context.question):
+            compact = re.sub(r"\s+", "", draft.message)
+            inverted_operator = bool(
+                re.search(r"(?:DB|확정급여형).{0,35}(?:근로자|가입자).{0,12}(?:직접)?운용", compact)
+                or re.search(r"(?:DC|확정기여형).{0,35}회사.{0,12}(?:직접)?운용", compact)
+            )
+            inverted_benefit = bool(
+                re.search(r"(?:DC|확정기여형).{0,35}(?:급여|퇴직금).{0,15}(?:사전|미리).{0,8}확정", compact)
+                or re.search(r"(?:DB|확정급여형).{0,35}(?:운용성과|수익률).{0,15}(?:급여|퇴직금).{0,8}(?:달라|변동)", compact)
+            )
+            if inverted_operator or inverted_benefit:
+                issues.append("DB/DC fact inversion")
 
         if context and is_teacher_retirement_domain(context.question) and any(
             item.document_id == "doc26" for item in context.evidence

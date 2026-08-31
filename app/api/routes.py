@@ -63,9 +63,9 @@ def _answer(
         evaluation_question_id=request.question_id,
     )
 
-    if settings.eval_schema_mode == "strict":
-        return to_eval_response(internal, question_id=request.question_id, question=request.question)
-    return internal
+    # /answer is the competition endpoint and always has the official contract.
+    # /v1/chat remains the internal/frontend contract.
+    return to_eval_response(internal, question_id=request.question_id, question=request.question)
 
 
 @router.post("/answer", response_model=None)

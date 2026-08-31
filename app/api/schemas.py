@@ -5,6 +5,7 @@ B(검색/계산)와 C(프론트)가 그대로 참조하는 파일이다. 필드�
 받은 뒤 여기를 고친다 (구두 합의 금지).
 """
 
+import json
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -290,10 +291,23 @@ def to_eval_response(internal: InternalAnswer, question_id: str, question: str) 
     else:
         answer = internal.message
 
+    tool_names = list(dict.fromkeys(call.tool_name for call in internal.trace.tool_calls))
+    public_trace = {
+        "intent": internal.trace.intent,
+        "route": internal.trace.route,
+        "retrieval": "completed" if "retrieve_evidence" in tool_names else "not_used",
+        "tools": tool_names,
+        "composition": "grounded",
+        "verification": "repaired" if internal.trace.deterministic_repaired else "passed",
+        "hcx_invoked": internal.trace.hcx_invoked,
+        "hcx_success": internal.trace.hcx_success,
+        "degraded": internal.trace.degraded,
+        "fallback_used": internal.trace.fallback_used,
+    }
     return EvalResponse(
         question_id=question_id,
         question=question,
         retrieved_context=[c.excerpt for c in internal.citations],
-        think_trace=internal.trace.model_dump_json(),
+        think_trace=json.dumps(public_trace, ensure_ascii=False),
         answer=answer,
     )

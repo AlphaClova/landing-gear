@@ -5,6 +5,8 @@ from app.agent.hcx_client import HCXClient
 from app.agent.router import IntentRouter
 from app.agent.slots import SlotManager
 from app.agent.tools import BEvidenceProvider, BProductCatalog, BRuleEngine, ToolRouter
+from app.agent.verifier import Verifier
+from app.agent.composer import Draft, GroundedContext
 from app.core.config import Settings
 from app.core.query_normalization import procedure_type, tax_intent
 
@@ -26,6 +28,29 @@ def test_false_premise_dc_responsibility_is_corrected() -> None:
     assert context.false_premise
     assert "아닙니다" in context.fallback_message
     assert "근로자가 직접 운용" in context.fallback_message
+
+
+def test_db_dc_direct_question_preserves_comparison_contract() -> None:
+    _, _, result, context = grounded("DB형과 DC형은 퇴직급여가 정해지는 방식과 운용 주체가 어떻게 다른가요?")
+    assert result.procedure_type is None
+    assert any(item["subtask"] == "db_dc_difference" for item in context.claim_plan)
+    assert "확정급여형(DB)" in context.fallback_message
+    assert "확정기여형(DC)" in context.fallback_message
+    assert "해지 절차" not in context.fallback_message
+
+
+def test_db_dc_fact_inversion_is_rejected_and_repaired() -> None:
+    _, _, result, context = grounded("DB와 DC의 퇴직급여 결정 방식과 운용 주체를 비교해 주세요")
+    draft = Draft(
+        message="DB는 가입자가 직접 운용하고 DC는 회사가 직접 운용합니다.",
+        citations=result.evidence,
+        context=context,
+    )
+    verifier = Verifier()
+    issues = verifier.check(draft)
+    assert "DB/DC fact inversion" in issues
+    assert verifier.repair_safe(draft, issues)
+    assert draft.message == context.fallback_message
 
 
 def test_irp_only_nine_million_tax_credit_limit_semantics() -> None:
@@ -217,6 +242,42 @@ def test_product_fact_contract_preserves_risk_scale_direction() -> None:
     assert "1등급이 매우 높은 위험" in context.fallback_message
     assert "6등급이 매우 낮은 위험" in context.fallback_message
     assert "숫자가 작을수록 위험이 낮" not in context.fallback_message
+
+
+def test_three_explicit_product_entities_are_resolved() -> None:
+    _, _, result, context = grounded("솔로몬 국공채 단기형과 중장기형, 장기형은 어떤 차이가 있나요?")
+    assert [item["entity"] for item in result.product_resolutions] == ["단기", "중장기", "장기"]
+    assert all(item["status"] == "RESOLVED" for item in result.product_resolutions)
+    names = [item["product_name"] for item in result.products]
+    assert len(names) == 3
+    assert any("단기국공채" in name and "초단기" not in name for name in names)
+    assert any("중장기국공채" in name for name in names)
+    assert any("장기국공채" in name and "중장기" not in name for name in names)
+    assert all(name in context.fallback_message for name in names)
+
+
+def test_missing_explicit_product_keeps_resolved_products_and_local_limitation() -> None:
+    class MissingLongCatalog(BProductCatalog):
+        def query_products(self, *, plan_type=None, category=None):
+            return [item for item in super().query_products(plan_type=plan_type, category=category)
+                    if "장기국공채" not in item["product_name"] or "중장기" in item["product_name"]]
+
+    question = "솔로몬 국공채 단기형과 중장기형, 장기형을 비교해 주세요"
+    decision = IntentRouter().classify(question)
+    result = ToolRouter(BEvidenceProvider(), BRuleEngine(), MissingLongCatalog()).run(
+        decision.intent, SlotManager.extract(question), question=question
+    )
+    context = Composer(HCXClient(Settings(hcx_api_key=""))).build_context(question, decision.intent, result)
+    assert len(result.products) == 2
+    assert {item["status"] for item in result.product_resolutions} == {"RESOLVED", "NOT_FOUND"}
+    assert "장기 상품은 현재 Product Fact에서 확인되지 않습니다" in context.fallback_message
+
+
+def test_tax_credit_intent_does_not_change_to_retirement_tax() -> None:
+    _, _, result, context = grounded("IRP는 1년에 1,800만원 전부 세액공제되죠?")
+    assert result.tax_intent == "TAX_CREDIT"
+    assert "600만원" in context.fallback_message and "900만원" in context.fallback_message
+    assert "이연퇴직소득세" not in context.fallback_message
 
 
 @pytest.mark.parametrize(

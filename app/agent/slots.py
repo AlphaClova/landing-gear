@@ -61,9 +61,9 @@ class SlotManager:
         if intent == "세제":
             return []
         if intent == "종합" and not any(x in question for x in ("일시금", "연금 비교", "절세액 계산", "실수령액")):
-            if not any(x in question for x in ("상품 선택", "상품 추천", "추천")):
+            if not any(x in question for x in ("상품 선택", "상품 추천", "추천", "하나만", "찍어")):
                 return []
-        if intent == "종합" and any(x in question for x in ("상품 선택", "상품 추천", "추천")):
+        if intent == "종합" and any(x in question for x in ("상품 선택", "상품 추천", "추천", "하나만", "찍어")):
             specs = (
                 SlotSpec("plan_type", "IRP·DC 중 어떤 계좌 기준인가요?", "가입 가능한 상품 범위 확인"),
                 SlotSpec("investment_horizon", "예상 투자기간은 얼마나 되나요?", "투자기간 조건 확인"),
@@ -74,7 +74,7 @@ class SlotManager:
         if intent == "상품":
             if self._is_specific_product_question(question):
                 return []
-            if any(marker in question for marker in ("추천", "좋은", "괜찮은", "골라", "정해", "최적", "어떤 정보가 더 필요")):
+            if any(marker in question for marker in ("추천", "좋은", "괜찮은", "골라", "정해", "최적", "하나만", "찍어", "어떤 정보가 더 필요")):
                 if effective_slots.get("plan_type") is None:
                     inferred_plan_type = self._plan_type_from_question(question)
                     if inferred_plan_type is not None:

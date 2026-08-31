@@ -54,7 +54,7 @@ class IntentRouter:
         }
         if is_db_dc_question(question):
             scores["제도"] += 2
-        if is_tax_deduction_question(question) or is_teacher_retirement_domain(question):
+        if tax_intent(question) == "TAX_CREDIT" or is_teacher_retirement_domain(question):
             scores["세제"] += 2
         if has_alias(question, "product_family"):
             scores["상품"] += 1
@@ -79,7 +79,7 @@ class IntentRouter:
         matched = {intent: score for intent, score in scores.items() if score > 0}
 
         # 세액공제 한도는 계좌명이 함께 나와도 상품 추천이 아닌 세제 factual 질의다.
-        if scores["세제"] and (is_tax_deduction_question(question) or is_teacher_retirement_domain(question) or any(marker in question for marker in ("세금", "절세"))):
+        if scores["세제"] and (tax_intent(question) == "TAX_CREDIT" or is_teacher_retirement_domain(question) or any(marker in question for marker in ("세금", "절세"))):
             matched = {"세제": scores["세제"]}
 
         # 금액과 세액이 함께 주어지고 수령안 비교/결과를 요구하면 세제 FAQ가

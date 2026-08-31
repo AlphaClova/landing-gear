@@ -153,8 +153,14 @@ class Composer:
         forbidden = ["새 숫자 또는 계산", "근거 없는 금융 사실", "단정적 상품 추천", "한계와 모순되는 결론"]
         if required_slots and not (result.evidence or result.calculations or result.products):
             prompts = "; ".join(slot.prompt for slot in required_slots)
+            correction = ""
+            if "과거수익률" in question and any(x in question for x in ("가장 좋은", "제일 좋은")):
+                correction = "아닙니다. 과거수익률만으로 가장 좋은 상품을 정할 수 없습니다. "
+            elif (has_alias(question, "principal_protection") or "손실 안" in question) and any(x in question for x in ("무조건", "손실 안")):
+                correction = "무조건 손실이 없는 연금 상품이라고 단정할 수 없습니다. "
             return GroundedContext(question, intent, "clarification", required_clarifications=required_slots,
-                forbidden_behaviors=forbidden, fallback_message=f"정확한 답변을 위해 아래 내용을 확인해 주세요: {prompts}")
+                forbidden_behaviors=forbidden, fallback_message=f"{correction}정확한 답변을 위해 아래 내용을 확인해 주세요: {prompts}",
+                required_facts=[correction.strip()] if correction else [])
         if out_of_scope:
             fallback = "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다."
             return GroundedContext(question, intent, "limitation", limitations=[fallback], forbidden_behaviors=forbidden, fallback_message=fallback)
@@ -328,7 +334,7 @@ class Composer:
         asks_tax = (
             any(x in question for x in ("세금", "과세", "절세", "납부비율", "수령 세율"))
             or result.tax_intent == "PENSION_WITHDRAWAL_TAX"
-        ) and not is_tax_deduction_question(question)
+        ) and result.tax_intent != "TAX_CREDIT" and not is_tax_deduction_question(question)
         if asks_tax and doc51:
             plan.append(self._claim(
                 "retirement_tax",
@@ -390,6 +396,13 @@ class Composer:
             plan.append(self._unsupported("future_return", "[한계] 제공 문서에 없는 향후 수익률 숫자는 예측할 수 없습니다. 현재 문서와 Product Fact에서 확인되는 과거 수익률·위험·비용만 근거 범위에서 비교할 수 있습니다."))
         elif result.products:
             plan.append(self._claim("product_facts", self._compose_product_facts(result), products=result.products))
+        for resolution in result.product_resolutions:
+            if resolution.get("status") == "NOT_FOUND":
+                entity = resolution.get("entity", "요청 상품")
+                plan.append(self._unsupported(
+                    f"product_{entity}",
+                    f"[한계] 요청한 {entity} 상품은 현재 Product Fact에서 확인되지 않습니다.",
+                ))
         for constraint in result.recommendation_constraints:
             if not constraint.get("applied") and str(constraint.get("constraint", "")).startswith("investment_horizon="):
                 years = str(constraint["constraint"]).split("=", 1)[1]
@@ -492,7 +505,7 @@ class Composer:
             parts.append("계좌 이전, 상품 선택, 연금 개시는 서로 별도 단계로 구분해야 합니다.")
         if any(x in question for x in ("수령계좌", "받을 계좌")) and any(c.document_id in {"doc51", "doc55"} for c in result.evidence):
             parts.append("제공 문서에 따르면 법정퇴직금의 수령 가능 계좌는 연령과 DB·DC 유형에 따라 구분됩니다. 만 55세 미만 법정퇴직금은 IRP 의무이전 대상이며, 만 55세 이상은 제도별로 선택 가능한 수령계좌가 달라집니다.")
-        if any(x in question for x in ("세금", "과세", "절세")) and any(c.document_id == "doc51" for c in result.evidence):
+        if result.tax_intent != "TAX_CREDIT" and any(x in question for x in ("세금", "과세", "절세")) and any(c.document_id == "doc51" for c in result.evidence):
             parts.append("퇴직금 재원을 연금으로 수령할 때는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%를 납부합니다. [한계] 실제 세액은 예상 퇴직소득세와 수령 일정이 있어야 계산할 수 있습니다.")
         if "유동성" in question:
             parts.append("[한계] 제공 문서는 수령연차별 세율은 제시하지만 수령 주기·회차별 금액은 제시하지 않으므로, 10년과 21년 안의 실제 유동성 차이는 수령 일정을 정하기 전에는 단정할 수 없습니다.")
@@ -501,7 +514,7 @@ class Composer:
                     "퇴직 시 근로자가 연금 또는 일시금으로 수령할 수 있는 제도입니다. "
                     "[한계] 현재 근거에는 일반 퇴직금과의 항목별 차이가 모두 제시되어 있지 않아 그 밖의 차이는 단정할 수 없습니다.")
         if self._is_tax_deduction_question(question, result):
-            prefix = "아닙니다. " if "무제한" in question else ""
+            prefix = "아닙니다. " if any(x in question for x in ("무제한", "무조건")) else ""
             detail = prefix + "제공된 세액공제 안내에 따르면 연금저축의 세액공제 대상 납입한도는 연 600만원이고, IRP를 포함한 연금계좌 합산 한도는 연 900만원입니다. 다른 연금저축 세액공제 납입액이 없다면 IRP에만 납입한 900만원은 세액공제 대상 납입액 한도 안에 들어갈 수 있습니다. 이는 납입액 900만원만큼 세금이 줄어든다는 뜻이 아닙니다. 실제 세액공제 금액은 소득에 따른 공제율과 납부할 세액 등 조건에 따라 달라집니다."
             parts.append(detail)
         if result.withdrawal_result is not None and result.input_slots.get("expected_tax_won") == 0:
@@ -527,14 +540,20 @@ class Composer:
     @staticmethod
     def _false_premise_correction(question: str, result: ToolResult) -> tuple[str, str] | None:
         doc10 = next((c for c in result.evidence if c.document_id == "doc10"), None)
-        if doc10 and has_alias(question, "dc") and any(x in question for x in ("미리 확정", "사전에 확정", "확정돼", "회사가 수익률", "회사 책임", "책임지는", "책임", "보장")):
+        dc_company_premise = any(x in question for x in ("회사", "고용주")) and any(
+            x in question for x in ("미리 확정", "사전에 확정", "확정돼", "수익률", "책임", "보장", "운용")
+        )
+        if doc10 and has_alias(question, "dc") and dc_company_premise:
             return ("아닙니다. 확정기여형(DC)은 회사가 매년 일정 금액을 근로자의 계좌에 입금하고 근로자가 직접 운용하므로, 운용 수익률에 따라 최종 퇴직급여가 달라집니다.", doc10.id)
+        risk = next((c for c in result.evidence if "위험등급: 6등급(매우 낮은 위험)" in c.excerpt), None)
+        if risk and "6등급" in question and any(x in question for x in ("제일 위험", "가장 위험")):
+            return ("아닙니다. 제공된 Product Fact의 위험등급 체계에서 6등급은 매우 낮은 위험입니다.", risk.id)
         return None
 
     @staticmethod
     def _is_db_dc_explanation(q, r): return is_db_dc_question(q) and has_alias(q,"db") and has_alias(q,"dc") and any(c.document_id=="doc10" for c in r.evidence)
     @staticmethod
-    def _is_tax_deduction_question(q, r): return is_tax_deduction_question(q) and bool({c.document_id for c in r.evidence}&{"doc41","doc55"})
+    def _is_tax_deduction_question(q, r): return (is_tax_deduction_question(q) or r.tax_intent == "TAX_CREDIT") and bool({c.document_id for c in r.evidence}&{"doc41","doc55"})
     @staticmethod
     def _is_teacher_retirement_question(q, r): return is_teacher_retirement_domain(q) and has_legally_named_retirement_benefit(q) and any(c.document_id=="doc26" for c in r.evidence)
     @staticmethod
@@ -542,7 +561,7 @@ class Composer:
     @staticmethod
     def _compose_product_facts(r):
         lines=[f"- {p.get('product_name')}: 자산유형 {p.get('asset_type')}, 위험등급 {p.get('risk_level')}등급({p.get('risk_label')}), 가입 가능 계좌 {p.get('plan_types')}" for p in r.products]
-        return "제공된 Product Fact와 투자설명서 기준 비교입니다.\n"+"\n".join(lines)+"\n위험등급은 1등급이 매우 높은 위험, 2등급이 높은 위험, 3등급이 다소 높은 위험, 4등급이 보통 위험, 5등급이 낮은 위험, 6등급이 매우 낮은 위험입니다. [한계] 상품명만으로 듀레이션·변동성·기간별 운용전략이나 개인 적합성을 단정할 수 없습니다."
+        return "제공된 Product Fact와 투자설명서 기준 비교입니다.\n"+"\n".join(lines)+"\n위험등급은 1등급이 매우 높은 위험, 2등급이 높은 위험, 3등급이 다소 높은 위험, 4등급이 보통 위험, 5등급이 낮은 위험, 6등급이 매우 낮은 위험입니다. [한계] 각 상품의 투자전략·클래스·총보수·비용·과거수익률은 현재 구조화된 Product Fact에서 확인되지 않습니다. 상품명만으로 듀레이션·변동성이나 개인 적합성을 단정할 수 없습니다."
 
     @staticmethod
     def _apply_behavior_policy(question, tool_result, message):

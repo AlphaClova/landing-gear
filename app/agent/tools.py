@@ -6,6 +6,7 @@
 LLM은 계산하지 않고 이 Tool의 결과만 사용한다 (문서 9장 Failsafe).
 """
 
+import re
 import time
 from dataclasses import asdict, dataclass, field, is_dataclass
 from typing import Any, Protocol
@@ -26,7 +27,7 @@ from app.api.schemas import (
 )
 from app.core.errors import ErrorCode, ToolError
 from app.core.logging import get_logger
-from app.core.query_normalization import ALIASES, has_alias, is_teacher_retirement_domain, procedure_type, tax_intent, tax_source_types
+from app.core.query_normalization import ALIASES, has_alias, is_db_dc_question, is_teacher_retirement_domain, procedure_type, tax_intent, tax_source_types
 from app.tools.withdrawal_comparison import calculate_withdrawal_comparison as b_calculate_withdrawal_comparison
 from app.tools.product_query import query_products as b_query_products
 from app.tools.retriever import retrieve_evidence as b_retrieve_evidence
@@ -284,6 +285,7 @@ class ToolResult:
     tax_source_types: tuple[str, ...] = ()
     procedure_type: str | None = None
     recommendation_constraints: list[dict[str, object]] = field(default_factory=list)
+    product_resolutions: list[dict[str, str]] = field(default_factory=list)
 
 
 class ToolRouter:
@@ -314,7 +316,18 @@ class ToolRouter:
         rule_id: str | None = None,
     ) -> ToolResult:
         allowed = ALLOWED_TOOLS_BY_INTENT.get(intent, ())
-        result = ToolResult(input_slots=dict(slots), tax_intent=tax_intent(question), tax_source_types=tax_source_types(question), procedure_type=procedure_type(question))
+        # Preserve the user's institution-comparison intent.  In Korean,
+        # "정해지는" contains the character sequence "해지"; treating that as
+        # an account-termination request corrupts the repair contract.
+        semantic_procedure = None if is_db_dc_question(question) else procedure_type(question)
+        semantic_tax = tax_intent(question)
+        compact_question = question.replace(" ", "")
+        if (
+            ("연말정산" in question and any(x in question for x in ("인정", "상한", "한도")))
+            or (has_alias(question, "irp") and "넣" in question and "세금" in question and "줄" in question and "연금수령" not in compact_question)
+        ):
+            semantic_tax = "TAX_CREDIT"
+        result = ToolResult(input_slots=dict(slots), tax_intent=semantic_tax, tax_source_types=tax_source_types(question), procedure_type=semantic_procedure)
 
         if "retrieve_evidence" in allowed:
             queries = self._evidence_queries(question, intent, result)
@@ -358,12 +371,14 @@ class ToolRouter:
 
         needs_catalog = "예금" not in question and (
             has_alias(question, "product_family")
+            or ("위험등급" in question and re.search(r"[1-6]\s*등급", question) is not None)
             or any(marker in question for marker in ("펀드", "채권", "상품 목록", "상품을 보여", "상품 후보", "상품 비교", "상품 선택", "추천", "골라"))
         )
         recommendation_needs_plan = any(marker in question for marker in ("상품 선택", "상품 추천", "추천", "골라")) and not slots.get("plan_type")
         if "query_products" in allowed and needs_catalog and not recommendation_needs_plan:
-            products, trace = self._call_query_products(slots, question)
+            products, trace, resolutions = self._call_query_products(slots, question)
             result.products = products
+            result.product_resolutions = resolutions
             result.traces.append(trace)
             result.evidence.extend(self._product_citations(products))
 
@@ -382,6 +397,12 @@ class ToolRouter:
         queries = [(question, intent)]
         if has_alias(question, "db") or has_alias(question, "dc"):
             queries.append((f"{question} 확정급여형 확정기여형 운용 주체 최종 퇴직급여", "제도"))
+        if is_db_dc_question(question):
+            # A short canonical retrieval query reliably locates the supplied
+            # DB/DC definition document without changing B's relevance policy.
+            queries.append(("DB DC 회사 근로자 운용 퇴직금", "제도"))
+        if result.tax_intent == "TAX_CREDIT":
+            queries.append(("연금저축 IRP 세액공제 납입한도 합산 600만원 900만원", "세제"))
         if result.tax_intent == "PENSION_WITHDRAWAL_TAX":
             queries.append((f"{question} 실제수령연차 이연퇴직소득세 70% 60% 50%", "세제"))
         if result.tax_source_types:
@@ -460,7 +481,7 @@ class ToolRouter:
         )
         return result, trace
 
-    def _call_query_products(self, slots: dict[str, object], question: str) -> tuple[list[dict[str, Any]], ToolCallTrace]:
+    def _call_query_products(self, slots: dict[str, object], question: str) -> tuple[list[dict[str, Any]], ToolCallTrace, list[dict[str, str]]]:
         try:
             args = QueryProductsArgs(
                 plan_type=slots.get("plan_type"),  # type: ignore[arg-type]
@@ -472,7 +493,12 @@ class ToolRouter:
         start = time.monotonic()
         try:
             products = self._products.query_products(plan_type=args.plan_type, category=args.category)
+            if "위험등급" in question:
+                grade = re.search(r"([1-6])\s*등급", question)
+                if grade:
+                    products = [item for item in products if item.get("risk_level") == int(grade.group(1))][:1]
             family_marker = next((marker for marker in ALIASES["product_family"] if marker.lower() in question.lower()), None)
+            resolutions: list[dict[str, str]] = []
             if family_marker:
                 if family_marker.lower() in {"솔로몬", "solomon"}:
                     products = [item for item in products if "솔로몬" in str(item.get("product_name", ""))]
@@ -482,10 +508,22 @@ class ToolRouter:
                         or item.get("asset_type") == "국공채"
                     )]
                 compact = question.replace(" ", "")
-                explicit_multi = "·" in question or "각" in question or "기간별" in question
+                requested_periods = self._requested_product_periods(question)
+                explicit_multi = len(requested_periods) > 1 or "·" in question or "각" in question or "기간별" in question
                 # 여러 기간을 함께 묻는 비교 질문에서는 한 기간으로 축소하지 않는다.
                 if explicit_multi:
-                    pass
+                    resolved: list[dict[str, Any]] = []
+                    for period in requested_periods:
+                        match = next((item for item in products if self._product_period(item) == period), None)
+                        if match is not None:
+                            resolved.append(match)
+                    if requested_periods:
+                        products = resolved
+                        resolved_periods = {self._product_period(item) for item in resolved}
+                        resolutions = [
+                            {"entity": period, "status": "RESOLVED" if period in resolved_periods else "NOT_FOUND"}
+                            for period in requested_periods
+                        ]
                 elif "중장기" in compact:
                     products = [item for item in products if "중장기" in str(item.get("product_name", ""))]
                 elif "초단기" in compact:
@@ -503,7 +541,34 @@ class ToolRouter:
             raise ToolError("query_products", str(exc)) from exc
         duration_ms = (time.monotonic() - start) * 1000
         trace = ToolCallTrace(tool_name="query_products", args=args.model_dump(), status=status, duration_ms=duration_ms)
-        return products, trace
+        return products, trace, resolutions
+
+    @staticmethod
+    def _requested_product_periods(question: str) -> list[str]:
+        """Extract explicitly requested maturity variants in user order."""
+        compact = question.replace(" ", "")
+        matches: list[tuple[int, str]] = []
+        for label in ("초단기", "중장기", "단기", "장기"):
+            start = 0
+            while (index := compact.find(label, start)) >= 0:
+                # Do not double-count 장기 inside 중장기 or 단기 inside 초단기.
+                if label == "단기" and index >= 1 and compact[index - 1] == "초":
+                    start = index + len(label)
+                    continue
+                if label == "장기" and index >= 1 and compact[index - 1] == "중":
+                    start = index + len(label)
+                    continue
+                matches.append((index, label))
+                start = index + len(label)
+        return list(dict.fromkeys(label for _, label in sorted(matches)))
+
+    @staticmethod
+    def _product_period(item: dict[str, Any]) -> str | None:
+        name = str(item.get("product_name", "")).replace(" ", "")
+        for label in ("초단기", "중장기", "단기", "장기"):
+            if label in name:
+                return label
+        return None
 
     @staticmethod
     def _product_citations(products: list[dict[str, Any]]) -> list[Citation]:

@@ -207,6 +207,11 @@ def tax_intent(question: str) -> str | None:
     """Classify tax semantics without embedding evaluation questions."""
     if is_tax_deduction_question(question):
         return "TAX_CREDIT"
+    compact = question.replace(" ", "")
+    if "연말정산" in question and any(x in question for x in ("인정", "상한", "한도")):
+        return "TAX_CREDIT"
+    if has_alias(question, "irp") and "넣" in question and "세금" in question and "줄" in question and "연금수령" not in compact:
+        return "TAX_CREDIT"
     if any(x in question for x in ("연금수령", "연금 수령", "수령연차", "절세액", "이연퇴직소득세", "10년", "21년")):
         return "PENSION_WITHDRAWAL_TAX"
     if "일시금" in question and "연금" in question:
