@@ -136,6 +136,8 @@ def tax_intent(question: str) -> str | None:
         return "TAX_CREDIT"
     if any(x in question for x in ("연금수령", "연금 수령", "수령연차", "절세액", "이연퇴직소득세", "10년", "21년")):
         return "PENSION_WITHDRAWAL_TAX"
+    if "일시금" in question and "연금" in question:
+        return "PENSION_WITHDRAWAL_TAX"
     if any(x in question for x in ("퇴직소득세", "퇴직금", "세금")):
         return "RETIREMENT_INCOME_TAX"
     return None
