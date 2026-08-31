@@ -9,6 +9,79 @@ from __future__ import annotations
 import re
 
 
+QUERY_TOKEN_PATTERN = re.compile(r"[0-9A-Za-z가-힣]+")
+RELEVANCE_STOPWORDS = frozenset(
+    {
+        "알려줘", "알려주세요", "설명해줘", "설명해주세요", "궁금해", "궁금합니다",
+        "뭐야", "무엇", "어떻게", "비교", "비교해줘", "비교해주세요", "추천",
+        "추천해줘", "추천해주세요", "특징", "차이", "결과", "관련", "대해", "방법",
+        "조건", "기준", "한도", "최대", "금액", "되나요", "넣으면", "합쳐서요",
+        "통합해서", "예요", "하는", "얼마", "메뉴",
+        "개인", "함께", "있는", "없이", "넣을", "있나요", "실제", "같은",
+        "뜻인가요", "나눠", "설명해", "설명해줘", "안내", "같이", "보고",
+        "싶습니다", "구분해", "주세요", "한계", "유동성",
+    }
+)
+_KOREAN_PARTICLES = ("이랑", "하고", "하는", "으로", "에서", "까지", "부터", "처럼", "보다", "에게", "한테", "예요", "와", "과", "은", "는", "이", "가", "을", "를", "의", "에", "로", "도", "만")
+_RELEVANCE_CANONICAL = {
+    "퇴직재원": "퇴직금",
+    "연금수령": "연금수령",
+    "기간별": "기간",
+    "납부비율": "납부",
+    "환급액": "환급",
+    "공제대상": "공제",
+}
+
+# Relevance-only vocabulary. These terms must never be used to manufacture an answer.
+DOMAIN_ANCHORS: dict[str, tuple[str, ...]] = {
+    "institution": ("db", "dc", "irp", "연금", "퇴직연금", "연금저축", "퇴직금", "확정급여", "확정기여", "퇴직급여", "적립금", "운용", "책임", "산정", "가입", "대상", "근속"),
+    "tax": ("세액공제", "공제", "공제율", "퇴직소득세", "연금소득세", "세율", "세금", "과세", "환급", "절세", "감면", "연차", "기간"),
+    "product": ("상품", "펀드", "국공채", "위험등급", "보수", "수익률", "솔로몬", "단기", "중장기", "장기", "금리", "위험"),
+    "procedure": ("개설", "이전", "계약이전", "해지", "중도인출", "연금개시", "수령", "증빙"),
+    "population": ("교사", "교직원", "공무원", "명퇴", "명퇴수당", "명예퇴직", "명예퇴직수당", "퇴직수당"),
+}
+
+
+def normalize_relevance_token(token: str) -> str:
+    normalized = token.lower()
+    for particle in _KOREAN_PARTICLES:
+        if normalized.endswith(particle) and len(normalized) > len(particle) + 1:
+            normalized = normalized[: -len(particle)]
+            break
+    return _RELEVANCE_CANONICAL.get(normalized, normalized)
+
+
+def meaningful_query_tokens(question: str) -> tuple[str, ...]:
+    """Return stable content tokens used only for retrieval applicability."""
+    tokens = []
+    for raw in QUERY_TOKEN_PATTERN.findall(question):
+        token = normalize_relevance_token(raw)
+        if len(token) < 2 or token in RELEVANCE_STOPWORDS:
+            continue
+        tokens.append(token)
+    return tuple(dict.fromkeys(tokens))
+
+
+def query_domain_anchors(question: str) -> tuple[str, ...]:
+    compact = question.replace(" ", "").lower()
+    matched = []
+    for terms in DOMAIN_ANCHORS.values():
+        matched.extend(term for term in terms if term.lower() in compact)
+    return tuple(dict.fromkeys(matched))
+
+
+def domain_query_coverage(question: str) -> float:
+    meaningful = meaningful_query_tokens(question)
+    if not meaningful:
+        return 0.0
+    anchors = query_domain_anchors(question)
+    supported = [
+        token for token in meaningful
+        if any(token in anchor.lower() or anchor.lower() in token for anchor in anchors)
+    ]
+    return len(supported) / len(meaningful)
+
+
 ALIASES: dict[str, tuple[str, ...]] = {
     "irp": ("IRP", "개인형퇴직연금", "개인형 퇴직연금"),
     "db": ("DB", "DB형", "디비", "디비형", "확정급여", "확정급여형", "Defined Benefit"),

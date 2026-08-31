@@ -26,7 +26,7 @@ def test_retrieve_evidence_without_topic_filter() -> None:
 
 
 def test_retrieve_evidence_applies_topic_filter() -> None:
-    results = retriever.retrieve_evidence(QUERY, "pension_system", 5)
+    results = retriever.retrieve_evidence("DB와 DC 퇴직연금 차이", "pension_system", 5)
 
     assert results
     assert all(result.document_id == "doc10" for result in results)
@@ -112,3 +112,33 @@ def test_product_compare_covers_all_four_prospectuses() -> None:
         "r2_kr5153420105",
         "r2_kr5153450658",
     } <= {result.document_id for result in results}
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "연금 날씨 알려줘",
+        "세금 야구 결과",
+        "상품 저녁 메뉴",
+        "IRP 축구 경기",
+        "퇴직금 아이스크림 추천",
+        "은하수 초콜릿 양자역학",
+    ],
+)
+def test_low_relevance_queries_return_no_evidence(query: str) -> None:
+    assert retriever.retrieve_evidence(query, None, 3) == []
+
+
+@pytest.mark.parametrize(
+    "query,topic,expected_document",
+    [
+        ("DB와 DC 차이", "pension_system", "doc10"),
+        ("세액공제 알려줘", "withdrawal_tax", "doc41"),
+        ("IRP 중도인출", None, "doc51"),
+    ],
+)
+def test_short_relevant_queries_survive_relevance_gate(
+    query: str, topic: str | None, expected_document: str
+) -> None:
+    results = retriever.retrieve_evidence(query, topic, 5)
+    assert expected_document in {result.document_id for result in results}

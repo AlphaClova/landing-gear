@@ -1,0 +1,1434 @@
+[
+  {
+    "label": "positive",
+    "query": "DB와 DC 차이 알려줘",
+    "topic": "pension_system",
+    "normalized_query": "db dc",
+    "raw_result_count": 4,
+    "final_result_count": 2,
+    "candidates": [
+      {
+        "normalized_query": "db dc",
+        "meaningful_query_tokens": [
+          "db",
+          "dc"
+        ],
+        "matched_query_tokens": [
+          "db",
+          "dc"
+        ],
+        "token_coverage": 1.0,
+        "domain_anchors": [
+          "db",
+          "dc"
+        ],
+        "matched_domain_anchors": [
+          "db",
+          "dc"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 1.0,
+        "raw_retrieval_score": 52.32910098424948,
+        "accepted": true,
+        "document_id": "doc10",
+        "page": 1,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "db dc",
+        "meaningful_query_tokens": [
+          "db",
+          "dc"
+        ],
+        "matched_query_tokens": [
+          "db",
+          "dc"
+        ],
+        "token_coverage": 1.0,
+        "domain_anchors": [
+          "db",
+          "dc"
+        ],
+        "matched_domain_anchors": [
+          "db",
+          "dc"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 1.0,
+        "raw_retrieval_score": 21.048991944439347,
+        "accepted": true,
+        "document_id": "doc10",
+        "page": 2,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "db dc",
+        "meaningful_query_tokens": [
+          "db",
+          "dc"
+        ],
+        "matched_query_tokens": [],
+        "token_coverage": 0.0,
+        "domain_anchors": [
+          "db",
+          "dc"
+        ],
+        "matched_domain_anchors": [],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 0.0,
+        "raw_retrieval_score": 17.21953770647413,
+        "accepted": false,
+        "document_id": "doc10",
+        "page": 3,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "db dc",
+        "meaningful_query_tokens": [
+          "db",
+          "dc"
+        ],
+        "matched_query_tokens": [],
+        "token_coverage": 0.0,
+        "domain_anchors": [
+          "db",
+          "dc"
+        ],
+        "matched_domain_anchors": [],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 0.0,
+        "raw_retrieval_score": 11.676422002555942,
+        "accepted": false,
+        "document_id": "doc10",
+        "page": 2,
+        "final_returned": false
+      }
+    ]
+  },
+  {
+    "label": "positive",
+    "query": "연금저축과 IRP 세액공제 한도 알려줘",
+    "topic": "withdrawal_tax",
+    "normalized_query": "연금저축 irp 세액공제",
+    "raw_result_count": 5,
+    "final_result_count": 5,
+    "candidates": [
+      {
+        "normalized_query": "연금저축 irp 세액공제",
+        "meaningful_query_tokens": [
+          "연금저축",
+          "irp",
+          "세액공제"
+        ],
+        "matched_query_tokens": [
+          "연금저축",
+          "irp",
+          "세액공제"
+        ],
+        "token_coverage": 1.0,
+        "domain_anchors": [
+          "irp",
+          "연금",
+          "연금저축",
+          "세액공제",
+          "공제"
+        ],
+        "matched_domain_anchors": [
+          "irp",
+          "연금",
+          "연금저축",
+          "세액공제",
+          "공제"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 1.0,
+        "raw_retrieval_score": 80.55513081648105,
+        "accepted": true,
+        "document_id": "doc41",
+        "page": 1,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "연금저축 irp 세액공제",
+        "meaningful_query_tokens": [
+          "연금저축",
+          "irp",
+          "세액공제"
+        ],
+        "matched_query_tokens": [
+          "연금저축",
+          "irp",
+          "세액공제"
+        ],
+        "token_coverage": 1.0,
+        "domain_anchors": [
+          "irp",
+          "연금",
+          "연금저축",
+          "세액공제",
+          "공제"
+        ],
+        "matched_domain_anchors": [
+          "irp",
+          "연금",
+          "연금저축",
+          "세액공제",
+          "공제"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 1.0,
+        "raw_retrieval_score": 69.15722544431472,
+        "accepted": true,
+        "document_id": "doc55",
+        "page": 10,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "연금저축 irp 세액공제",
+        "meaningful_query_tokens": [
+          "연금저축",
+          "irp",
+          "세액공제"
+        ],
+        "matched_query_tokens": [
+          "연금저축",
+          "irp",
+          "세액공제"
+        ],
+        "token_coverage": 1.0,
+        "domain_anchors": [
+          "irp",
+          "연금",
+          "연금저축",
+          "세액공제",
+          "공제"
+        ],
+        "matched_domain_anchors": [
+          "irp",
+          "연금",
+          "연금저축",
+          "세액공제",
+          "공제"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 1.0,
+        "raw_retrieval_score": 40.14470752967449,
+        "accepted": true,
+        "document_id": "doc41",
+        "page": 2,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "연금저축 irp 세액공제",
+        "meaningful_query_tokens": [
+          "연금저축",
+          "irp",
+          "세액공제"
+        ],
+        "matched_query_tokens": [
+          "연금저축",
+          "세액공제"
+        ],
+        "token_coverage": 0.6666666666666666,
+        "domain_anchors": [
+          "irp",
+          "연금",
+          "연금저축",
+          "세액공제",
+          "공제"
+        ],
+        "matched_domain_anchors": [
+          "연금",
+          "연금저축",
+          "세액공제",
+          "공제"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 0.6666666666666666,
+        "raw_retrieval_score": 39.22630991368427,
+        "accepted": true,
+        "document_id": "doc55",
+        "page": 7,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "연금저축 irp 세액공제",
+        "meaningful_query_tokens": [
+          "연금저축",
+          "irp",
+          "세액공제"
+        ],
+        "matched_query_tokens": [
+          "연금저축",
+          "irp",
+          "세액공제"
+        ],
+        "token_coverage": 1.0,
+        "domain_anchors": [
+          "irp",
+          "연금",
+          "연금저축",
+          "세액공제",
+          "공제"
+        ],
+        "matched_domain_anchors": [
+          "irp",
+          "연금",
+          "연금저축",
+          "세액공제",
+          "공제"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 1.0,
+        "raw_retrieval_score": 37.854247953525935,
+        "accepted": true,
+        "document_id": "doc41",
+        "page": 1,
+        "final_returned": false
+      }
+    ]
+  },
+  {
+    "label": "positive",
+    "query": "솔로몬 국공채 단기형 특징 알려줘",
+    "topic": "product",
+    "normalized_query": "솔로몬 국공채 단기형",
+    "raw_result_count": 5,
+    "final_result_count": 5,
+    "candidates": [
+      {
+        "normalized_query": "솔로몬 국공채 단기형",
+        "meaningful_query_tokens": [
+          "솔로몬",
+          "국공채",
+          "단기형"
+        ],
+        "matched_query_tokens": [
+          "솔로몬",
+          "국공채"
+        ],
+        "token_coverage": 0.6666666666666666,
+        "domain_anchors": [
+          "국공채",
+          "솔로몬",
+          "단기"
+        ],
+        "matched_domain_anchors": [
+          "국공채",
+          "솔로몬",
+          "단기"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 0.6666666666666666,
+        "raw_retrieval_score": 28.861456002395823,
+        "accepted": true,
+        "document_id": "r2_kr5153450658",
+        "page": 4,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "솔로몬 국공채 단기형",
+        "meaningful_query_tokens": [
+          "솔로몬",
+          "국공채",
+          "단기형"
+        ],
+        "matched_query_tokens": [
+          "솔로몬",
+          "국공채"
+        ],
+        "token_coverage": 0.6666666666666666,
+        "domain_anchors": [
+          "국공채",
+          "솔로몬",
+          "단기"
+        ],
+        "matched_domain_anchors": [
+          "국공채",
+          "솔로몬"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 0.6666666666666666,
+        "raw_retrieval_score": 28.701859207586836,
+        "accepted": true,
+        "document_id": "r2_kr5153420079",
+        "page": 3,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "솔로몬 국공채 단기형",
+        "meaningful_query_tokens": [
+          "솔로몬",
+          "국공채",
+          "단기형"
+        ],
+        "matched_query_tokens": [
+          "솔로몬",
+          "국공채"
+        ],
+        "token_coverage": 0.6666666666666666,
+        "domain_anchors": [
+          "국공채",
+          "솔로몬",
+          "단기"
+        ],
+        "matched_domain_anchors": [
+          "국공채",
+          "솔로몬"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 0.6666666666666666,
+        "raw_retrieval_score": 28.319276310959587,
+        "accepted": true,
+        "document_id": "r2_kr5153420105",
+        "page": 3,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "솔로몬 국공채 단기형",
+        "meaningful_query_tokens": [
+          "솔로몬",
+          "국공채",
+          "단기형"
+        ],
+        "matched_query_tokens": [
+          "솔로몬",
+          "국공채"
+        ],
+        "token_coverage": 0.6666666666666666,
+        "domain_anchors": [
+          "국공채",
+          "솔로몬",
+          "단기"
+        ],
+        "matched_domain_anchors": [
+          "국공채",
+          "솔로몬",
+          "단기"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 0.6666666666666666,
+        "raw_retrieval_score": 22.18994923951434,
+        "accepted": true,
+        "document_id": "r2_kr5153420063",
+        "page": 3,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "솔로몬 국공채 단기형",
+        "meaningful_query_tokens": [
+          "솔로몬",
+          "국공채",
+          "단기형"
+        ],
+        "matched_query_tokens": [
+          "솔로몬",
+          "국공채"
+        ],
+        "token_coverage": 0.6666666666666666,
+        "domain_anchors": [
+          "국공채",
+          "솔로몬",
+          "단기"
+        ],
+        "matched_domain_anchors": [
+          "국공채",
+          "솔로몬"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 0.6666666666666666,
+        "raw_retrieval_score": 21.65801511674006,
+        "accepted": true,
+        "document_id": "r2_kr5153420079",
+        "page": 21,
+        "final_returned": true
+      }
+    ]
+  },
+  {
+    "label": "positive",
+    "query": "퇴직소득세 연금 21년 수령",
+    "topic": "withdrawal_tax",
+    "normalized_query": "퇴직소득세 연금 21년 수령",
+    "raw_result_count": 5,
+    "final_result_count": 5,
+    "candidates": [
+      {
+        "normalized_query": "퇴직소득세 연금 21년 수령",
+        "meaningful_query_tokens": [
+          "퇴직소득세",
+          "연금",
+          "21년",
+          "수령"
+        ],
+        "matched_query_tokens": [
+          "퇴직소득세",
+          "연금",
+          "21년",
+          "수령"
+        ],
+        "token_coverage": 1.0,
+        "domain_anchors": [
+          "연금",
+          "퇴직소득세",
+          "수령"
+        ],
+        "matched_domain_anchors": [
+          "연금",
+          "퇴직소득세",
+          "수령"
+        ],
+        "domain_query_coverage": 0.75,
+        "aggregate_token_coverage": 1.0,
+        "raw_retrieval_score": 29.64404986204699,
+        "accepted": true,
+        "document_id": "doc51",
+        "page": 2,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "퇴직소득세 연금 21년 수령",
+        "meaningful_query_tokens": [
+          "퇴직소득세",
+          "연금",
+          "21년",
+          "수령"
+        ],
+        "matched_query_tokens": [
+          "퇴직소득세",
+          "연금",
+          "수령"
+        ],
+        "token_coverage": 0.75,
+        "domain_anchors": [
+          "연금",
+          "퇴직소득세",
+          "수령"
+        ],
+        "matched_domain_anchors": [
+          "연금",
+          "퇴직소득세",
+          "수령"
+        ],
+        "domain_query_coverage": 0.75,
+        "aggregate_token_coverage": 0.75,
+        "raw_retrieval_score": 21.492376739771323,
+        "accepted": true,
+        "document_id": "doc51",
+        "page": 2,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "퇴직소득세 연금 21년 수령",
+        "meaningful_query_tokens": [
+          "퇴직소득세",
+          "연금",
+          "21년",
+          "수령"
+        ],
+        "matched_query_tokens": [
+          "퇴직소득세",
+          "연금",
+          "수령"
+        ],
+        "token_coverage": 0.75,
+        "domain_anchors": [
+          "연금",
+          "퇴직소득세",
+          "수령"
+        ],
+        "matched_domain_anchors": [
+          "연금",
+          "퇴직소득세",
+          "수령"
+        ],
+        "domain_query_coverage": 0.75,
+        "aggregate_token_coverage": 0.75,
+        "raw_retrieval_score": 16.4534276485469,
+        "accepted": true,
+        "document_id": "doc51",
+        "page": 1,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "퇴직소득세 연금 21년 수령",
+        "meaningful_query_tokens": [
+          "퇴직소득세",
+          "연금",
+          "21년",
+          "수령"
+        ],
+        "matched_query_tokens": [
+          "퇴직소득세",
+          "연금",
+          "수령"
+        ],
+        "token_coverage": 0.75,
+        "domain_anchors": [
+          "연금",
+          "퇴직소득세",
+          "수령"
+        ],
+        "matched_domain_anchors": [
+          "연금",
+          "퇴직소득세",
+          "수령"
+        ],
+        "domain_query_coverage": 0.75,
+        "aggregate_token_coverage": 0.75,
+        "raw_retrieval_score": 16.403110029551293,
+        "accepted": true,
+        "document_id": "doc26",
+        "page": 1,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "퇴직소득세 연금 21년 수령",
+        "meaningful_query_tokens": [
+          "퇴직소득세",
+          "연금",
+          "21년",
+          "수령"
+        ],
+        "matched_query_tokens": [
+          "퇴직소득세",
+          "연금",
+          "수령"
+        ],
+        "token_coverage": 0.75,
+        "domain_anchors": [
+          "연금",
+          "퇴직소득세",
+          "수령"
+        ],
+        "matched_domain_anchors": [
+          "연금",
+          "퇴직소득세",
+          "수령"
+        ],
+        "domain_query_coverage": 0.75,
+        "aggregate_token_coverage": 0.75,
+        "raw_retrieval_score": 16.045894850532633,
+        "accepted": true,
+        "document_id": "doc26",
+        "page": 1,
+        "final_returned": true
+      }
+    ]
+  },
+  {
+    "label": "positive",
+    "query": "IRP 중도인출 조건 알려줘",
+    "topic": null,
+    "normalized_query": "irp 중도인출",
+    "raw_result_count": 5,
+    "final_result_count": 5,
+    "candidates": [
+      {
+        "normalized_query": "irp 중도인출",
+        "meaningful_query_tokens": [
+          "irp",
+          "중도인출"
+        ],
+        "matched_query_tokens": [
+          "irp",
+          "중도인출"
+        ],
+        "token_coverage": 1.0,
+        "domain_anchors": [
+          "irp",
+          "중도인출"
+        ],
+        "matched_domain_anchors": [
+          "irp",
+          "중도인출"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 1.0,
+        "raw_retrieval_score": 11.475811718705994,
+        "accepted": true,
+        "document_id": "doc51",
+        "page": 1,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "irp 중도인출",
+        "meaningful_query_tokens": [
+          "irp",
+          "중도인출"
+        ],
+        "matched_query_tokens": [
+          "irp",
+          "중도인출"
+        ],
+        "token_coverage": 1.0,
+        "domain_anchors": [
+          "irp",
+          "중도인출"
+        ],
+        "matched_domain_anchors": [
+          "irp",
+          "중도인출"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 1.0,
+        "raw_retrieval_score": 10.62331279516728,
+        "accepted": true,
+        "document_id": "doc41",
+        "page": 1,
+        "final_returned": true
+      },
+      {
+        "normalized_query": "irp 중도인출",
+        "meaningful_query_tokens": [
+          "irp",
+          "중도인출"
+        ],
+        "matched_query_tokens": [],
+        "token_coverage": 0.0,
+        "domain_anchors": [
+          "irp",
+          "중도인출"
+        ],
+        "matched_domain_anchors": [],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 0.0,
+        "raw_retrieval_score": 9.013179663166039,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 20,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "irp 중도인출",
+        "meaningful_query_tokens": [
+          "irp",
+          "중도인출"
+        ],
+        "matched_query_tokens": [],
+        "token_coverage": 0.0,
+        "domain_anchors": [
+          "irp",
+          "중도인출"
+        ],
+        "matched_domain_anchors": [],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 0.0,
+        "raw_retrieval_score": 8.799485753772002,
+        "accepted": false,
+        "document_id": "r2_kr5153420079",
+        "page": 35,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "irp 중도인출",
+        "meaningful_query_tokens": [
+          "irp",
+          "중도인출"
+        ],
+        "matched_query_tokens": [
+          "irp"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "irp",
+          "중도인출"
+        ],
+        "matched_domain_anchors": [
+          "irp"
+        ],
+        "domain_query_coverage": 1.0,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 8.556176531876828,
+        "accepted": false,
+        "document_id": "doc51",
+        "page": 2,
+        "final_returned": true
+      }
+    ]
+  },
+  {
+    "label": "partial_negative",
+    "query": "연금 날씨 알려줘",
+    "topic": null,
+    "normalized_query": "연금 날씨",
+    "raw_result_count": 5,
+    "final_result_count": 0,
+    "candidates": [
+      {
+        "normalized_query": "연금 날씨",
+        "meaningful_query_tokens": [
+          "연금",
+          "날씨"
+        ],
+        "matched_query_tokens": [
+          "연금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "연금"
+        ],
+        "matched_domain_anchors": [
+          "연금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 7.952088127024264,
+        "accepted": false,
+        "document_id": "r2_kr5153420079",
+        "page": 15,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "연금 날씨",
+        "meaningful_query_tokens": [
+          "연금",
+          "날씨"
+        ],
+        "matched_query_tokens": [
+          "연금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "연금"
+        ],
+        "matched_domain_anchors": [
+          "연금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 7.932463255591939,
+        "accepted": false,
+        "document_id": "r2_kr5153450658",
+        "page": 34,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "연금 날씨",
+        "meaningful_query_tokens": [
+          "연금",
+          "날씨"
+        ],
+        "matched_query_tokens": [
+          "연금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "연금"
+        ],
+        "matched_domain_anchors": [
+          "연금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 7.83683524129149,
+        "accepted": false,
+        "document_id": "r2_kr5153420063",
+        "page": 12,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "연금 날씨",
+        "meaningful_query_tokens": [
+          "연금",
+          "날씨"
+        ],
+        "matched_query_tokens": [
+          "연금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "연금"
+        ],
+        "matched_domain_anchors": [
+          "연금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 7.673579386309387,
+        "accepted": false,
+        "document_id": "r2_kr5153420063",
+        "page": 28,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "연금 날씨",
+        "meaningful_query_tokens": [
+          "연금",
+          "날씨"
+        ],
+        "matched_query_tokens": [
+          "연금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "연금"
+        ],
+        "matched_domain_anchors": [
+          "연금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 7.673579386309387,
+        "accepted": false,
+        "document_id": "r2_kr5153420079",
+        "page": 33,
+        "final_returned": false
+      }
+    ]
+  },
+  {
+    "label": "partial_negative",
+    "query": "세금 야구 결과",
+    "topic": null,
+    "normalized_query": "세금 야구",
+    "raw_result_count": 5,
+    "final_result_count": 0,
+    "candidates": [
+      {
+        "normalized_query": "세금 야구",
+        "meaningful_query_tokens": [
+          "세금",
+          "야구"
+        ],
+        "matched_query_tokens": [
+          "세금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "세금"
+        ],
+        "matched_domain_anchors": [
+          "세금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 14.61390397633324,
+        "accepted": false,
+        "document_id": "r2_kr5153420105",
+        "page": 34,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "세금 야구",
+        "meaningful_query_tokens": [
+          "세금",
+          "야구"
+        ],
+        "matched_query_tokens": [],
+        "token_coverage": 0.0,
+        "domain_anchors": [
+          "세금"
+        ],
+        "matched_domain_anchors": [],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.0,
+        "raw_retrieval_score": 14.378574800652478,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 10,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "세금 야구",
+        "meaningful_query_tokens": [
+          "세금",
+          "야구"
+        ],
+        "matched_query_tokens": [
+          "세금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "세금"
+        ],
+        "matched_domain_anchors": [
+          "세금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 13.91045335907298,
+        "accepted": false,
+        "document_id": "r2_kr5153420105",
+        "page": 34,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "세금 야구",
+        "meaningful_query_tokens": [
+          "세금",
+          "야구"
+        ],
+        "matched_query_tokens": [
+          "세금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "세금"
+        ],
+        "matched_domain_anchors": [
+          "세금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 13.555642283661287,
+        "accepted": false,
+        "document_id": "r2_kr5153420063",
+        "page": 29,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "세금 야구",
+        "meaningful_query_tokens": [
+          "세금",
+          "야구"
+        ],
+        "matched_query_tokens": [
+          "세금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "세금"
+        ],
+        "matched_domain_anchors": [
+          "세금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 13.555642283661287,
+        "accepted": false,
+        "document_id": "r2_kr5153420079",
+        "page": 34,
+        "final_returned": false
+      }
+    ]
+  },
+  {
+    "label": "partial_negative",
+    "query": "상품 저녁 메뉴",
+    "topic": null,
+    "normalized_query": "상품 저녁",
+    "raw_result_count": 5,
+    "final_result_count": 0,
+    "candidates": [
+      {
+        "normalized_query": "상품 저녁",
+        "meaningful_query_tokens": [
+          "상품",
+          "저녁"
+        ],
+        "matched_query_tokens": [
+          "상품"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "상품"
+        ],
+        "matched_domain_anchors": [
+          "상품"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 19.661097626739057,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 35,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "상품 저녁",
+        "meaningful_query_tokens": [
+          "상품",
+          "저녁"
+        ],
+        "matched_query_tokens": [],
+        "token_coverage": 0.0,
+        "domain_anchors": [
+          "상품"
+        ],
+        "matched_domain_anchors": [],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.0,
+        "raw_retrieval_score": 11.374990670476032,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 35,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "상품 저녁",
+        "meaningful_query_tokens": [
+          "상품",
+          "저녁"
+        ],
+        "matched_query_tokens": [],
+        "token_coverage": 0.0,
+        "domain_anchors": [
+          "상품"
+        ],
+        "matched_domain_anchors": [],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.0,
+        "raw_retrieval_score": 10.833806256199741,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 35,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "상품 저녁",
+        "meaningful_query_tokens": [
+          "상품",
+          "저녁"
+        ],
+        "matched_query_tokens": [],
+        "token_coverage": 0.0,
+        "domain_anchors": [
+          "상품"
+        ],
+        "matched_domain_anchors": [],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.0,
+        "raw_retrieval_score": 10.631481964030383,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 35,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "상품 저녁",
+        "meaningful_query_tokens": [
+          "상품",
+          "저녁"
+        ],
+        "matched_query_tokens": [],
+        "token_coverage": 0.0,
+        "domain_anchors": [
+          "상품"
+        ],
+        "matched_domain_anchors": [],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.0,
+        "raw_retrieval_score": 10.436576054422273,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 36,
+        "final_returned": false
+      }
+    ]
+  },
+  {
+    "label": "partial_negative",
+    "query": "IRP 축구 경기",
+    "topic": null,
+    "normalized_query": "irp 축구 경기",
+    "raw_result_count": 5,
+    "final_result_count": 0,
+    "candidates": [
+      {
+        "normalized_query": "irp 축구 경기",
+        "meaningful_query_tokens": [
+          "irp",
+          "축구",
+          "경기"
+        ],
+        "matched_query_tokens": [
+          "irp"
+        ],
+        "token_coverage": 0.3333333333333333,
+        "domain_anchors": [
+          "irp"
+        ],
+        "matched_domain_anchors": [
+          "irp"
+        ],
+        "domain_query_coverage": 0.3333333333333333,
+        "aggregate_token_coverage": 0.3333333333333333,
+        "raw_retrieval_score": 8.556176531876828,
+        "accepted": false,
+        "document_id": "doc51",
+        "page": 2,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "irp 축구 경기",
+        "meaningful_query_tokens": [
+          "irp",
+          "축구",
+          "경기"
+        ],
+        "matched_query_tokens": [
+          "irp"
+        ],
+        "token_coverage": 0.3333333333333333,
+        "domain_anchors": [
+          "irp"
+        ],
+        "matched_domain_anchors": [
+          "irp"
+        ],
+        "domain_query_coverage": 0.3333333333333333,
+        "aggregate_token_coverage": 0.3333333333333333,
+        "raw_retrieval_score": 7.811295246620936,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 13,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "irp 축구 경기",
+        "meaningful_query_tokens": [
+          "irp",
+          "축구",
+          "경기"
+        ],
+        "matched_query_tokens": [
+          "irp"
+        ],
+        "token_coverage": 0.3333333333333333,
+        "domain_anchors": [
+          "irp"
+        ],
+        "matched_domain_anchors": [
+          "irp"
+        ],
+        "domain_query_coverage": 0.3333333333333333,
+        "aggregate_token_coverage": 0.3333333333333333,
+        "raw_retrieval_score": 7.7654879421658345,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 13,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "irp 축구 경기",
+        "meaningful_query_tokens": [
+          "irp",
+          "축구",
+          "경기"
+        ],
+        "matched_query_tokens": [
+          "irp"
+        ],
+        "token_coverage": 0.3333333333333333,
+        "domain_anchors": [
+          "irp"
+        ],
+        "matched_domain_anchors": [
+          "irp"
+        ],
+        "domain_query_coverage": 0.3333333333333333,
+        "aggregate_token_coverage": 0.3333333333333333,
+        "raw_retrieval_score": 7.720214755504866,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 11,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "irp 축구 경기",
+        "meaningful_query_tokens": [
+          "irp",
+          "축구",
+          "경기"
+        ],
+        "matched_query_tokens": [
+          "irp"
+        ],
+        "token_coverage": 0.3333333333333333,
+        "domain_anchors": [
+          "irp"
+        ],
+        "matched_domain_anchors": [
+          "irp"
+        ],
+        "domain_query_coverage": 0.3333333333333333,
+        "aggregate_token_coverage": 0.3333333333333333,
+        "raw_retrieval_score": 7.675466398984429,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 17,
+        "final_returned": false
+      }
+    ]
+  },
+  {
+    "label": "partial_negative",
+    "query": "퇴직금 아이스크림 추천",
+    "topic": null,
+    "normalized_query": "퇴직금 아이스크림",
+    "raw_result_count": 5,
+    "final_result_count": 0,
+    "candidates": [
+      {
+        "normalized_query": "퇴직금 아이스크림",
+        "meaningful_query_tokens": [
+          "퇴직금",
+          "아이스크림"
+        ],
+        "matched_query_tokens": [
+          "퇴직금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "퇴직금"
+        ],
+        "matched_domain_anchors": [
+          "퇴직금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 9.754072063611112,
+        "accepted": false,
+        "document_id": "doc51",
+        "page": 2,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "퇴직금 아이스크림",
+        "meaningful_query_tokens": [
+          "퇴직금",
+          "아이스크림"
+        ],
+        "matched_query_tokens": [
+          "퇴직금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "퇴직금"
+        ],
+        "matched_domain_anchors": [
+          "퇴직금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 9.6183547893151,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 11,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "퇴직금 아이스크림",
+        "meaningful_query_tokens": [
+          "퇴직금",
+          "아이스크림"
+        ],
+        "matched_query_tokens": [
+          "퇴직금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "퇴직금"
+        ],
+        "matched_domain_anchors": [
+          "퇴직금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 9.504880681964034,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 21,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "퇴직금 아이스크림",
+        "meaningful_query_tokens": [
+          "퇴직금",
+          "아이스크림"
+        ],
+        "matched_query_tokens": [
+          "퇴직금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "퇴직금"
+        ],
+        "matched_domain_anchors": [
+          "퇴직금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 9.394052813706534,
+        "accepted": false,
+        "document_id": "doc51",
+        "page": 2,
+        "final_returned": false
+      },
+      {
+        "normalized_query": "퇴직금 아이스크림",
+        "meaningful_query_tokens": [
+          "퇴직금",
+          "아이스크림"
+        ],
+        "matched_query_tokens": [
+          "퇴직금"
+        ],
+        "token_coverage": 0.5,
+        "domain_anchors": [
+          "퇴직금"
+        ],
+        "matched_domain_anchors": [
+          "퇴직금"
+        ],
+        "domain_query_coverage": 0.5,
+        "aggregate_token_coverage": 0.5,
+        "raw_retrieval_score": 9.339602459954417,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 7,
+        "final_returned": false
+      }
+    ]
+  },
+  {
+    "label": "unrelated",
+    "query": "은하수 초콜릿 양자역학",
+    "topic": null,
+    "normalized_query": "은하수 초콜릿 양자역학",
+    "raw_result_count": 0,
+    "final_result_count": 0,
+    "candidates": []
+  },
+  {
+    "label": "unrelated",
+    "query": "오늘 저녁 뭐 먹지",
+    "topic": null,
+    "normalized_query": "오늘 저녁 먹지",
+    "raw_result_count": 0,
+    "final_result_count": 0,
+    "candidates": []
+  },
+  {
+    "label": "unrelated",
+    "query": "파이썬 정렬 알고리즘",
+    "topic": null,
+    "normalized_query": "파이썬 정렬 알고리즘",
+    "raw_result_count": 1,
+    "final_result_count": 0,
+    "candidates": [
+      {
+        "normalized_query": "파이썬 정렬 알고리즘",
+        "meaningful_query_tokens": [
+          "파이썬",
+          "정렬",
+          "알고리즘"
+        ],
+        "matched_query_tokens": [
+          "정렬"
+        ],
+        "token_coverage": 0.3333333333333333,
+        "domain_anchors": [],
+        "matched_domain_anchors": [],
+        "domain_query_coverage": 0.0,
+        "aggregate_token_coverage": 0.3333333333333333,
+        "raw_retrieval_score": 11.447512638706334,
+        "accepted": false,
+        "document_id": "doc55",
+        "page": 32,
+        "final_returned": false
+      }
+    ]
+  }
+]
