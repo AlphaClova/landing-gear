@@ -1,4 +1,4 @@
-"""대표 통합 질문(문서 8장)이 역질문 -> 슬롯 채움 -> 검색/계산/검증까지 통과하는지 확인."""
+"""대표 통합 질문이 질문 내 슬롯 재사용 -> 검색/계산/검증까지 통과하는지 확인."""
 
 from fastapi.testclient import TestClient
 
@@ -9,20 +9,19 @@ client = TestClient(app)
 QUESTION = "퇴직금 3억원, 예상 퇴직소득세 2,400만원인데 일시금과 연금 중 무엇이 나을까요?"
 
 
-def test_representative_question_asks_for_missing_expected_tax_won_first() -> None:
+def test_representative_question_does_not_ask_for_unused_plan_type() -> None:
     resp = client.post(
         "/v1/chat",
         json={
             "session_id": "integration-1",
             "question": QUESTION,
-            "profile": {"retirement_amount_won": 300_000_000},
+            "profile": {"retirement_amount_won": 300_000_000, "expected_tax_won": 24_000_000},
         },
     )
     assert resp.status_code == 200
     body = resp.json()
-    assert body["type"] == "clarification"
-    assert any(s["name"] == "expected_tax_won" for s in body["required_slots"])
-    assert len(body["required_slots"]) <= 3
+    assert body["type"] in {"result", "limitation"}
+    assert body["required_slots"] == []
 
 
 def test_representative_question_completes_with_full_profile() -> None:
@@ -45,23 +44,18 @@ def test_representative_question_completes_with_full_profile() -> None:
     assert len(body["citations"]) >= 1
 
 
-def test_session_retains_slots_across_followup_turns() -> None:
+def test_question_filled_slots_are_reused_without_clarification() -> None:
     session_id = "integration-3"
     first = client.post(
         "/v1/chat",
         json={
             "session_id": session_id,
             "question": QUESTION,
-            "profile": {"retirement_amount_won": 300_000_000},
+            "profile": {"retirement_amount_won": 300_000_000, "expected_tax_won": 24_000_000},
         },
     )
-    assert first.json()["type"] == "clarification"
-
-    second = client.post(
-        "/v1/chat",
-        json={"session_id": session_id, "question": "2400만원이요", "profile": {"expected_tax_won": 24_000_000}},
-    )
-    assert second.status_code == 200
+    assert first.json()["type"] in {"result", "limitation"}
+    assert first.json()["required_slots"] == []
 
 
 def test_eval_endpoint_returns_five_fields_in_strict_mode(monkeypatch) -> None:

@@ -1,0 +1,482 @@
+{
+  "metadata": {
+    "subset": "full",
+    "provider": {
+      "ready": true,
+      "hcx_mode": "real",
+      "evidence_provider_mode": "real",
+      "rule_provider_mode": "real",
+      "product_provider_mode": "real"
+    },
+    "production_valid": false,
+    "note": "Mock/unknown provider run is not a final evaluation success."
+  },
+  "summary": {
+    "total": 11,
+    "FAIL": 11,
+    "hcx_invoked": 0,
+    "hcx_success": 0,
+    "hcx_first_pass": 0,
+    "hcx_regenerated": 0,
+    "deterministic_repaired": 0,
+    "hcx_timeout_count": 0,
+    "fallback_used": 0,
+    "manual_review_required": 7,
+    "pass_rate": 0.0,
+    "average_latency_ms": 3788.5720909090905,
+    "p50_latency_ms": 2775.973,
+    "p95_latency_ms": 11513.447,
+    "max_latency_ms": 11513.447,
+    "http_error_rate": 0.0,
+    "failure_reasons": {
+      "SCHEMA_ERROR": 11,
+      "MISSING_EVIDENCE": 11,
+      "MISSED_CLARIFICATION": 3
+    }
+  },
+  "results": [
+    {
+      "id": "G021",
+      "category": "tax",
+      "difficulty": "medium",
+      "question": "IRP에 900만원 넣으면 전액 세액공제 대상인가요?",
+      "subsets": [],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 4911.121,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T04:33:50.673276+00:00",
+        "response_error": null,
+        "request_id": "req_d8a1c69eb0ff4076ba77",
+        "call_sequence": 1,
+        "previous_request_gap_ms": null
+      }
+    },
+    {
+      "id": "G051",
+      "category": "combined",
+      "difficulty": "low",
+      "question": "퇴직금 3억, 세금 0원, IRP인데 연금이 무조건 유리한가요?",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 11513.447,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T04:33:55.621244+00:00",
+        "response_error": null,
+        "request_id": "req_bf457911107b4d9c9da1",
+        "call_sequence": 2,
+        "previous_request_gap_ms": 11513.503
+      }
+    },
+    {
+      "id": "G058",
+      "category": "product_compare",
+      "difficulty": "high",
+      "question": "솔로몬 국공채 단기형 특징을 문서 근거로 설명해줘",
+      "subsets": [],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 7209.679,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T04:34:07.167876+00:00",
+        "response_error": null,
+        "request_id": "req_efa38e8491fb457c9bef",
+        "call_sequence": 3,
+        "previous_request_gap_ms": 7209.729
+      }
+    },
+    {
+      "id": "G063",
+      "category": "product_compare",
+      "difficulty": "high",
+      "question": "IRP에서 살 수 있는 예금형 상품을 설명해줘",
+      "subsets": [],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 4078.016,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T04:34:14.398675+00:00",
+        "response_error": null,
+        "request_id": "req_006c0b30b7364c18ac2b",
+        "call_sequence": 4,
+        "previous_request_gap_ms": 4078.067
+      }
+    },
+    {
+      "id": "G076",
+      "category": "product_compare",
+      "difficulty": "low",
+      "question": "문서에 없는 향후 수익률을 숫자로 예측해줘",
+      "subsets": [],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1917.101,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T04:34:18.509509+00:00",
+        "response_error": null,
+        "request_id": "req_6c78812383314aee92a7",
+        "call_sequence": 5,
+        "previous_request_gap_ms": 1917.14
+      }
+    },
+    {
+      "id": "G078",
+      "category": "conditional_recommendation",
+      "difficulty": "medium",
+      "question": "10년 이상 투자하고 변동성을 감수할 수 있어요. 비교 기준을 제시해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 2775.973,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T04:34:20.454067+00:00",
+        "response_error": null,
+        "request_id": "req_908fabb5ffe848d78ad3",
+        "call_sequence": 6,
+        "previous_request_gap_ms": 2776.015
+      }
+    },
+    {
+      "id": "G080",
+      "category": "conditional_recommendation",
+      "difficulty": "medium",
+      "question": "60세 은퇴자이고 생활비 목적입니다. 어떤 정보가 더 필요해요?",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1088.598,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE",
+        "MISSED_CLARIFICATION"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T04:34:23.261125+00:00",
+        "response_error": null,
+        "request_id": "req_ee7d7532724741b8918c",
+        "call_sequence": 7,
+        "previous_request_gap_ms": 1088.649
+      }
+    },
+    {
+      "id": "G081",
+      "category": "conditional_recommendation",
+      "difficulty": "low",
+      "question": "DC 계좌, 위험등급 낮은 상품을 비용과 함께 비교해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 2022.443,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T04:34:24.382315+00:00",
+        "response_error": null,
+        "request_id": "req_24975be71c1743598678",
+        "call_sequence": 8,
+        "previous_request_gap_ms": 2022.502
+      }
+    },
+    {
+      "id": "G082",
+      "category": "conditional_recommendation",
+      "difficulty": "high",
+      "question": "IRP에서 3년 투자할 안정형 상품 후보를 보여줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 2011.743,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T04:34:26.437405+00:00",
+        "response_error": null,
+        "request_id": "req_1abf865be8fd4f568d73",
+        "call_sequence": 9,
+        "previous_request_gap_ms": 2011.778
+      }
+    },
+    {
+      "id": "G083",
+      "category": "conditional_recommendation",
+      "difficulty": "low",
+      "question": "나이만 45세라고 알려주면 최적 상품을 고를 수 있나요?",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1312.643,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE",
+        "MISSED_CLARIFICATION"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T04:34:28.469831+00:00",
+        "response_error": null,
+        "request_id": "req_ae05b0ad16bc49438521",
+        "call_sequence": 10,
+        "previous_request_gap_ms": 1312.699
+      }
+    },
+    {
+      "id": "G084",
+      "category": "conditional_recommendation",
+      "difficulty": "medium",
+      "question": "손실 감내 수준은 모르겠고 좋은 펀드 추천해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 2833.529,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE",
+        "MISSED_CLARIFICATION"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T04:34:29.816978+00:00",
+        "response_error": null,
+        "request_id": "req_548bd3b02f2a4fca9efc",
+        "call_sequence": 11,
+        "previous_request_gap_ms": 2833.58
+      }
+    }
+  ]
+}

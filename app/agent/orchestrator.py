@@ -43,6 +43,7 @@ class Orchestrator:
         request_id: str,
         session_id: str | None,
         profile: UserProfile,
+        evaluation_question_id: str | None = None,
     ) -> InternalAnswer:
         route_decision = self._router.classify(question)
         log_context(
@@ -56,12 +57,14 @@ class Orchestrator:
 
         session_slots = self._sessions.get(session_id) if session_id else {}
         slots = self._slots.merge(profile, session_slots)
+        slots.update(self._slots.extract(question))
         if session_id:
             self._sessions.merge(session_id, slots)
 
         if route_decision.intent == "범위 밖":
+            draft = self._verify_and_retry(self._composer.compose(question, route_decision.intent, out_of_scope=True, request_id=request_id, case_id=evaluation_question_id))
             return self._verifier.finalize(
-                draft=None,
+                draft=draft,
                 request_id=request_id,
                 session_id=session_id,
                 route_decision=route_decision,
@@ -69,10 +72,29 @@ class Orchestrator:
                 out_of_scope=True,
             )
 
-        missing = self._slots.required(route_decision.intent, slots)
+        missing = self._slots.required(route_decision.intent, slots, question)
         if missing:
+            if route_decision.intent in {"종합", "상품"}:
+                tool_result = self._tools.run(
+                    route_decision.intent,
+                    slots,
+                    question=question,
+                    rule_id=_RULE_ID_BY_INTENT.get(route_decision.intent),
+                )
+                draft = self._verify_and_retry(self._composer.compose(
+                    question, route_decision.intent, tool_result, required_slots=missing,
+                    request_id=request_id, case_id=evaluation_question_id,
+                ))
+                return self._verifier.finalize(
+                    draft=draft,
+                    request_id=request_id,
+                    session_id=session_id,
+                    route_decision=route_decision,
+                    tool_traces=tool_result.traces,
+                )
+            draft = self._verify_and_retry(self._composer.compose(question, route_decision.intent, required_slots=missing, request_id=request_id, case_id=evaluation_question_id))
             return self._verifier.finalize(
-                draft=None,
+                draft=draft,
                 request_id=request_id,
                 session_id=session_id,
                 route_decision=route_decision,
@@ -87,7 +109,8 @@ class Orchestrator:
                 question=question,
                 rule_id=_RULE_ID_BY_INTENT.get(route_decision.intent),
             )
-            draft = self._composer.compose(question, route_decision.intent, tool_result)
+            draft = self._composer.compose(question, route_decision.intent, tool_result, request_id=request_id, case_id=evaluation_question_id)
+            draft = self._verify_and_retry(draft)
         except AppError as exc:
             log_context(logger, "pipeline_error", request_id=request_id, code=exc.code, message=exc.message)
             raise
@@ -99,3 +122,23 @@ class Orchestrator:
             route_decision=route_decision,
             tool_traces=tool_result.traces,
         )
+
+    def _verify_and_retry(self, draft):
+        issues = self._verifier.check(draft)
+        if not issues:
+            draft.hcx_first_pass = True
+            return draft
+        logger.warning("hcx_draft_rejected issues=%s", issues)
+        draft.hcx_audit[0]["violations"] = issues
+        if self._verifier.repair_safe(draft, issues):
+            draft.deterministic_repaired = True
+            return draft
+        if draft.degraded:
+            return self._composer.use_fallback(draft, draft.degraded_reason or "; ".join(issues))
+        draft = self._composer.regenerate(draft, issues)
+        issues = self._verifier.check(draft)
+        draft.hcx_audit[-1]["violations"] = issues
+        if issues:
+            logger.warning("hcx_regeneration_rejected issues=%s", issues)
+            return self._composer.use_fallback(draft, "; ".join(issues))
+        return draft

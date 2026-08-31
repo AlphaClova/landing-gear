@@ -6,7 +6,7 @@ from pathlib import Path
 
 from app.data.schemas.models import Chunk
 from app.tools.retriever import BM25Retriever
-from scripts.parse_documents import build_inventory, parse_document, parse_targets
+from scripts.parse_documents import DEFAULT_TARGET_DOCUMENTS, build_inventory, parse_document, parse_targets
 
 
 def to_chunk(record: dict[str, object]) -> Chunk:
@@ -40,7 +40,7 @@ def main() -> None:
     args = parse_args()
     chunks_path = Path("app/data/processed/chunks.jsonl")
     base_chunks = [json.loads(line) for line in chunks_path.read_text(encoding="utf-8").splitlines() if line]
-    unexpected = {row["document_id"] for row in base_chunks} - {"doc10", "doc51"}
+    unexpected = {row["document_id"] for row in base_chunks} - set(DEFAULT_TARGET_DOCUMENTS)
     if unexpected:
         raise SystemExit(f"Index scope contains unexpected documents: {sorted(unexpected)}")
 

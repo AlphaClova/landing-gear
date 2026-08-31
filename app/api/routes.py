@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.agent.orchestrator import Orchestrator
 from app.api.dependencies import get_orchestrator, get_request_id, get_tool_router
@@ -25,10 +25,12 @@ def health() -> dict[str, str]:
 @router.get("/ready")
 def ready(settings: Settings = Depends(get_settings)) -> dict[str, str | bool]:
     """readiness: 하위 의존성이 응답 가능한 상태인지 확인."""
-    get_tool_router()  # 인스턴스화 가능한지 확인 (예외 시 500)
+    providers = get_tool_router().provider_status()
     return {
         "status": "ready",
         "hcx_mock_mode": not bool(settings.hcx_api_key),
+        "HCX_PROVIDER": "real" if settings.hcx_api_key else "mock",
+        **providers,
     }
 
 
@@ -47,20 +49,41 @@ def chat(
     return to_chat_response(internal)
 
 
-@router.post("/answer", response_model=None)
-def answer(
+def _answer(
     request: AnswerRequest,
-    orchestrator: Orchestrator = Depends(get_orchestrator),
-    settings: Settings = Depends(get_settings),
-    request_id: str = Depends(get_request_id),
+    orchestrator: Orchestrator,
+    settings: Settings,
+    request_id: str,
 ) -> EvalResponse | InternalAnswer:
     internal = orchestrator.handle(
         question=request.question,
         request_id=request_id,
         session_id=None,
         profile=request.profile,
+        evaluation_question_id=request.question_id,
     )
 
     if settings.eval_schema_mode == "strict":
         return to_eval_response(internal, question_id=request.question_id, question=request.question)
     return internal
+
+
+@router.post("/answer", response_model=None)
+def answer_post(
+    request: AnswerRequest,
+    orchestrator: Orchestrator = Depends(get_orchestrator),
+    settings: Settings = Depends(get_settings),
+    request_id: str = Depends(get_request_id),
+) -> EvalResponse | InternalAnswer:
+    return _answer(request, orchestrator, settings, request_id)
+
+
+@router.get("/answer", response_model=None)
+def answer_get(
+    question_id: str = Query(...),
+    question: str = Query(...),
+    orchestrator: Orchestrator = Depends(get_orchestrator),
+    settings: Settings = Depends(get_settings),
+    request_id: str = Depends(get_request_id),
+) -> EvalResponse | InternalAnswer:
+    return _answer(AnswerRequest(question_id=question_id, question=question), orchestrator, settings, request_id)

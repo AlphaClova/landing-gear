@@ -277,12 +277,12 @@
     "page_count": 2,
     "sheet_info": null,
     "title": "\uacf5\ubb34\uc6d0 \u00b7 \uad50\uc0ac \ud1f4\uc9c1\uc218\ub2f9(\uba85\ud1f4\uc218\ub2f9) \uc5f0\uae08\uacc4\uc88c \uc808\uc138 \uc548\ub0b4",
-    "topic": null,
-    "account_type": null,
+    "topic": "withdrawal_tax",
+    "account_type": "IRP",
     "source_priority": 0,
     "effective_from": null,
     "valid_to": null,
-    "parse_status": "inventoried"
+    "parse_status": "parsed"
   },
   {
     "document_id": "doc27",
@@ -343,7 +343,7 @@
     "source_priority": 0,
     "effective_from": null,
     "valid_to": null,
-    "parse_status": "parsed"
+    "parse_status": "inventoried"
   },
   {
     "document_id": "doc3",
@@ -418,7 +418,7 @@
     "source_priority": 0,
     "effective_from": null,
     "valid_to": null,
-    "parse_status": "parsed"
+    "parse_status": "inventoried"
   },
   {
     "document_id": "doc34",
@@ -554,12 +554,12 @@
     "page_count": 2,
     "sheet_info": null,
     "title": "\uc5f0\uae08\uc800\ucd95\uacc4\uc88c, IRP \uc138\uc561\uacf5\uc81c \uc548\ub0b4",
-    "topic": null,
-    "account_type": null,
+    "topic": "withdrawal_tax",
+    "account_type": "IRP",
     "source_priority": 0,
     "effective_from": null,
     "valid_to": null,
-    "parse_status": "inventoried"
+    "parse_status": "parsed"
   },
   {
     "document_id": "doc42",
@@ -779,12 +779,12 @@
     "page_count": 37,
     "sheet_info": null,
     "title": "\ud1f4\uc9c1\uc5f0\uae08 \uc5c5\ubb34 \uc2dc \ub3c4\uc6c0\ub418\ub294 \uccb4\ud06c \ud3ec\uc778\ud2b8 \u2219\u2219\u2219 1",
-    "topic": null,
-    "account_type": null,
+    "topic": "withdrawal_tax",
+    "account_type": "IRP",
     "source_priority": 0,
     "effective_from": null,
     "valid_to": null,
-    "parse_status": "inventoried"
+    "parse_status": "parsed"
   },
   {
     "document_id": "doc56",
@@ -1919,12 +1919,12 @@
     "page_count": 57,
     "sheet_info": null,
     "title": "\ud22c\uc790\uc704\ud5d8\ub4f1\uae09",
-    "topic": null,
-    "account_type": null,
+    "topic": "product",
+    "account_type": "IRP",
     "source_priority": 0,
     "effective_from": null,
     "valid_to": null,
-    "parse_status": "inventoried"
+    "parse_status": "parsed"
   },
   {
     "document_id": "r2_kr5153420079",
@@ -1934,12 +1934,12 @@
     "page_count": 61,
     "sheet_info": null,
     "title": "\ud22c\uc790\uc704\ud5d8\ub4f1\uae09",
-    "topic": null,
-    "account_type": null,
+    "topic": "product",
+    "account_type": "IRP",
     "source_priority": 0,
     "effective_from": null,
     "valid_to": null,
-    "parse_status": "inventoried"
+    "parse_status": "parsed"
   },
   {
     "document_id": "r2_kr5153420105",
@@ -1949,12 +1949,12 @@
     "page_count": 63,
     "sheet_info": null,
     "title": "\ud22c\uc790\uc704\ud5d8\ub4f1\uae09",
-    "topic": null,
-    "account_type": null,
+    "topic": "product",
+    "account_type": "IRP",
     "source_priority": 0,
     "effective_from": null,
     "valid_to": null,
-    "parse_status": "inventoried"
+    "parse_status": "parsed"
   },
   {
     "document_id": "r2_kr5153420318",
@@ -2084,12 +2084,12 @@
     "page_count": 66,
     "sheet_info": null,
     "title": "\ud22c\uc790\uc704\ud5d8\ub4f1\uae09",
-    "topic": null,
-    "account_type": null,
+    "topic": "product",
+    "account_type": "IRP",
     "source_priority": 0,
     "effective_from": null,
     "valid_to": null,
-    "parse_status": "inventoried"
+    "parse_status": "parsed"
   },
   {
     "document_id": "r2_kr5153450772",

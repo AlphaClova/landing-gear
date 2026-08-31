@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     hcx_prompt_version: str = "v1"
     hcx_timeout_seconds: float = 8.0
     hcx_max_retries: int = 2
+    hcx_total_budget_seconds: float = 10.0
 
     # 평가 계약
     eval_schema_mode: str = "loose"  # "strict"면 5필드로 직렬화

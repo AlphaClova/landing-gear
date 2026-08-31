@@ -1,0 +1,217 @@
+{
+  "metadata": {
+    "subset": "official",
+    "provider": {
+      "ready": true,
+      "hcx_mode": "real",
+      "evidence_provider_mode": "real",
+      "rule_provider_mode": "real",
+      "product_provider_mode": "real"
+    },
+    "production_valid": false,
+    "note": "Mock/unknown provider run is not a final evaluation success."
+  },
+  "summary": {
+    "total": 5,
+    "FAIL": 5,
+    "hcx_invoked": 0,
+    "hcx_success": 0,
+    "fallback_used": 0,
+    "manual_review_required": 5,
+    "pass_rate": 0.0,
+    "average_latency_ms": 7991.8924,
+    "p50_latency_ms": 9799.197,
+    "p95_latency_ms": 12001.623,
+    "max_latency_ms": 12001.623,
+    "http_error_rate": 0.4,
+    "failure_reasons": {
+      "SCHEMA_ERROR": 5,
+      "WRONG_INTENT": 5,
+      "MISSING_EVIDENCE": 4,
+      "UNSUPPORTED_CLAIM": 5,
+      "MISSED_LIMITATION": 2,
+      "TIMEOUT": 2,
+      "MISSED_CLARIFICATION": 1
+    }
+  },
+  "results": [
+    {
+      "id": "G001",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "DC와 DB, 퇴직금이 정해지는 방식이랑 운용 주체가 어떻게 다른가요?",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 2830.187,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "WRONG_INTENT",
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "question echo mismatch",
+        "missing concept ['DB']",
+        "missing concept ['DC']",
+        "expected intent 제도, got None"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "id": "G002",
+      "category": "tax",
+      "difficulty": "low",
+      "question": "연금저축이랑 IRP에 넣으면 세액공제 얼마까지 되나요? 다 합쳐서요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 9799.197,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "WRONG_INTENT",
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM",
+        "MISSED_LIMITATION"
+      ],
+      "details": [
+        "question echo mismatch",
+        "missing concept ['세액공제']",
+        "expected intent 세제, got None"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "id": "G003",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "명퇴하는 교사예요. 명퇴수당을 연금계좌에 넣으면 세금 감면이 어마어마하다던데, 절세법만 알려주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": null,
+      "latency_ms": 12001.613,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "TIMEOUT",
+        "SCHEMA_ERROR",
+        "WRONG_INTENT",
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "question echo mismatch",
+        "missing concept ['교사', '교직원']",
+        "missing concept ['확인', '한계', '주의']",
+        "expected intent 세제, got None"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "id": "G004",
+      "category": "product_compare",
+      "difficulty": "low",
+      "question": "솔로몬 국공채 단기 · 중장기 · 장기, 뭐가 달라요? 안정적인 걸 원해요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": null,
+      "latency_ms": 12001.623,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "TIMEOUT",
+        "SCHEMA_ERROR",
+        "WRONG_INTENT",
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM",
+        "MISSED_LIMITATION"
+      ],
+      "details": [
+        "question echo mismatch",
+        "missing concept ['단기', '중장기', '장기']",
+        "missing concept ['위험', '안정']",
+        "expected intent 상품, got None"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "id": "G005",
+      "category": "conditional_recommendation",
+      "difficulty": "high",
+      "question": "좋은 연금 상품 하나 추천해 주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 3326.842,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "WRONG_INTENT",
+        "UNSUPPORTED_CLAIM",
+        "MISSED_CLARIFICATION"
+      ],
+      "details": [
+        "question echo mismatch",
+        "missing concept ['투자기간', '기간']",
+        "missing concept ['위험', '손실']",
+        "expected intent 상품, got None"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "fallback_used": false,
+      "fallback_reason": null
+    }
+  ]
+}

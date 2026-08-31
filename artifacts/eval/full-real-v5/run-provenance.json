@@ -1,0 +1,25 @@
+{
+  "run_kind": "ORIGINAL_SINGLE_RUN",
+  "code_freeze_started_at_utc": "2026-08-29T01:22:41Z",
+  "server_started_at_local": "2026-08-29T09:25:33+09:00",
+  "server_pid": 45877,
+  "evaluation_started_at_utc": "2026-08-29T01:23:23Z",
+  "eval_schema_mode": "strict",
+  "providers": {
+    "HCX_PROVIDER": "real",
+    "EVIDENCE_PROVIDER": "real",
+    "RULE_PROVIDER": "real",
+    "PRODUCT_PROVIDER": "real"
+  },
+  "single_run_policy": "No failed-case rerun, recovery, or result replacement.",
+  "sha256": {
+    "app/core/query_normalization.py": "b0a0730c972e93835718030a3d820a1dffb3c52ae2c1b889ab6db666f8e92a97",
+    "app/tools/retriever.py": "a4f270d18399ec457e5f2452cc4b51d322f922d0992dc1db5ac9581e5fc07ea3",
+    "app/agent/composer.py": "f91c533945ad52067b1620487e3517f297555a7f349380857cb487dfd95245a0",
+    "app/agent/hcx_client.py": "b7c8a8f1b7e8e039cf2a847f00c29a1de2869dd0e454cbaf2a9b9a697c5117ab",
+    "app/agent/orchestrator.py": "cc08950d8b7e58c9a3cb9525dda46da243c56e64ba90e4c28ec18b67d2e28ba1",
+    "app/agent/verifier.py": "b46be67c03ed33822d6c43ea0c244c6d63469ab8ce501414729ae10e8d0acfe0",
+    "app/api/schemas.py": "edbb7e9f6af30034d254dfc9274522e0e10fdc994eedd287235c9c3d6621496a",
+    "tests/golden/mirae_eval_120.jsonl": "9851f27d3501f25ce9f56906314772737ac2700073b53841505cfeaeaff4d746"
+  }
+}

@@ -1,0 +1,2021 @@
+{
+  "metadata": {
+    "subset": "stability-100",
+    "provider": {
+      "ready": true,
+      "hcx_mode": "real",
+      "b_provider_mode": "mock"
+    },
+    "production_valid": false,
+    "note": "Mock/unknown provider run is not a final evaluation success."
+  },
+  "summary": {
+    "total": 100,
+    "FAIL": 95,
+    "PASS": 5,
+    "manual_review_required": 25,
+    "pass_rate": 0.05,
+    "average_latency_ms": 110.68844999999999,
+    "p50_latency_ms": 0.905,
+    "p95_latency_ms": 1.309,
+    "max_latency_ms": 3744.331,
+    "http_error_rate": 0.0,
+    "failure_reasons": {
+      "MISSING_EVIDENCE": 95,
+      "UNSUPPORTED_CLAIM": 15,
+      "MISSED_LIMITATION": 5
+    }
+  },
+  "results": [
+    {
+      "id": "STAB-001",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "DC와 DB, 퇴직금이 정해지는 방식이랑 운용 주체가 어떻게 다른가요?",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1.244,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-002",
+      "category": "tax",
+      "difficulty": "low",
+      "question": "연금저축이랑 IRP에 넣으면 세액공제 얼마까지 되나요? 다 합쳐서요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1.026,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "missing concept ['세액공제']"
+      ],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-003",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "명퇴하는 교사예요. 명퇴수당을 연금계좌에 넣으면 세금 감면이 어마어마하다던데, 절세법만 알려주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.973,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "missing concept ['교사']"
+      ],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세를 알고 계신가요? (모르면 생략 가능)\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세를 알고 계신가요? (모르면 생략 가능)",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-004",
+      "category": "product_compare",
+      "difficulty": "low",
+      "question": "솔로몬 국공채 단기 · 중장기 · 장기, 뭐가 달라요? 안정적인 걸 원해요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.935,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM",
+        "MISSED_LIMITATION"
+      ],
+      "details": [
+        "missing concept ['단기', '중장기', '장기']",
+        "missing concept ['위험', '안정']"
+      ],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-005",
+      "category": "conditional_recommendation",
+      "difficulty": "high",
+      "question": "좋은 연금 상품 하나 추천해 주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1.045,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: IRP·DC 중 어떤 계좌 기준으로 비교할까요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] IRP·DC 중 어떤 계좌 기준으로 비교할까요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-006",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "DB형과 DC형에서 퇴직급여 산정 방식은 각각 무엇인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.914,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-007",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "확정급여형은 누가 적립금을 운용하나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.892,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-008",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "DC형은 회사가 수익률을 책임지는 제도인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.845,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-009",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "퇴직연금이 일반 퇴직금과 어떻게 다른가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.901,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-010",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "개인사업자 대표도 DB나 DC에 가입할 수 있나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.877,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-011",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "주 14시간 근무자도 퇴직연금 대상인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.968,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-012",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "근속 1년 미만 근로자의 가입 대상 여부를 알려줘",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.96,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-013",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "공무원도 회사 DB형에 가입할 수 있죠?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1.112,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-014",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "외국인 근로자 E-9 비자의 가입 조건은?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.775,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-015",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "임원도 퇴직연금 가입 가능한가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.895,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-016",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "DC 부담금은 어떻게 정해지나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 3297.672,
+      "auto_result": "PASS",
+      "fail_reasons": [],
+      "details": [
+        "mock provider output observed"
+      ],
+      "answer": "제공된 근거 자료에 따르면, DC 부담금은 다음과 같이 정해집니다.\n\n1. **부담금 산정 기준**: 퇴직 전 3개월간의 평균 임금의 60% 이상을 기준으로 합니다.\n2. **부담금 납입 방식**: 매월 또는 분기별로 균등하게 분할하여 납입합니다.\n3. **부담금 조정 가능 여부**: 회사의 재정 상태나 근로자의 동의 등에 따라 조정될 수 있습니다.\n\n따라서 위 내용을 참고하여 사용자님의 상황에 맞게 적절한 금액을 설정하는 것이 중요합니다. 또한, 회사 내규나 관련 법규를 확인하여 정확한 내용을 파악하고 전문가의 조언을 듣는 것도 좋은 방법입니다.\n\n[한계] 현재 제공된 근거만으로는 일부 내용을 충분히 검증하지 못했습니다 (근거 없는 숫자(1., 2., 3)).",
+      "retrieved_context": [
+        "[MOCK] 'DC 부담금은 어떻게 정해지나요?'에 대한 근거 자료는 B팀 retrieve_evidence() 연결 후 제공됩니다."
+      ]
+    },
+    {
+      "id": "STAB-017",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "DB에서 운용손익이 급여에 직접 반영되나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1.309,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-018",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "퇴직연금은 몇 살부터 연금으로 받을 수 있나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1.115,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-019",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "IRP와 DC는 같은 제도인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.96,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: IRP·DC 중 어떤 계좌 기준으로 비교할까요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] IRP·DC 중 어떤 계좌 기준으로 비교할까요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-020",
+      "category": "tax",
+      "difficulty": "high",
+      "question": "연금저축 세액공제 한도와 IRP 합산 한도를 근거와 함께 알려줘",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1.053,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-021",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "DC와 DB, 퇴직금이 정해지는 방식이랑 운용 주체가 어떻게 다른가요?",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.911,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-022",
+      "category": "tax",
+      "difficulty": "low",
+      "question": "연금저축이랑 IRP에 넣으면 세액공제 얼마까지 되나요? 다 합쳐서요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.941,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "missing concept ['세액공제']"
+      ],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-023",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "명퇴하는 교사예요. 명퇴수당을 연금계좌에 넣으면 세금 감면이 어마어마하다던데, 절세법만 알려주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.939,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "missing concept ['교사']"
+      ],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세를 알고 계신가요? (모르면 생략 가능)\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세를 알고 계신가요? (모르면 생략 가능)",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-024",
+      "category": "product_compare",
+      "difficulty": "low",
+      "question": "솔로몬 국공채 단기 · 중장기 · 장기, 뭐가 달라요? 안정적인 걸 원해요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.971,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM",
+        "MISSED_LIMITATION"
+      ],
+      "details": [
+        "missing concept ['단기', '중장기', '장기']",
+        "missing concept ['위험', '안정']"
+      ],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-025",
+      "category": "conditional_recommendation",
+      "difficulty": "high",
+      "question": "좋은 연금 상품 하나 추천해 주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.992,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: IRP·DC 중 어떤 계좌 기준으로 비교할까요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] IRP·DC 중 어떤 계좌 기준으로 비교할까요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-026",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "DB형과 DC형에서 퇴직급여 산정 방식은 각각 무엇인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.89,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-027",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "확정급여형은 누가 적립금을 운용하나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.877,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-028",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "DC형은 회사가 수익률을 책임지는 제도인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.818,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-029",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "퇴직연금이 일반 퇴직금과 어떻게 다른가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.789,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-030",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "개인사업자 대표도 DB나 DC에 가입할 수 있나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.877,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-031",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "주 14시간 근무자도 퇴직연금 대상인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.826,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-032",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "근속 1년 미만 근로자의 가입 대상 여부를 알려줘",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.742,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-033",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "공무원도 회사 DB형에 가입할 수 있죠?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.9,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-034",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "외국인 근로자 E-9 비자의 가입 조건은?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.854,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-035",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "임원도 퇴직연금 가입 가능한가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.832,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-036",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "DC 부담금은 어떻게 정해지나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1480.349,
+      "auto_result": "PASS",
+      "fail_reasons": [],
+      "details": [
+        "mock provider output observed"
+      ],
+      "answer": "제공된 근거에 따르면, DC 부담금은 B팀의 근거자료를 확인한 후에 정확한 내용을 전달드릴 수 있습니다. 따라서 해당 내용에 대해 답변을 드리기 어렵습니다. B팀의 자료를 참고하여 추후 다시 문의해 주시면 성실히 답변드리겠습니다.",
+      "retrieved_context": [
+        "[MOCK] 'DC 부담금은 어떻게 정해지나요?'에 대한 근거 자료는 B팀 retrieve_evidence() 연결 후 제공됩니다."
+      ]
+    },
+    {
+      "id": "STAB-037",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "DB에서 운용손익이 급여에 직접 반영되나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1.237,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-038",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "퇴직연금은 몇 살부터 연금으로 받을 수 있나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1.162,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-039",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "IRP와 DC는 같은 제도인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.928,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: IRP·DC 중 어떤 계좌 기준으로 비교할까요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] IRP·DC 중 어떤 계좌 기준으로 비교할까요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-040",
+      "category": "tax",
+      "difficulty": "high",
+      "question": "연금저축 세액공제 한도와 IRP 합산 한도를 근거와 함께 알려줘",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.919,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-041",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "DC와 DB, 퇴직금이 정해지는 방식이랑 운용 주체가 어떻게 다른가요?",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.984,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-042",
+      "category": "tax",
+      "difficulty": "low",
+      "question": "연금저축이랑 IRP에 넣으면 세액공제 얼마까지 되나요? 다 합쳐서요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.912,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "missing concept ['세액공제']"
+      ],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-043",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "명퇴하는 교사예요. 명퇴수당을 연금계좌에 넣으면 세금 감면이 어마어마하다던데, 절세법만 알려주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.841,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "missing concept ['교사']"
+      ],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세를 알고 계신가요? (모르면 생략 가능)\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세를 알고 계신가요? (모르면 생략 가능)",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-044",
+      "category": "product_compare",
+      "difficulty": "low",
+      "question": "솔로몬 국공채 단기 · 중장기 · 장기, 뭐가 달라요? 안정적인 걸 원해요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.891,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM",
+        "MISSED_LIMITATION"
+      ],
+      "details": [
+        "missing concept ['단기', '중장기', '장기']",
+        "missing concept ['위험', '안정']"
+      ],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-045",
+      "category": "conditional_recommendation",
+      "difficulty": "high",
+      "question": "좋은 연금 상품 하나 추천해 주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.908,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: IRP·DC 중 어떤 계좌 기준으로 비교할까요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] IRP·DC 중 어떤 계좌 기준으로 비교할까요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-046",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "DB형과 DC형에서 퇴직급여 산정 방식은 각각 무엇인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.964,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-047",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "확정급여형은 누가 적립금을 운용하나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.854,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-048",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "DC형은 회사가 수익률을 책임지는 제도인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.924,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-049",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "퇴직연금이 일반 퇴직금과 어떻게 다른가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.808,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-050",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "개인사업자 대표도 DB나 DC에 가입할 수 있나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.765,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-051",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "주 14시간 근무자도 퇴직연금 대상인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.787,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-052",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "근속 1년 미만 근로자의 가입 대상 여부를 알려줘",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.872,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-053",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "공무원도 회사 DB형에 가입할 수 있죠?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.869,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-054",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "외국인 근로자 E-9 비자의 가입 조건은?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.905,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-055",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "임원도 퇴직연금 가입 가능한가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.858,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-056",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "DC 부담금은 어떻게 정해지나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 3744.331,
+      "auto_result": "PASS",
+      "fail_reasons": [],
+      "details": [
+        "mock provider output observed"
+      ],
+      "answer": "제공된 근거 자료에 따르면, DC 부담금은 다음과 같은 방식으로 결정됩니다.\n\n1. **근로자의 퇴직 전 3개월간의 평균 임금의 60% 이상**으로 산출되는 금액을 기준으로 합니다.\n2. 회사는 매년 연간 임금 총액의 **60% 이상을 납입해야 하며**, 이를 위반할 경우 지연 이자와 함께 미납액을 납부해야 합니다.\n3. 부담금 지급 주체는 회사가 되며, 근로자가 직접 수령하는 것이 아니라 금융기관에 예치되어 관리됩니다.\n\n따라서 위 내용을 바탕으로 사용자님의 상황에 맞는 적절한 수준의 부담금을 설정하여 안정적인 노후 자금을 마련하시기 바랍니다. 추가적인 정보가 필요하시다면 관련 기관이나 전문가에게 문의하시는 것도 좋은 방법입니다.\n\n[한계] 현재 제공된 근거만으로는 일부 내용을 충분히 검증하지 못했습니다 (근거 없는 숫자(1., 2., 3)).",
+      "retrieved_context": [
+        "[MOCK] 'DC 부담금은 어떻게 정해지나요?'에 대한 근거 자료는 B팀 retrieve_evidence() 연결 후 제공됩니다."
+      ]
+    },
+    {
+      "id": "STAB-057",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "DB에서 운용손익이 급여에 직접 반영되나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1.25,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-058",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "퇴직연금은 몇 살부터 연금으로 받을 수 있나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1.048,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-059",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "IRP와 DC는 같은 제도인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.981,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: IRP·DC 중 어떤 계좌 기준으로 비교할까요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] IRP·DC 중 어떤 계좌 기준으로 비교할까요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-060",
+      "category": "tax",
+      "difficulty": "high",
+      "question": "연금저축 세액공제 한도와 IRP 합산 한도를 근거와 함께 알려줘",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.924,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-061",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "DC와 DB, 퇴직금이 정해지는 방식이랑 운용 주체가 어떻게 다른가요?",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1.0,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-062",
+      "category": "tax",
+      "difficulty": "low",
+      "question": "연금저축이랑 IRP에 넣으면 세액공제 얼마까지 되나요? 다 합쳐서요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.942,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "missing concept ['세액공제']"
+      ],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-063",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "명퇴하는 교사예요. 명퇴수당을 연금계좌에 넣으면 세금 감면이 어마어마하다던데, 절세법만 알려주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.888,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "missing concept ['교사']"
+      ],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세를 알고 계신가요? (모르면 생략 가능)\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세를 알고 계신가요? (모르면 생략 가능)",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-064",
+      "category": "product_compare",
+      "difficulty": "low",
+      "question": "솔로몬 국공채 단기 · 중장기 · 장기, 뭐가 달라요? 안정적인 걸 원해요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.903,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM",
+        "MISSED_LIMITATION"
+      ],
+      "details": [
+        "missing concept ['단기', '중장기', '장기']",
+        "missing concept ['위험', '안정']"
+      ],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-065",
+      "category": "conditional_recommendation",
+      "difficulty": "high",
+      "question": "좋은 연금 상품 하나 추천해 주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.879,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: IRP·DC 중 어떤 계좌 기준으로 비교할까요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] IRP·DC 중 어떤 계좌 기준으로 비교할까요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-066",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "DB형과 DC형에서 퇴직급여 산정 방식은 각각 무엇인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.951,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-067",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "확정급여형은 누가 적립금을 운용하나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.859,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-068",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "DC형은 회사가 수익률을 책임지는 제도인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.848,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-069",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "퇴직연금이 일반 퇴직금과 어떻게 다른가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.824,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-070",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "개인사업자 대표도 DB나 DC에 가입할 수 있나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.824,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-071",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "주 14시간 근무자도 퇴직연금 대상인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.898,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-072",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "근속 1년 미만 근로자의 가입 대상 여부를 알려줘",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.853,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-073",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "공무원도 회사 DB형에 가입할 수 있죠?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.857,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-074",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "외국인 근로자 E-9 비자의 가입 조건은?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.791,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-075",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "임원도 퇴직연금 가입 가능한가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.835,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-076",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "DC 부담금은 어떻게 정해지나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 932.136,
+      "auto_result": "PASS",
+      "fail_reasons": [],
+      "details": [
+        "mock provider output observed"
+      ],
+      "answer": "제공된 근거에 따르면, DC 부담금은 B팀의 근거자료를 통해 확인할 수 있습니다. 해당 자료를 참고하여 결정하는 것을 권장 드립니다.",
+      "retrieved_context": [
+        "[MOCK] 'DC 부담금은 어떻게 정해지나요?'에 대한 근거 자료는 B팀 retrieve_evidence() 연결 후 제공됩니다."
+      ]
+    },
+    {
+      "id": "STAB-077",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "DB에서 운용손익이 급여에 직접 반영되나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1.056,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-078",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "퇴직연금은 몇 살부터 연금으로 받을 수 있나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1.001,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-079",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "IRP와 DC는 같은 제도인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.819,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: IRP·DC 중 어떤 계좌 기준으로 비교할까요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] IRP·DC 중 어떤 계좌 기준으로 비교할까요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-080",
+      "category": "tax",
+      "difficulty": "high",
+      "question": "연금저축 세액공제 한도와 IRP 합산 한도를 근거와 함께 알려줘",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.953,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-081",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "DC와 DB, 퇴직금이 정해지는 방식이랑 운용 주체가 어떻게 다른가요?",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.904,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-082",
+      "category": "tax",
+      "difficulty": "low",
+      "question": "연금저축이랑 IRP에 넣으면 세액공제 얼마까지 되나요? 다 합쳐서요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1.054,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "missing concept ['세액공제']"
+      ],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-083",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "명퇴하는 교사예요. 명퇴수당을 연금계좌에 넣으면 세금 감면이 어마어마하다던데, 절세법만 알려주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.863,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "missing concept ['교사']"
+      ],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세를 알고 계신가요? (모르면 생략 가능)\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세를 알고 계신가요? (모르면 생략 가능)",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-084",
+      "category": "product_compare",
+      "difficulty": "low",
+      "question": "솔로몬 국공채 단기 · 중장기 · 장기, 뭐가 달라요? 안정적인 걸 원해요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.847,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM",
+        "MISSED_LIMITATION"
+      ],
+      "details": [
+        "missing concept ['단기', '중장기', '장기']",
+        "missing concept ['위험', '안정']"
+      ],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-085",
+      "category": "conditional_recommendation",
+      "difficulty": "high",
+      "question": "좋은 연금 상품 하나 추천해 주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.862,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: IRP·DC 중 어떤 계좌 기준으로 비교할까요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] IRP·DC 중 어떤 계좌 기준으로 비교할까요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-086",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "DB형과 DC형에서 퇴직급여 산정 방식은 각각 무엇인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.743,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-087",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "확정급여형은 누가 적립금을 운용하나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.732,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-088",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "DC형은 회사가 수익률을 책임지는 제도인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.899,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-089",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "퇴직연금이 일반 퇴직금과 어떻게 다른가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.924,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-090",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "개인사업자 대표도 DB나 DC에 가입할 수 있나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.837,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-091",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "주 14시간 근무자도 퇴직연금 대상인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.841,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-092",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "근속 1년 미만 근로자의 가입 대상 여부를 알려줘",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1.005,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-093",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "공무원도 회사 DB형에 가입할 수 있죠?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.917,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 가입하신 퇴직연금 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-094",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "외국인 근로자 E-9 비자의 가입 조건은?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.829,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-095",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "임원도 퇴직연금 가입 가능한가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.897,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-096",
+      "category": "institution",
+      "difficulty": "high",
+      "question": "DC 부담금은 어떻게 정해지나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1526.483,
+      "auto_result": "PASS",
+      "fail_reasons": [],
+      "details": [
+        "mock provider output observed"
+      ],
+      "answer": "제공된 근거에 따르면, DC 부담금은 B팀의 근거자료를 확인한 후에 정확한 내용을 전달드릴 수 있습니다. 따라서 해당 내용에 대해 답변을 드리기 어렵습니다. B팀의 자료를 참고하여 추후 다시 문의해 주시면 성실히 답변드리겠습니다.",
+      "retrieved_context": [
+        "[MOCK] 'DC 부담금은 어떻게 정해지나요?'에 대한 근거 자료는 B팀 retrieve_evidence() 연결 후 제공됩니다."
+      ]
+    },
+    {
+      "id": "STAB-097",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "DB에서 운용손익이 급여에 직접 반영되나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1.224,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-098",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "퇴직연금은 몇 살부터 연금으로 받을 수 있나요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1.068,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-099",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "IRP와 DC는 같은 제도인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.924,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: IRP·DC 중 어떤 계좌 기준으로 비교할까요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] IRP·DC 중 어떤 계좌 기준으로 비교할까요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "STAB-100",
+      "category": "tax",
+      "difficulty": "high",
+      "question": "연금저축 세액공제 한도와 IRP 합산 한도를 근거와 함께 알려줘",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 0.974,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    }
+  ]
+}

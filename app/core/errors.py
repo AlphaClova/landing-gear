@@ -48,5 +48,6 @@ class ToolError(AppError):
 class HCXError(AppError):
     """HyperCLOVA X 호출 실패(timeout/retry 소진/업스트림 오류)를 표준화."""
 
-    def __init__(self, message: str, *, code: ErrorCode = ErrorCode.UPSTREAM_ERROR) -> None:
+    def __init__(self, message: str, *, code: ErrorCode = ErrorCode.UPSTREAM_ERROR, attempt_details: list[dict] | None = None) -> None:
         super().__init__(code, message)
+        self.attempt_details = attempt_details or []

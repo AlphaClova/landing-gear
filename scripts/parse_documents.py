@@ -29,8 +29,41 @@ METADATA_MAP: dict[str, dict[str, Any]] = {
         "effective_from": None,
         "valid_to": None,
     },
+    "doc26": {
+        "topic": "withdrawal_tax",
+        "account_type": "IRP",
+        "effective_from": None,
+        "valid_to": None,
+    },
+    "doc41": {
+        "topic": "withdrawal_tax",
+        "account_type": "IRP",
+        "effective_from": None,
+        "valid_to": None,
+    },
+    "doc55": {
+        "topic": "withdrawal_tax",
+        "account_type": "IRP",
+        "effective_from": None,
+        "valid_to": None,
+    },
+    **{
+        document_id: {
+            "topic": "product",
+            "account_type": "IRP",
+            "effective_from": None,
+            "valid_to": None,
+        }
+        for document_id in (
+            "r2_kr5153420063",
+            "r2_kr5153420079",
+            "r2_kr5153420105",
+            "r2_kr5153450658",
+        )
+    },
 }
 PROVIDED_SOURCE_PRIORITY = 0
+DEFAULT_TARGET_DOCUMENTS = tuple(METADATA_MAP)
 
 
 def parse_args() -> argparse.Namespace:
@@ -50,7 +83,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--target-documents",
-        default="doc51,doc10",
+        default=",".join(DEFAULT_TARGET_DOCUMENTS),
         help="Comma-separated document ids to parse into chunk output",
     )
     return parser.parse_args()

@@ -1,0 +1,141 @@
+{
+  "metadata": {
+    "subset": "official",
+    "provider": {
+      "ready": true,
+      "hcx_mode": "real",
+      "b_provider_mode": "mock"
+    },
+    "production_valid": false,
+    "note": "Mock/unknown provider run is not a final evaluation success."
+  },
+  "summary": {
+    "total": 5,
+    "FAIL": 5,
+    "manual_review_required": 5,
+    "pass_rate": 0.0,
+    "average_latency_ms": 1.1202,
+    "p50_latency_ms": 1.018,
+    "p95_latency_ms": 1.561,
+    "max_latency_ms": 1.561,
+    "http_error_rate": 0.0,
+    "failure_reasons": {
+      "MISSING_EVIDENCE": 5,
+      "UNSUPPORTED_CLAIM": 3,
+      "MISSED_LIMITATION": 1
+    }
+  },
+  "results": [
+    {
+      "id": "G001",
+      "category": "institution",
+      "difficulty": "medium",
+      "question": "DC와 DB, 퇴직금이 정해지는 방식이랑 운용 주체가 어떻게 다른가요?",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1.561,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "G002",
+      "category": "tax",
+      "difficulty": "low",
+      "question": "연금저축이랑 IRP에 넣으면 세액공제 얼마까지 되나요? 다 합쳐서요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1.153,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "missing concept ['세액공제']"
+      ],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세가 얼마인가요?; 가입하신 제도가 DB형인가요, DC형인가요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세가 얼마인가요?, 가입하신 제도가 DB형인가요, DC형인가요?",
+      "retrieved_context": []
+    },
+    {
+      "id": "G003",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "명퇴하는 교사예요. 명퇴수당을 연금계좌에 넣으면 세금 감면이 어마어마하다던데, 절세법만 알려주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1.018,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM"
+      ],
+      "details": [
+        "missing concept ['교사']"
+      ],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: 예상 퇴직급여(퇴직금) 총액이 얼마인가요?; 예상 퇴직소득세를 알고 계신가요? (모르면 생략 가능)\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] 예상 퇴직급여(퇴직금) 총액이 얼마인가요?, 예상 퇴직소득세를 알고 계신가요? (모르면 생략 가능)",
+      "retrieved_context": []
+    },
+    {
+      "id": "G004",
+      "category": "product_compare",
+      "difficulty": "low",
+      "question": "솔로몬 국공채 단기 · 중장기 · 장기, 뭐가 달라요? 안정적인 걸 원해요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.977,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM",
+        "MISSED_LIMITATION"
+      ],
+      "details": [
+        "missing concept ['단기', '중장기', '장기']",
+        "missing concept ['위험', '안정']"
+      ],
+      "answer": "이 질문은 은퇴 자금(퇴직연금) 의사결정 범위를 벗어나 답변드리기 어렵습니다.",
+      "retrieved_context": []
+    },
+    {
+      "id": "G005",
+      "category": "conditional_recommendation",
+      "difficulty": "high",
+      "question": "좋은 연금 상품 하나 추천해 주세요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 0.892,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [],
+      "answer": "정확한 답변을 위해 아래 내용을 확인해 주세요: IRP·DC 중 어떤 계좌 기준으로 비교할까요?\n[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.\n[필요한 조건] IRP·DC 중 어떤 계좌 기준으로 비교할까요?",
+      "retrieved_context": []
+    }
+  ]
+}

@@ -76,3 +76,39 @@ def test_retrieve_evidence_preserves_nullable_page(monkeypatch, tmp_path) -> Non
     assert result.page is None
     assert result.section == "nullable page contract"
     assert result.source_priority == 7
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "연금저축이랑 IRP에 넣으면 세액공제 얼마까지 되나요? 다 합쳐서요.",
+        "개인형퇴직연금하고 연금저축 공제 한도를 통합해서 알려줘.",
+    ],
+)
+def test_tax_deduction_queries_cover_both_provided_sources(query: str) -> None:
+    document_ids = {result.document_id for result in retriever.retrieve_evidence(query, "withdrawal_tax", 5)}
+    assert {"doc41", "doc55"} <= document_ids
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "명퇴하는 교사예요. 명퇴수당 연금계좌 절세를 알려주세요.",
+        "교직원 명예퇴직수당을 IRP에 넣으면 어떻게 되나요?",
+    ],
+)
+def test_teacher_retirement_queries_cover_specific_and_general_sources(query: str) -> None:
+    document_ids = {result.document_id for result in retriever.retrieve_evidence(query, "withdrawal_tax", 5)}
+    assert {"doc26", "doc51"} <= document_ids
+
+
+def test_product_compare_covers_all_four_prospectuses() -> None:
+    results = retriever.retrieve_evidence(
+        "솔로몬 국공채 단기 중장기 장기 상품의 차이와 안정성을 비교해줘", "product", 5
+    )
+    assert {
+        "r2_kr5153420063",
+        "r2_kr5153420079",
+        "r2_kr5153420105",
+        "r2_kr5153450658",
+    } <= {result.document_id for result in results}

@@ -1,0 +1,6 @@
+﻿id,question,answer,retrieved_context,auto_result,manual_accuracy,manual_evidence,manual_requirement,manual_reasoning,manual_safety,manual_limit_handling,reviewer,comment
+G001,"DC와 DB, 퇴직금이 정해지는 방식이랑 운용 주체가 어떻게 다른가요?",,[],FAIL,,,,,,,,
+G002,연금저축이랑 IRP에 넣으면 세액공제 얼마까지 되나요? 다 합쳐서요.,,[],FAIL,,,,,,,,
+G003,"명퇴하는 교사예요. 명퇴수당을 연금계좌에 넣으면 세금 감면이 어마어마하다던데, 절세법만 알려주세요.",,[],FAIL,,,,,,,,
+G004,"솔로몬 국공채 단기 · 중장기 · 장기, 뭐가 달라요? 안정적인 걸 원해요.",,[],FAIL,,,,,,,,
+G005,좋은 연금 상품 하나 추천해 주세요.,,[],FAIL,,,,,,,,

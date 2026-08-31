@@ -1,0 +1,6 @@
+﻿id,category,difficulty,question,http_status,latency_ms,auto_result,fail_reasons,answer,retrieved_context
+G001,institution,medium,"DC와 DB, 퇴직금이 정해지는 방식이랑 운용 주체가 어떻게 다른가요?",200,2830.187,FAIL,SCHEMA_ERROR|WRONG_INTENT|MISSING_EVIDENCE|UNSUPPORTED_CLAIM,,[]
+G002,tax,low,연금저축이랑 IRP에 넣으면 세액공제 얼마까지 되나요? 다 합쳐서요.,200,9799.197,FAIL,SCHEMA_ERROR|WRONG_INTENT|MISSING_EVIDENCE|UNSUPPORTED_CLAIM|MISSED_LIMITATION,,[]
+G003,combined,medium,"명퇴하는 교사예요. 명퇴수당을 연금계좌에 넣으면 세금 감면이 어마어마하다던데, 절세법만 알려주세요.",,12001.613,FAIL,TIMEOUT|SCHEMA_ERROR|WRONG_INTENT|MISSING_EVIDENCE|UNSUPPORTED_CLAIM,,[]
+G004,product_compare,low,"솔로몬 국공채 단기 · 중장기 · 장기, 뭐가 달라요? 안정적인 걸 원해요.",,12001.623,FAIL,TIMEOUT|SCHEMA_ERROR|WRONG_INTENT|MISSING_EVIDENCE|UNSUPPORTED_CLAIM|MISSED_LIMITATION,,[]
+G005,conditional_recommendation,high,좋은 연금 상품 하나 추천해 주세요.,200,3326.842,FAIL,SCHEMA_ERROR|WRONG_INTENT|UNSUPPORTED_CLAIM|MISSED_CLARIFICATION,,[]

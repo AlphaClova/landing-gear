@@ -1,0 +1,30 @@
+{
+  "freeze_observed_at": "2026-08-28T17:21:32Z",
+  "server_started_at": "2026-08-28T17:22:30Z",
+  "evaluation_started_at": "2026-08-28T17:22:39Z",
+  "evaluation_finished_at": "2026-08-28T17:39:45Z",
+  "eval_schema_mode": "strict",
+  "run_kind": "ORIGINAL_SINGLE_RUN",
+  "providers": {
+    "HCX": "real",
+    "Evidence": "real",
+    "Rule": "real",
+    "Product": "real"
+  },
+  "relevant_sha256": {
+    "app/agent/composer.py": "d128bd82627831d1caa2c73c82702bdc58430ba73e46f73263e758d54800f9af",
+    "app/agent/router.py": "1cf11168d15405c06d758b9aa58b407c1258cc1483987d18edc30ca5587aaa01",
+    "app/agent/slots.py": "a66268f314853e0e47cafe44bee4685701ad4a662f4f9041af0ed59d17141c87",
+    "app/agent/tools.py": "6b98e7c454bbe248b8e784d304ac5988489a5db5961f0c4ff46a8bcd1bb5229e",
+    "app/agent/verifier.py": "c88785e851d371c9eec74ff818eae2a10e7e83a3880996800a827f410eec1638",
+    "app/core/query_normalization.py": "43553b46e37a0465d7ef6d9345f907e4b2d121f256896b45374a165e788a7369",
+    "app/agent/hcx_client.py": "6be2a76a7fad2b09e3c5fce4e841a839e08a305737a9ca951dc38909de069108",
+    "app/api/schemas.py": "1a68ec9c2bc95f90b6c86dfc4a0d25ddc536803466ac70e062a976bcf2cd1d7d",
+    "scripts/evaluate.py": "069f212d47d4c60e6ea837b05f79148524cdc850154bff558ee26eb66e92e13c",
+    "tests/golden/mirae_eval_120.jsonl": "9851f27d3501f25ce9f56906314772737ac2700073b53841505cfeaeaff4d746"
+  },
+  "git_diff_summary": "22 tracked files changed, 5523 insertions(+), 210 deletions(-); existing staged and untracked user changes preserved",
+  "policy": "Frozen working tree; no case replacement or recovery merge; secrets omitted."
+  ,"post_run_relevant_hashes_match": true
+  ,"regression": {"pytest": "239 passed", "git_diff_check": "PASS"}
+}

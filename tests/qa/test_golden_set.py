@@ -45,19 +45,21 @@ def test_agent_routing(case_id: str, question: str, expected_intent: str) -> Non
 QUESTION_COMPREHENSIVE = "퇴직금 3억원, 예상 퇴직소득세 2,400만원인데 일시금과 연금 중 무엇이 나을까요?"
 
 INFO_GAP_CASES = [
-    ("gap-01", "확정급여형 제도 설명해주세요", {}, {"plan_type"}),
-    ("gap-02", "퇴직소득세 세율이 궁금해요", {}, {"retirement_amount_won", "expected_tax_won"}),
-    ("gap-03", "퇴직소득세 세율이 궁금해요", {"retirement_amount_won": 100_000_000}, {"expected_tax_won"}),
     (
         "gap-04",
         QUESTION_COMPREHENSIVE,
-        {"retirement_amount_won": 300_000_000},
-        {"expected_tax_won"},
+        {"retirement_amount_won": 300_000_000, "expected_tax_won": 24_000_000},
+        set(),
     ),
-    ("gap-05", QUESTION_COMPREHENSIVE, {}, {"retirement_amount_won", "expected_tax_won"}),
-    ("gap-06", "IRP 상품 중에 어떤 펀드가 있나요?", {}, {"plan_type"}),
-    ("gap-07", "퇴직금 소득세 비과세 한도 알려주세요", {}, {"retirement_amount_won", "expected_tax_won"}),
-    ("gap-08", QUESTION_COMPREHENSIVE, {"plan_type": "DB"}, {"retirement_amount_won", "expected_tax_won"}),
+    ("gap-05", QUESTION_COMPREHENSIVE, {}, set()),
+    ("gap-06", "IRP 상품 중에 어떤 펀드가 있나요?", {}, set()),
+    ("gap-08", QUESTION_COMPREHENSIVE, {"plan_type": "DB"}, set()),
+]
+
+CLOSED_FACTUAL_CASES = [
+    ("closed-01", "확정급여형 제도 설명해주세요"),
+    ("closed-02", "퇴직소득세 세율이 궁금해요"),
+    ("closed-03", "퇴직금 소득세 비과세 한도 알려주세요"),
 ]
 
 
@@ -72,8 +74,19 @@ def test_info_gap_asks_clarification(
     )
     assert resp.status_code == 200
     body = resp.json()
-    assert body["type"] == "clarification"
-    assert {s["name"] for s in body["required_slots"]} == expected_slots
+    if expected_slots:
+        assert body["type"] == "clarification"
+        assert {s["name"] for s in body["required_slots"]} == expected_slots
+    else:
+        assert body["type"] != "clarification"
+        assert body["required_slots"] == []
+
+
+@pytest.mark.parametrize("case_id,question", CLOSED_FACTUAL_CASES, ids=[c[0] for c in CLOSED_FACTUAL_CASES])
+def test_closed_factual_questions_do_not_request_calculation_slots(case_id: str, question: str) -> None:
+    resp = client.post("/v1/chat", json={"session_id": f"qa-{case_id}", "question": question})
+    assert resp.status_code == 200
+    assert resp.json()["type"] != "clarification"
 
 
 # ---------------------------------------------------------------------------

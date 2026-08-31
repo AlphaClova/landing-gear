@@ -1,0 +1,17 @@
+{
+  "replaced_ids": [
+    "G021",
+    "G051",
+    "G058",
+    "G063",
+    "G076",
+    "G078",
+    "G080",
+    "G081",
+    "G082",
+    "G083",
+    "G084"
+  ],
+  "source": "full-real-v2-retry",
+  "preserved_initial": "initial-run-with-upstream-errors.json"
+}

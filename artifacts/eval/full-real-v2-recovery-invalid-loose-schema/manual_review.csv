@@ -1,0 +1,1 @@
+﻿id,category,question,answer,retrieved_context,accuracy,evidence_completeness,requirement_coverage,groundedness,reasoning,safety,limit_handling,unsupported_claim_found,wrong_number_found,wrong_evidence_found,overconfident_recommendation,unnecessary_clarification,overall_pass,reviewer,comment

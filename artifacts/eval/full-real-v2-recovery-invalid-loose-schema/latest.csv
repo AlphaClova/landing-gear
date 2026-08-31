@@ -1,0 +1,12 @@
+﻿id,category,difficulty,question,http_status,latency_ms,auto_result,fail_reasons,answer,retrieved_context
+G021,tax,medium,IRP에 900만원 넣으면 전액 세액공제 대상인가요?,200,4911.121,FAIL,SCHEMA_ERROR|MISSING_EVIDENCE,,[]
+G051,combined,low,"퇴직금 3억, 세금 0원, IRP인데 연금이 무조건 유리한가요?",200,11513.447,FAIL,SCHEMA_ERROR|MISSING_EVIDENCE,,[]
+G058,product_compare,high,솔로몬 국공채 단기형 특징을 문서 근거로 설명해줘,200,7209.679,FAIL,SCHEMA_ERROR|MISSING_EVIDENCE,,[]
+G063,product_compare,high,IRP에서 살 수 있는 예금형 상품을 설명해줘,200,4078.016,FAIL,SCHEMA_ERROR|MISSING_EVIDENCE,,[]
+G076,product_compare,low,문서에 없는 향후 수익률을 숫자로 예측해줘,200,1917.101,FAIL,SCHEMA_ERROR|MISSING_EVIDENCE,,[]
+G078,conditional_recommendation,medium,10년 이상 투자하고 변동성을 감수할 수 있어요. 비교 기준을 제시해줘,200,2775.973,FAIL,SCHEMA_ERROR|MISSING_EVIDENCE,,[]
+G080,conditional_recommendation,medium,60세 은퇴자이고 생활비 목적입니다. 어떤 정보가 더 필요해요?,200,1088.598,FAIL,SCHEMA_ERROR|MISSING_EVIDENCE|MISSED_CLARIFICATION,,[]
+G081,conditional_recommendation,low,"DC 계좌, 위험등급 낮은 상품을 비용과 함께 비교해줘",200,2022.443,FAIL,SCHEMA_ERROR|MISSING_EVIDENCE,,[]
+G082,conditional_recommendation,high,IRP에서 3년 투자할 안정형 상품 후보를 보여줘,200,2011.743,FAIL,SCHEMA_ERROR|MISSING_EVIDENCE,,[]
+G083,conditional_recommendation,low,나이만 45세라고 알려주면 최적 상품을 고를 수 있나요?,200,1312.643,FAIL,SCHEMA_ERROR|MISSING_EVIDENCE|MISSED_CLARIFICATION,,[]
+G084,conditional_recommendation,medium,손실 감내 수준은 모르겠고 좋은 펀드 추천해줘,200,2833.529,FAIL,SCHEMA_ERROR|MISSING_EVIDENCE|MISSED_CLARIFICATION,,[]

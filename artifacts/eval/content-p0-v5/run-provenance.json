@@ -1,0 +1,26 @@
+{
+  "working_tree_observed_at": "2026-08-28T06:14:48Z",
+  "server_started_at": "2026-08-28T06:15:19Z",
+  "evaluation_started_at": "2026-08-28T06:15:33Z",
+  "server_pid": 50057,
+  "eval_schema_mode": "strict",
+  "providers": {
+    "HCX": "real",
+    "Evidence": "real",
+    "Rule": "real",
+    "Product": "real"
+  },
+  "relevant_file_state": {
+    "app/agent/composer.py": "modified",
+    "app/agent/router.py": "modified",
+    "app/agent/slots.py": "modified",
+    "app/agent/tools.py": "modified",
+    "app/agent/verifier.py": "modified",
+    "app/api/schemas.py": "modified",
+    "app/core/query_normalization.py": "untracked",
+    "scripts/evaluate.py": "modified",
+    "tests/unit/test_content_p0_policies.py": "untracked"
+  },
+  "git_diff_summary": "22 tracked files changed, 5323 insertions(+), 210 deletions(-); untracked files also present",
+  "note": "Existing user changes preserved. No earlier server result reused. Secrets omitted."
+}

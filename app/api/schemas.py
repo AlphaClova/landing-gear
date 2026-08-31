@@ -59,6 +59,8 @@ class Citation(BaseModel):
     source: str
     excerpt: str
     url: str | None = None
+    source_priority: int | None = None
+    score: float | None = None
 
 
 class ProductResult(BaseModel):
@@ -185,6 +187,24 @@ class ThinkTrace(BaseModel):
     route_confidence: float
     fallback_reason: str | None = None
     tool_calls: list[ToolCallTrace] = Field(default_factory=list)
+    hcx_invoked: bool = False
+    hcx_attempts: int = 0
+    hcx_success: bool = False
+    hcx_first_pass: bool = False
+    hcx_regenerated: bool = False
+    deterministic_repaired: bool = False
+    hcx_timeout_count: int = 0
+    degraded: bool = False
+    degraded_reason: str | None = None
+    degraded_fallback: str | None = None
+    fallback_used: bool = False
+    hcx_fallback_reason: str | None = None
+    hcx_audit: list[dict[str, object]] = Field(default_factory=list)
+    prompt_metrics: dict[str, int] = Field(default_factory=dict)
+    rule_results: list[dict[str, object]] = Field(default_factory=list)
+    product_facts: list[dict[str, object]] = Field(default_factory=list)
+    claim_plan: list[dict[str, object]] = Field(default_factory=list)
+    recommendation_constraints: list[dict[str, object]] = Field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------

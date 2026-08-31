@@ -1,0 +1,879 @@
+{
+  "metadata": {
+    "subset": "full",
+    "run_kind": "ORIGINAL_SINGLE_RUN",
+    "provider": {
+      "ready": true,
+      "hcx_mode": "real",
+      "evidence_provider_mode": "real",
+      "rule_provider_mode": "real",
+      "product_provider_mode": "real"
+    },
+    "production_valid": true,
+    "note": null
+  },
+  "summary": {
+    "total": 8,
+    "FAIL": 4,
+    "MANUAL_REVIEW": 4,
+    "hcx_invoked": 8,
+    "hcx_success": 8,
+    "hcx_first_pass": 2,
+    "hcx_regenerated": 0,
+    "deterministic_repaired": 6,
+    "hcx_timeout_count": 0,
+    "hcx_transport_attempts": 8,
+    "hcx_retry_count": 0,
+    "upstream_status_distribution": {
+      "200": 8
+    },
+    "upstream_429": 0,
+    "upstream_5xx": 0,
+    "transport_timeout_count": 0,
+    "transport_other_error_count": 0,
+    "retry_exhausted_count": 0,
+    "fallback_used": 0,
+    "manual_review_required": 8,
+    "pass_rate": 0.0,
+    "average_latency_ms": 4503.625125,
+    "p50_latency_ms": 4480.642,
+    "p95_latency_ms": 6830.733,
+    "max_latency_ms": 6830.733,
+    "http_error_rate": 0.0,
+    "failure_reasons": {
+      "MISSING_EVIDENCE": 4,
+      "WRONG_INTENT": 2
+    }
+  },
+  "results": [
+    {
+      "id": "G003",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "명퇴하는 교사예요. 명퇴수당을 연금계좌에 넣으면 세금 감면이 어마어마하다던데, 절세법만 알려주세요.",
+      "subsets": [
+        "official"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 4926.741,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "missing document doc26"
+      ],
+      "answer": "교사·공무원 안내에 따르면 퇴직수당과 명예퇴직수당은 퇴직소득이며, 명예퇴직수당 전액은 퇴직소득세 과세대상입니다.\n\n퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다.\n\n세후 수령일부터 60일 이내에 연금계좌에 입금한 뒤 공무원연금공단 등 담당부서에 퇴직소득세 환급을 신청하면, 차감된 세금을 돌려받아 세전 금액이 연금계좌에 입금된 것과 같은 구조가 됩니다.\n\n연금계좌 입금 단계의 퇴직소득세 환급·과세이연 절차와 이후 연금수령 시 적용되는 일반 퇴직소득세 납부비율은 서로 구분해야 합니다. [주의] 절세 효과의 크기는 실제 퇴직소득세와 수령 방식에 따라 달라 일률적으로 단정할 수 없습니다.\n\n퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.",
+      "retrieved_context": [
+        "공무원은 퇴직할 때 퇴직연금 월지급식을 가장 많이 선택한다. 종신까지 매월 공무원연금을 받을 수 있기 때문이다. 이 외에도 근무기간에 따라 퇴직수당과 정년 전 퇴직일 경우 명예퇴직수당을 일시금으로 지급받게 된다. 퇴직수당과 명예퇴직수당은 퇴직소득이다. 퇴직소득세 차감 후 일반계좌로 받게 되는데 세후로 퇴직소득을 받은 경우 60일 내에 연금저축계좌나 IRP로 입금할 수 있다. 공무원연금공단 등 담당부서로 퇴직소득세 환급을 신청해서 차감됐던 세금을 다시 돌려받으면 퇴직수당과 명예퇴직수당은 세전으로 연금계좌에 입금된 것과 동일하게 된다.",
+        "60일 이내에 과세이연 신청을 하게 되면 퇴직소득세 환급의 업무가 발생",
+        "주의할 점이 있다. 이 감면은 퇴직소득에서 발생한 퇴직소득세에만 적용된다. 연금계좌 내에서 세액공제를 받은 납입금과 운용수익에는 연금소득세(3.3% ~ 5.5%)가 별도로 적용된다. 두 가지 세금이 섞이지 않도록 연금계좌 내 재원이 어떻게 구성되어 있는지 파악해두는 것이 중요하다.",
+        "대부분 장기근속이어서 퇴직수당에 대한 세금이 많지 않다. 예를 들어 30년 근무, 퇴직수당 1억원 (2002년 이후 기여분)이면 퇴직소득세는 26만 4천만원이다. 연금계좌에서 10년이상 수령할 때 퇴직소득세의 30% 절세액은 7만 9,200원이다. 연금계좌에서 퇴직소득세 30%~50% 절세 혜택도 있지만 그 보다는 운용수익 과세이연, 저율과세, 건강보험료 절감이 유용한 활용 포인트다.  연금계좌에서 퇴직수당을 운용하는 기간에는 과세이연되어 세금이 잡히지 않는다. 일반계좌에서 금융소득이 많아 금융소득종합과세가 걱정이라면 퇴직수당을 연금계좌로 입금해서 금융소득을 분산시킬 수 있다. 연금계좌 운용수익은 수령할 때 5.5%~3.3%로 저율과세되어 금융소득세 15.4%에 비해 절세 된다. 건강보험료도 절감된다. 퇴직하면 건강보험료 지역가입자가 된다. 매달 받는 공무원연금은 건강보험료 산정에 포함된다.",
+        "공무원 · 교사 퇴직수당(명퇴수당) 연금계좌 절세 안내"
+      ],
+      "retrieved_provenance": [
+        {
+          "document_id": "doc26",
+          "page": 1
+        },
+        {
+          "document_id": "doc55",
+          "page": 17
+        },
+        {
+          "document_id": "doc51",
+          "page": 2
+        },
+        {
+          "document_id": "doc26",
+          "page": 1
+        },
+        {
+          "document_id": "doc26",
+          "page": 1
+        }
+      ],
+      "think_trace": "{\"intent\":\"세제\",\"route\":\"fast_path\",\"route_confidence\":0.95,\"fallback_reason\":null,\"tool_calls\":[{\"tool_name\":\"retrieve_evidence\",\"args\":{\"query\":\"명퇴하는 교사예요. 명퇴수당을 연금계좌에 넣으면 세금 감면이 어마어마하다던데, 절세법만 알려주세요.\",\"topic\":\"세제\",\"top_k\":5},\"status\":\"ok\",\"duration_ms\":51.21891699673142}],\"hcx_invoked\":true,\"hcx_attempts\":1,\"hcx_success\":true,\"hcx_first_pass\":false,\"hcx_regenerated\":false,\"deterministic_repaired\":true,\"hcx_timeout_count\":0,\"fallback_used\":false,\"hcx_fallback_reason\":null,\"hcx_audit\":[{\"phase\":\"initial\",\"output\":\"퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌나 IRP에 입금할 수 있으며, 이때 공무원연금공단 등 담당 부서에 퇴직소득세 환급을 신청하여 차감되었던 세금을 다시 돌려받을 수 있습니다.\\n\\n그러나 주의할 점은, 이러한 감면은 퇴직소득에서 발생한 퇴직소득세에만 적용된다는 것입니다. 또한 연금계좌 내에서 세액공제를 받은 납입금과 운용수익에는 연금소득세(3.3%~5.5%)가 별도로 적용되기 때문에, 두 가지 세금이 섞이지 않도록 연금계좌 내의 재원이 어떻게 구성되어 있는지 파악해두시는 것이 중요합니다. \\n\\n절세 효과의 크기는 실제 퇴직소득세와 수령방식에 따라 차이가 있을 수 있으므로, 이를 고려하여 결정하시길 바랍니다.\",\"transport\":[{\"request_id\":\"req_28ab25c2dfc644b1a84b\",\"case_id\":\"G003\",\"attempt\":1,\"started_at\":\"2026-08-28T22:53:16.883404+00:00\",\"duration_ms\":4830.858,\"success\":true,\"exception_class\":null,\"transport_error_type\":null,\"upstream_http_status\":200,\"retry_after\":null,\"timeout\":false,\"retry\":false,\"final_exhausted\":false,\"status\":\"ok\"}],\"violations\":[\"근거 없는 조언('중요합니다')\",\"핵심 grounded contract 변경 또는 일부 누락\",\"필수 limitation 누락\"]},{\"phase\":\"deterministic_repair\",\"violations\":[\"근거 없는 조언('중요합니다')\",\"핵심 grounded contract 변경 또는 일부 누락\",\"필수 limitation 누락\"],\"action\":\"restore_grounded_contract\"}],\"prompt_metrics\":{\"prompt_chars\":3952,\"retrieved_evidence_count\":4,\"retrieved_evidence_chars\":831,\"product_fact_count\":0,\"rule_result_count\":0},\"rule_results\":[],\"product_facts\":[],\"claim_plan\":[{\"subtask\":\"benefit_legal_character\",\"status\":\"answerable\",\"claims\":[{\"text\":\"교사·공무원 안내에 따르면 퇴직수당과 명예퇴직수당은 퇴직소득이며, 명예퇴직수당 전액은 퇴직소득세 과세대상입니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t008-1fb5de6eb0\",\"doc26-p001-t001-f93432fb68\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"account_transfer_or_deposit\",\"status\":\"answerable\",\"claims\":[{\"text\":\"퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t008-1fb5de6eb0\",\"doc26-p001-t001-f93432fb68\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"tax_refund_procedure\",\"status\":\"answerable\",\"claims\":[{\"text\":\"세후 수령일부터 60일 이내에 연금계좌에 입금한 뒤 공무원연금공단 등 담당부서에 퇴직소득세 환급을 신청하면, 차감된 세금을 돌려받아 세전 금액이 연금계좌에 입금된 것과 같은 구조가 됩니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t008-1fb5de6eb0\",\"doc26-p001-t001-f93432fb68\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"retirement_tax_effect\",\"status\":\"answerable\",\"claims\":[{\"text\":\"연금계좌 입금 단계의 퇴직소득세 환급·과세이연 절차와 이후 연금수령 시 적용되는 일반 퇴직소득세 납부비율은 서로 구분해야 합니다. [주의] 절세 효과의 크기는 실제 퇴직소득세와 수령 방식에 따라 달라 일률적으로 단정할 수 없습니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t008-1fb5de6eb0\",\"doc26-p001-t001-f93432fb68\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"retirement_tax\",\"status\":\"answerable\",\"claims\":[{\"text\":\"퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.\",\"evidence_ids\":[\"doc51-p002-t017-714f82f22c\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]}],\"recommendation_constraints\":[]}",
+      "hcx_invoked": true,
+      "hcx_attempts": 1,
+      "hcx_success": true,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": true,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [
+        {
+          "phase": "initial",
+          "output": "퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌나 IRP에 입금할 수 있으며, 이때 공무원연금공단 등 담당 부서에 퇴직소득세 환급을 신청하여 차감되었던 세금을 다시 돌려받을 수 있습니다.\n\n그러나 주의할 점은, 이러한 감면은 퇴직소득에서 발생한 퇴직소득세에만 적용된다는 것입니다. 또한 연금계좌 내에서 세액공제를 받은 납입금과 운용수익에는 연금소득세(3.3%~5.5%)가 별도로 적용되기 때문에, 두 가지 세금이 섞이지 않도록 연금계좌 내의 재원이 어떻게 구성되어 있는지 파악해두시는 것이 중요합니다. \n\n절세 효과의 크기는 실제 퇴직소득세와 수령방식에 따라 차이가 있을 수 있으므로, 이를 고려하여 결정하시길 바랍니다.",
+          "transport": [
+            {
+              "request_id": "req_28ab25c2dfc644b1a84b",
+              "case_id": "G003",
+              "attempt": 1,
+              "started_at": "2026-08-28T22:53:16.883404+00:00",
+              "duration_ms": 4830.858,
+              "success": true,
+              "exception_class": null,
+              "transport_error_type": null,
+              "upstream_http_status": 200,
+              "retry_after": null,
+              "timeout": false,
+              "retry": false,
+              "final_exhausted": false,
+              "status": "ok"
+            }
+          ],
+          "violations": [
+            "근거 없는 조언('중요합니다')",
+            "핵심 grounded contract 변경 또는 일부 누락",
+            "필수 limitation 누락"
+          ]
+        },
+        {
+          "phase": "deterministic_repair",
+          "violations": [
+            "근거 없는 조언('중요합니다')",
+            "핵심 grounded contract 변경 또는 일부 누락",
+            "필수 limitation 누락"
+          ],
+          "action": "restore_grounded_contract"
+        }
+      ],
+      "prompt_metrics": {
+        "prompt_chars": 3952,
+        "retrieved_evidence_count": 4,
+        "retrieved_evidence_chars": 831,
+        "product_fact_count": 0,
+        "rule_result_count": 0
+      },
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T22:53:16.792178+00:00",
+        "response_error": null,
+        "request_id": "req_28ab25c2dfc644b1a84b",
+        "call_sequence": 1,
+        "previous_request_gap_ms": null
+      }
+    },
+    {
+      "id": "BLIND-A",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "명퇴 예정인 교사인데 명퇴수당 절세 방법 알려줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 6825.961,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "missing document doc26"
+      ],
+      "answer": "교사·공무원 안내에 따르면 퇴직수당과 명예퇴직수당은 퇴직소득이며, 명예퇴직수당 전액은 퇴직소득세 과세대상입니다.\n\n퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다.\n\n세후 수령일부터 60일 이내에 연금계좌에 입금한 뒤 공무원연금공단 등 담당부서에 퇴직소득세 환급을 신청하면, 차감된 세금을 돌려받아 세전 금액이 연금계좌에 입금된 것과 같은 구조가 됩니다.\n\n연금계좌 입금 단계의 퇴직소득세 환급·과세이연 절차와 이후 연금수령 시 적용되는 일반 퇴직소득세 납부비율은 서로 구분해야 합니다. [주의] 절세 효과의 크기는 실제 퇴직소득세와 수령 방식에 따라 달라 일률적으로 단정할 수 없습니다.\n\n퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.",
+      "retrieved_context": [
+        "공무원 · 교사 퇴직수당(명퇴수당) 연금계좌 절세 안내",
+        "60일 이내에 과세이연 신청을 하게 되면 퇴직소득세 환급의 업무가 발생",
+        "연금수령시 퇴직소득세 절세혜택",
+        "공무원은 퇴직할 때 퇴직연금 월지급식을 가장 많이 선택한다. 종신까지 매월 공무원연금을 받을 수 있기 때문이다. 이 외에도 근무기간에 따라 퇴직수당과 정년 전 퇴직일 경우 명예퇴직수당을 일시금으로 지급받게 된다. 퇴직수당과 명예퇴직수당은 퇴직소득이다. 퇴직소득세 차감 후 일반계좌로 받게 되는데 세후로 퇴직소득을 받은 경우 60일 내에 연금저축계좌나 IRP로 입금할 수 있다. 공무원연금공단 등 담당부서로 퇴직소득세 환급을 신청해서 차감됐던 세금을 다시 돌려받으면 퇴직수당과 명예퇴직수당은 세전으로 연금계좌에 입금된 것과 동일하게 된다.",
+        "퇴직수당(명퇴수당) 연금계좌 납입 안내"
+      ],
+      "retrieved_provenance": [
+        {
+          "document_id": "doc26",
+          "page": 1
+        },
+        {
+          "document_id": "doc55",
+          "page": 17
+        },
+        {
+          "document_id": "doc51",
+          "page": 2
+        },
+        {
+          "document_id": "doc26",
+          "page": 1
+        },
+        {
+          "document_id": "doc26",
+          "page": 1
+        }
+      ],
+      "think_trace": "{\"intent\":\"세제\",\"route\":\"fast_path\",\"route_confidence\":0.95,\"fallback_reason\":null,\"tool_calls\":[{\"tool_name\":\"retrieve_evidence\",\"args\":{\"query\":\"명퇴 예정인 교사인데 명퇴수당 절세 방법 알려줘\",\"topic\":\"세제\",\"top_k\":5},\"status\":\"ok\",\"duration_ms\":60.42866699863225}],\"hcx_invoked\":true,\"hcx_attempts\":1,\"hcx_success\":true,\"hcx_first_pass\":false,\"hcx_regenerated\":false,\"deterministic_repaired\":true,\"hcx_timeout_count\":0,\"fallback_used\":false,\"hcx_fallback_reason\":null,\"hcx_audit\":[{\"phase\":\"initial\",\"output\":\"교사의 명퇴수당에 대한 절세 방법은 다음과 같습니다.\\n\\n먼저, 교사의 퇴직수당과 명예퇴직수당은 모두 퇴직소득으로 간주되며, 명예퇴직수당의 전체 금액은 퇴직소득세 과세 대상으로 처리됩니다. 따라서 해당 소득에서 퇴직소득세가 차감된 후에 일반 계좌로 수령한 명예퇴직수당은 세후 수령일로부터 60일 안에 연금 저축 계좌 혹은 개인형 퇴직 연금(IRP) 계좌로 입금이 가능합니다.\\n\\n또한, 해당 기한 내에 연금 계좌에 입금한 뒤에는 공무원연금공단이나 관련 부서에 퇴직소득세 환급 신청을 하여 이미 차감되었던 세금을 되돌려받을 수 있으며, 이렇게 되면 세전 금액이 연금 계좌에 입금된 것과 동일한 효과를 볼 수 있게 됩니다.\\n\\n그러나 유의할 점은, 연금 계좌로의 입금 과정에서 이루어지는 퇴직소득세 환급 및 과세 이연 절차와, 그 이후에 연금을 수령할 때 적용되는 일반적인 퇴직소득세 납부 비율은 서로 다르다는 것입니다. 또한 실제로 얻게 되는 절세의 정도는 개인의 퇴직소득 규모와 수령 방법에 따라 상이하므로 이를 명확히 이해하고 계획을 세워야 합니다.\\n\\n마지막으로, 퇴직금의 원금을 일시금으로 받는 경우에는 퇴직소득세율이 100% 적용되지만, 연금으로 수령하는 경우에는 실제로 수령하는 연차의 길이에 따라 이연 퇴직\",\"transport\":[{\"request_id\":\"req_90a19afce3384c589eb9\",\"case_id\":\"BLIND-A\",\"attempt\":1,\"started_at\":\"2026-08-28T22:53:21.815046+00:00\",\"duration_ms\":6760.007,\"success\":true,\"exception_class\":null,\"transport_error_type\":null,\"upstream_http_status\":200,\"retry_after\":null,\"timeout\":false,\"retry\":false,\"final_exhausted\":false,\"status\":\"ok\"}],\"violations\":[\"핵심 grounded contract 변경 또는 일부 누락\",\"필수 limitation 누락\"]},{\"phase\":\"deterministic_repair\",\"violations\":[\"핵심 grounded contract 변경 또는 일부 누락\",\"필수 limitation 누락\"],\"action\":\"restore_grounded_contract\"}],\"prompt_metrics\":{\"prompt_chars\":3355,\"retrieved_evidence_count\":4,\"retrieved_evidence_chars\":351,\"product_fact_count\":0,\"rule_result_count\":0},\"rule_results\":[],\"product_facts\":[],\"claim_plan\":[{\"subtask\":\"benefit_legal_character\",\"status\":\"answerable\",\"claims\":[{\"text\":\"교사·공무원 안내에 따르면 퇴직수당과 명예퇴직수당은 퇴직소득이며, 명예퇴직수당 전액은 퇴직소득세 과세대상입니다.\",\"evidence_ids\":[\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t002-caacbbde34\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"account_transfer_or_deposit\",\"status\":\"answerable\",\"claims\":[{\"text\":\"퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다.\",\"evidence_ids\":[\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t002-caacbbde34\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"tax_refund_procedure\",\"status\":\"answerable\",\"claims\":[{\"text\":\"세후 수령일부터 60일 이내에 연금계좌에 입금한 뒤 공무원연금공단 등 담당부서에 퇴직소득세 환급을 신청하면, 차감된 세금을 돌려받아 세전 금액이 연금계좌에 입금된 것과 같은 구조가 됩니다.\",\"evidence_ids\":[\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t002-caacbbde34\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"retirement_tax_effect\",\"status\":\"answerable\",\"claims\":[{\"text\":\"연금계좌 입금 단계의 퇴직소득세 환급·과세이연 절차와 이후 연금수령 시 적용되는 일반 퇴직소득세 납부비율은 서로 구분해야 합니다. [주의] 절세 효과의 크기는 실제 퇴직소득세와 수령 방식에 따라 달라 일률적으로 단정할 수 없습니다.\",\"evidence_ids\":[\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t002-caacbbde34\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"retirement_tax\",\"status\":\"answerable\",\"claims\":[{\"text\":\"퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.\",\"evidence_ids\":[\"doc51-p002-t014-4741fd19a4\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]}],\"recommendation_constraints\":[]}",
+      "hcx_invoked": true,
+      "hcx_attempts": 1,
+      "hcx_success": true,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": true,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [
+        {
+          "phase": "initial",
+          "output": "교사의 명퇴수당에 대한 절세 방법은 다음과 같습니다.\n\n먼저, 교사의 퇴직수당과 명예퇴직수당은 모두 퇴직소득으로 간주되며, 명예퇴직수당의 전체 금액은 퇴직소득세 과세 대상으로 처리됩니다. 따라서 해당 소득에서 퇴직소득세가 차감된 후에 일반 계좌로 수령한 명예퇴직수당은 세후 수령일로부터 60일 안에 연금 저축 계좌 혹은 개인형 퇴직 연금(IRP) 계좌로 입금이 가능합니다.\n\n또한, 해당 기한 내에 연금 계좌에 입금한 뒤에는 공무원연금공단이나 관련 부서에 퇴직소득세 환급 신청을 하여 이미 차감되었던 세금을 되돌려받을 수 있으며, 이렇게 되면 세전 금액이 연금 계좌에 입금된 것과 동일한 효과를 볼 수 있게 됩니다.\n\n그러나 유의할 점은, 연금 계좌로의 입금 과정에서 이루어지는 퇴직소득세 환급 및 과세 이연 절차와, 그 이후에 연금을 수령할 때 적용되는 일반적인 퇴직소득세 납부 비율은 서로 다르다는 것입니다. 또한 실제로 얻게 되는 절세의 정도는 개인의 퇴직소득 규모와 수령 방법에 따라 상이하므로 이를 명확히 이해하고 계획을 세워야 합니다.\n\n마지막으로, 퇴직금의 원금을 일시금으로 받는 경우에는 퇴직소득세율이 100% 적용되지만, 연금으로 수령하는 경우에는 실제로 수령하는 연차의 길이에 따라 이연 퇴직",
+          "transport": [
+            {
+              "request_id": "req_90a19afce3384c589eb9",
+              "case_id": "BLIND-A",
+              "attempt": 1,
+              "started_at": "2026-08-28T22:53:21.815046+00:00",
+              "duration_ms": 6760.007,
+              "success": true,
+              "exception_class": null,
+              "transport_error_type": null,
+              "upstream_http_status": 200,
+              "retry_after": null,
+              "timeout": false,
+              "retry": false,
+              "final_exhausted": false,
+              "status": "ok"
+            }
+          ],
+          "violations": [
+            "핵심 grounded contract 변경 또는 일부 누락",
+            "필수 limitation 누락"
+          ]
+        },
+        {
+          "phase": "deterministic_repair",
+          "violations": [
+            "핵심 grounded contract 변경 또는 일부 누락",
+            "필수 limitation 누락"
+          ],
+          "action": "restore_grounded_contract"
+        }
+      ],
+      "prompt_metrics": {
+        "prompt_chars": 3355,
+        "retrieved_evidence_count": 4,
+        "retrieved_evidence_chars": 351,
+        "product_fact_count": 0,
+        "rule_result_count": 0
+      },
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T22:53:21.752922+00:00",
+        "response_error": null,
+        "request_id": "req_90a19afce3384c589eb9",
+        "call_sequence": 2,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "BLIND-B",
+      "category": "procedure",
+      "difficulty": "medium",
+      "question": "교직원 명예퇴직수당을 연금계좌에 넣을 수 있나요?",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 4480.642,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "WRONG_INTENT",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "missing document doc26",
+        "expected intent 절차, got 세제"
+      ],
+      "answer": "교사·공무원 안내에 따르면 퇴직수당과 명예퇴직수당은 퇴직소득이며, 명예퇴직수당 전액은 퇴직소득세 과세대상입니다.\n\n퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다.\n\n세후 수령일부터 60일 이내에 연금계좌에 입금한 뒤 공무원연금공단 등 담당부서에 퇴직소득세 환급을 신청하면, 차감된 세금을 돌려받아 세전 금액이 연금계좌에 입금된 것과 같은 구조가 됩니다.\n\n연금계좌 입금 단계의 퇴직소득세 환급·과세이연 절차와 이후 연금수령 시 적용되는 일반 퇴직소득세 납부비율은 서로 구분해야 합니다. [주의] 절세 효과의 크기는 실제 퇴직소득세와 수령 방식에 따라 달라 일률적으로 단정할 수 없습니다.",
+      "retrieved_context": [
+        "공무원은 퇴직할 때 퇴직연금 월지급식을 가장 많이 선택한다. 종신까지 매월 공무원연금을 받을 수 있기 때문이다. 이 외에도 근무기간에 따라 퇴직수당과 정년 전 퇴직일 경우 명예퇴직수당을 일시금으로 지급받게 된다. 퇴직수당과 명예퇴직수당은 퇴직소득이다. 퇴직소득세 차감 후 일반계좌로 받게 되는데 세후로 퇴직소득을 받은 경우 60일 내에 연금저축계좌나 IRP로 입금할 수 있다. 공무원연금공단 등 담당부서로 퇴직소득세 환급을 신청해서 차감됐던 세금을 다시 돌려받으면 퇴직수당과 명예퇴직수당은 세전으로 연금계좌에 입금된 것과 동일하게 된다.",
+        "60일 이내에 과세이연 신청을 하게 되면 퇴직소득세 환급의 업무가 발생",
+        "주의할 점이 있다. 이 감면은 퇴직소득에서 발생한 퇴직소득세에만 적용된다. 연금계좌 내에서 세액공제를 받은 납입금과 운용수익에는 연금소득세(3.3% ~ 5.5%)가 별도로 적용된다. 두 가지 세금이 섞이지 않도록 연금계좌 내 재원이 어떻게 구성되어 있는지 파악해두는 것이 중요하다.",
+        "공무원 · 교사 퇴직수당(명퇴수당) 연금계좌 절세 안내",
+        "퇴직수당으로 수령 받은 금액 중 일부 금액은 연금계좌로 입금이 안될 수 있다. 퇴직수당은 입사일부터 퇴직일까지 쌓인 금액인데 2002년을 기점으로 그 전 기여분은 비과세되고 이후 기여분만 퇴직소득 과세 대상이다. 2002년 전 입사자인 경우 퇴직수당 중 일부는 비과세되는데, 퇴직소득으로 과세되는 금액만 연금계좌로 입금할 수 있다. 퇴직소득 원천징수영수증에 적힌 세후 금액을 확인해서 그 금액만 연금계좌로 입금해야 한다. 명예퇴직수당은 전액이 퇴직소득세 과세대상이어서 세후 금액 전액을 연금계좌로 입금할 수 있다."
+      ],
+      "retrieved_provenance": [
+        {
+          "document_id": "doc26",
+          "page": 1
+        },
+        {
+          "document_id": "doc55",
+          "page": 17
+        },
+        {
+          "document_id": "doc51",
+          "page": 2
+        },
+        {
+          "document_id": "doc26",
+          "page": 1
+        },
+        {
+          "document_id": "doc26",
+          "page": 1
+        }
+      ],
+      "think_trace": "{\"intent\":\"세제\",\"route\":\"fast_path\",\"route_confidence\":0.95,\"fallback_reason\":null,\"tool_calls\":[{\"tool_name\":\"retrieve_evidence\",\"args\":{\"query\":\"교직원 명예퇴직수당을 연금계좌에 넣을 수 있나요?\",\"topic\":\"세제\",\"top_k\":5},\"status\":\"ok\",\"duration_ms\":61.129834000894334}],\"hcx_invoked\":true,\"hcx_attempts\":1,\"hcx_success\":true,\"hcx_first_pass\":false,\"hcx_regenerated\":false,\"deterministic_repaired\":true,\"hcx_timeout_count\":0,\"fallback_used\":false,\"hcx_fallback_reason\":null,\"hcx_audit\":[{\"phase\":\"initial\",\"output\":\"네, 교직원 명예퇴직수당의 경우 퇴직소득세를 차감한 뒤 일반계좌로 수령받은 세후 금액을 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다. 그리고 해당 기간 안에 공무원연금공단 등 관련 부서에 퇴직소득세 환급 신청을 하면 이미 납부했던 세금을 되돌려 받을 수 있어 결과적으로 세전 금액을 연금계좌에 입금한 것과 동일한 효과를 볼 수 있습니다. 다만, 연금계좌 입금 과정에서 이루어지는 퇴직소득세 환급 및 과세 이연 절차와 향후 연금액을 수령하는 과정에서 발생하는 퇴직소득세 납부 비율은 서로 상이하므로 이를 명확히 인지하여 계획을 수립하시기를 권장 드립니다. 더불어 절세의 실질적인 효력은 실제로 내는 세금과 수령 방법에 따라 차이가 생길 수밖에 없으므로 이 점 유의하시기 바랍니다.\",\"transport\":[{\"request_id\":\"req_04a4946ce6954702b735\",\"case_id\":\"BLIND-B\",\"attempt\":1,\"started_at\":\"2026-08-28T22:53:28.674220+00:00\",\"duration_ms\":4414.809,\"success\":true,\"exception_class\":null,\"transport_error_type\":null,\"upstream_http_status\":200,\"retry_after\":null,\"timeout\":false,\"retry\":false,\"final_exhausted\":false,\"status\":\"ok\"}],\"violations\":[\"핵심 grounded contract 변경 또는 일부 누락\",\"필수 limitation 누락\"]},{\"phase\":\"deterministic_repair\",\"violations\":[\"핵심 grounded contract 변경 또는 일부 누락\",\"필수 limitation 누락\"],\"action\":\"restore_grounded_contract\"}],\"prompt_metrics\":{\"prompt_chars\":3242,\"retrieved_evidence_count\":4,\"retrieved_evidence_chars\":733,\"product_fact_count\":0,\"rule_result_count\":0},\"rule_results\":[],\"product_facts\":[],\"claim_plan\":[{\"subtask\":\"benefit_legal_character\",\"status\":\"answerable\",\"claims\":[{\"text\":\"교사·공무원 안내에 따르면 퇴직수당과 명예퇴직수당은 퇴직소득이며, 명예퇴직수당 전액은 퇴직소득세 과세대상입니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t006-60f7982d80\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"account_transfer_or_deposit\",\"status\":\"answerable\",\"claims\":[{\"text\":\"퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t006-60f7982d80\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"tax_refund_procedure\",\"status\":\"answerable\",\"claims\":[{\"text\":\"세후 수령일부터 60일 이내에 연금계좌에 입금한 뒤 공무원연금공단 등 담당부서에 퇴직소득세 환급을 신청하면, 차감된 세금을 돌려받아 세전 금액이 연금계좌에 입금된 것과 같은 구조가 됩니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t006-60f7982d80\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"retirement_tax_effect\",\"status\":\"answerable\",\"claims\":[{\"text\":\"연금계좌 입금 단계의 퇴직소득세 환급·과세이연 절차와 이후 연금수령 시 적용되는 일반 퇴직소득세 납부비율은 서로 구분해야 합니다. [주의] 절세 효과의 크기는 실제 퇴직소득세와 수령 방식에 따라 달라 일률적으로 단정할 수 없습니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t006-60f7982d80\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]}],\"recommendation_constraints\":[]}",
+      "hcx_invoked": true,
+      "hcx_attempts": 1,
+      "hcx_success": true,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": true,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [
+        {
+          "phase": "initial",
+          "output": "네, 교직원 명예퇴직수당의 경우 퇴직소득세를 차감한 뒤 일반계좌로 수령받은 세후 금액을 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다. 그리고 해당 기간 안에 공무원연금공단 등 관련 부서에 퇴직소득세 환급 신청을 하면 이미 납부했던 세금을 되돌려 받을 수 있어 결과적으로 세전 금액을 연금계좌에 입금한 것과 동일한 효과를 볼 수 있습니다. 다만, 연금계좌 입금 과정에서 이루어지는 퇴직소득세 환급 및 과세 이연 절차와 향후 연금액을 수령하는 과정에서 발생하는 퇴직소득세 납부 비율은 서로 상이하므로 이를 명확히 인지하여 계획을 수립하시기를 권장 드립니다. 더불어 절세의 실질적인 효력은 실제로 내는 세금과 수령 방법에 따라 차이가 생길 수밖에 없으므로 이 점 유의하시기 바랍니다.",
+          "transport": [
+            {
+              "request_id": "req_04a4946ce6954702b735",
+              "case_id": "BLIND-B",
+              "attempt": 1,
+              "started_at": "2026-08-28T22:53:28.674220+00:00",
+              "duration_ms": 4414.809,
+              "success": true,
+              "exception_class": null,
+              "transport_error_type": null,
+              "upstream_http_status": 200,
+              "retry_after": null,
+              "timeout": false,
+              "retry": false,
+              "final_exhausted": false,
+              "status": "ok"
+            }
+          ],
+          "violations": [
+            "핵심 grounded contract 변경 또는 일부 누락",
+            "필수 limitation 누락"
+          ]
+        },
+        {
+          "phase": "deterministic_repair",
+          "violations": [
+            "핵심 grounded contract 변경 또는 일부 누락",
+            "필수 limitation 누락"
+          ],
+          "action": "restore_grounded_contract"
+        }
+      ],
+      "prompt_metrics": {
+        "prompt_chars": 3242,
+        "retrieved_evidence_count": 4,
+        "retrieved_evidence_chars": 733,
+        "product_fact_count": 0,
+        "rule_result_count": 0
+      },
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T22:53:28.611214+00:00",
+        "response_error": null,
+        "request_id": "req_04a4946ce6954702b735",
+        "call_sequence": 3,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "BLIND-C",
+      "category": "procedure",
+      "difficulty": "medium",
+      "question": "공무원 명퇴수당을 받은 뒤 세금 환급 절차가 있나요?",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 6820.967,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "WRONG_INTENT",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "missing document doc26",
+        "expected intent 절차, got 종합"
+      ],
+      "answer": "교사·공무원 안내에 따르면 퇴직수당과 명예퇴직수당은 퇴직소득이며, 명예퇴직수당 전액은 퇴직소득세 과세대상입니다.\n\n퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다.\n\n세후 수령일부터 60일 이내에 연금계좌에 입금한 뒤 공무원연금공단 등 담당부서에 퇴직소득세 환급을 신청하면, 차감된 세금을 돌려받아 세전 금액이 연금계좌에 입금된 것과 같은 구조가 됩니다.\n\n연금계좌 입금 단계의 퇴직소득세 환급·과세이연 절차와 이후 연금수령 시 적용되는 일반 퇴직소득세 납부비율은 서로 구분해야 합니다. [주의] 절세 효과의 크기는 실제 퇴직소득세와 수령 방식에 따라 달라 일률적으로 단정할 수 없습니다.\n\n퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.",
+      "retrieved_context": [
+        "공무원은 퇴직할 때 퇴직연금 월지급식을 가장 많이 선택한다. 종신까지 매월 공무원연금을 받을 수 있기 때문이다. 이 외에도 근무기간에 따라 퇴직수당과 정년 전 퇴직일 경우 명예퇴직수당을 일시금으로 지급받게 된다. 퇴직수당과 명예퇴직수당은 퇴직소득이다. 퇴직소득세 차감 후 일반계좌로 받게 되는데 세후로 퇴직소득을 받은 경우 60일 내에 연금저축계좌나 IRP로 입금할 수 있다. 공무원연금공단 등 담당부서로 퇴직소득세 환급을 신청해서 차감됐던 세금을 다시 돌려받으면 퇴직수당과 명예퇴직수당은 세전으로 연금계좌에 입금된 것과 동일하게 된다.",
+        "60일 이내에 과세이연 신청을 하게 되면 퇴직소득세 환급의 업무가 발생",
+        "주의할 점이 있다. 이 감면은 퇴직소득에서 발생한 퇴직소득세에만 적용된다. 연금계좌 내에서 세액공제를 받은 납입금과 운용수익에는 연금소득세(3.3% ~ 5.5%)가 별도로 적용된다. 두 가지 세금이 섞이지 않도록 연금계좌 내 재원이 어떻게 구성되어 있는지 파악해두는 것이 중요하다.",
+        "공무원 · 교사 퇴직수당(명퇴수당) 연금계좌 절세 안내",
+        "퇴직수당으로 수령 받은 금액 중 일부 금액은 연금계좌로 입금이 안될 수 있다. 퇴직수당은 입사일부터 퇴직일까지 쌓인 금액인데 2002년을 기점으로 그 전 기여분은 비과세되고 이후 기여분만 퇴직소득 과세 대상이다. 2002년 전 입사자인 경우 퇴직수당 중 일부는 비과세되는데, 퇴직소득으로 과세되는 금액만 연금계좌로 입금할 수 있다. 퇴직소득 원천징수영수증에 적힌 세후 금액을 확인해서 그 금액만 연금계좌로 입금해야 한다. 명예퇴직수당은 전액이 퇴직소득세 과세대상이어서 세후 금액 전액을 연금계좌로 입금할 수 있다."
+      ],
+      "retrieved_provenance": [
+        {
+          "document_id": "doc26",
+          "page": 1
+        },
+        {
+          "document_id": "doc55",
+          "page": 17
+        },
+        {
+          "document_id": "doc51",
+          "page": 2
+        },
+        {
+          "document_id": "doc26",
+          "page": 1
+        },
+        {
+          "document_id": "doc26",
+          "page": 1
+        }
+      ],
+      "think_trace": "{\"intent\":\"종합\",\"route\":\"fast_path\",\"route_confidence\":0.95,\"fallback_reason\":null,\"tool_calls\":[{\"tool_name\":\"retrieve_evidence\",\"args\":{\"query\":\"공무원 명퇴수당을 받은 뒤 세금 환급 절차가 있나요?\",\"topic\":\"종합\",\"top_k\":5},\"status\":\"ok\",\"duration_ms\":70.97079099912662}],\"hcx_invoked\":true,\"hcx_attempts\":1,\"hcx_success\":true,\"hcx_first_pass\":false,\"hcx_regenerated\":false,\"deterministic_repaired\":true,\"hcx_timeout_count\":0,\"fallback_used\":false,\"hcx_fallback_reason\":null,\"hcx_audit\":[{\"phase\":\"initial\",\"output\":\"네, 공무원 명퇴수당을 받은 뒤에 세금 환급 절차가 있습니다.\\n\\n먼저, 퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다. 그런 다음, 공무원연금공단 등 담당 부서에 퇴직소득세 환급을 신청합니다. 이렇게 하면 차감되었던 세금을 다시 돌려받을 수 있으며, 결과적으로 퇴직수당과 명예퇴직수당이 세전 금액으로 연금계좌에 입금된 것과 동일한 효과를 얻을 수 있습니다.\\n\\n다만, 연금계좌 입금 단계에서의 퇴직소득세 환급 및 과세 이연 절차와 이후에 연금 수령 시 적용되는 일반 퇴직소득세 납부 비율은 서로 구분되어야 합니다. 또한, 절세 효과의 크기는 실제 퇴직소득세와 수령 방식에 따라 다르기 때문에 이를 일률적으로 단정 짓기는 어렵습니다. 그리고 퇴직금 재원의 일시금 수령 시에는 퇴직소득세율이 100% 적용되며, 연금 수령 시에는 실제로 수령하는 연차에 따라 이연퇴직소득세의 70%, 60%, 50%가 적용됩니다. 이때 정확한 세액 계산을 위해서는 예상 퇴직소득세를 알아야 하며, 수령 일정도 반드시 확인해야 합니다. [주의: 절세 효과\",\"transport\":[{\"request_id\":\"req_0afdfd95db5e4e9f8881\",\"case_id\":\"BLIND-C\",\"attempt\":1,\"started_at\":\"2026-08-28T22:53:33.197151+00:00\",\"duration_ms\":6743.784,\"success\":true,\"exception_class\":null,\"transport_error_type\":null,\"upstream_http_status\":200,\"retry_after\":null,\"timeout\":false,\"retry\":false,\"final_exhausted\":false,\"status\":\"ok\"}],\"violations\":[\"핵심 grounded contract 변경 또는 일부 누락\",\"필수 limitation 누락\"]},{\"phase\":\"deterministic_repair\",\"violations\":[\"핵심 grounded contract 변경 또는 일부 누락\",\"필수 limitation 누락\"],\"action\":\"restore_grounded_contract\"}],\"prompt_metrics\":{\"prompt_chars\":3764,\"retrieved_evidence_count\":4,\"retrieved_evidence_chars\":733,\"product_fact_count\":0,\"rule_result_count\":0},\"rule_results\":[],\"product_facts\":[],\"claim_plan\":[{\"subtask\":\"benefit_legal_character\",\"status\":\"answerable\",\"claims\":[{\"text\":\"교사·공무원 안내에 따르면 퇴직수당과 명예퇴직수당은 퇴직소득이며, 명예퇴직수당 전액은 퇴직소득세 과세대상입니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t006-60f7982d80\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"account_transfer_or_deposit\",\"status\":\"answerable\",\"claims\":[{\"text\":\"퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t006-60f7982d80\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"tax_refund_procedure\",\"status\":\"answerable\",\"claims\":[{\"text\":\"세후 수령일부터 60일 이내에 연금계좌에 입금한 뒤 공무원연금공단 등 담당부서에 퇴직소득세 환급을 신청하면, 차감된 세금을 돌려받아 세전 금액이 연금계좌에 입금된 것과 같은 구조가 됩니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t006-60f7982d80\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"retirement_tax_effect\",\"status\":\"answerable\",\"claims\":[{\"text\":\"연금계좌 입금 단계의 퇴직소득세 환급·과세이연 절차와 이후 연금수령 시 적용되는 일반 퇴직소득세 납부비율은 서로 구분해야 합니다. [주의] 절세 효과의 크기는 실제 퇴직소득세와 수령 방식에 따라 달라 일률적으로 단정할 수 없습니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t006-60f7982d80\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"retirement_tax\",\"status\":\"answerable\",\"claims\":[{\"text\":\"퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.\",\"evidence_ids\":[\"doc51-p002-t017-714f82f22c\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]}],\"recommendation_constraints\":[]}",
+      "hcx_invoked": true,
+      "hcx_attempts": 1,
+      "hcx_success": true,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": true,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [
+        {
+          "phase": "initial",
+          "output": "네, 공무원 명퇴수당을 받은 뒤에 세금 환급 절차가 있습니다.\n\n먼저, 퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다. 그런 다음, 공무원연금공단 등 담당 부서에 퇴직소득세 환급을 신청합니다. 이렇게 하면 차감되었던 세금을 다시 돌려받을 수 있으며, 결과적으로 퇴직수당과 명예퇴직수당이 세전 금액으로 연금계좌에 입금된 것과 동일한 효과를 얻을 수 있습니다.\n\n다만, 연금계좌 입금 단계에서의 퇴직소득세 환급 및 과세 이연 절차와 이후에 연금 수령 시 적용되는 일반 퇴직소득세 납부 비율은 서로 구분되어야 합니다. 또한, 절세 효과의 크기는 실제 퇴직소득세와 수령 방식에 따라 다르기 때문에 이를 일률적으로 단정 짓기는 어렵습니다. 그리고 퇴직금 재원의 일시금 수령 시에는 퇴직소득세율이 100% 적용되며, 연금 수령 시에는 실제로 수령하는 연차에 따라 이연퇴직소득세의 70%, 60%, 50%가 적용됩니다. 이때 정확한 세액 계산을 위해서는 예상 퇴직소득세를 알아야 하며, 수령 일정도 반드시 확인해야 합니다. [주의: 절세 효과",
+          "transport": [
+            {
+              "request_id": "req_0afdfd95db5e4e9f8881",
+              "case_id": "BLIND-C",
+              "attempt": 1,
+              "started_at": "2026-08-28T22:53:33.197151+00:00",
+              "duration_ms": 6743.784,
+              "success": true,
+              "exception_class": null,
+              "transport_error_type": null,
+              "upstream_http_status": 200,
+              "retry_after": null,
+              "timeout": false,
+              "retry": false,
+              "final_exhausted": false,
+              "status": "ok"
+            }
+          ],
+          "violations": [
+            "핵심 grounded contract 변경 또는 일부 누락",
+            "필수 limitation 누락"
+          ]
+        },
+        {
+          "phase": "deterministic_repair",
+          "violations": [
+            "핵심 grounded contract 변경 또는 일부 누락",
+            "필수 limitation 누락"
+          ],
+          "action": "restore_grounded_contract"
+        }
+      ],
+      "prompt_metrics": {
+        "prompt_chars": 3764,
+        "retrieved_evidence_count": 4,
+        "retrieved_evidence_chars": 733,
+        "product_fact_count": 0,
+        "rule_result_count": 0
+      },
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T22:53:33.124285+00:00",
+        "response_error": null,
+        "request_id": "req_0afdfd95db5e4e9f8881",
+        "call_sequence": 4,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "BLIND-D",
+      "category": "tax",
+      "difficulty": "medium",
+      "question": "일반 회사원 명예퇴직금 절세 알려줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 2218.796,
+      "auto_result": "MANUAL_REVIEW",
+      "fail_reasons": [],
+      "details": [],
+      "answer": "퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%, 60%, 50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.",
+      "retrieved_context": [
+        "연금수령시 퇴직소득세 절세혜택",
+        "연금수령시 운용수익 절세혜택",
+        "③ 명예퇴직금 & ④ 잔여부담금 입금",
+        "- 명예퇴직금 입금 시 DC에 적립된 해당 가입자의 법정퇴직금과 합산하여 과세",
+        "재직 중 중간정산(중도인출)한 경우 해당 퇴직소득원천징수영수증을 제출 시, 세액정산특례적용이 가능합니다. (명예퇴직금 등 퇴직연도와 동일연도에 지급 건이 있는 경우에는 제출 필수)"
+      ],
+      "retrieved_provenance": [
+        {
+          "document_id": "doc51",
+          "page": 2
+        },
+        {
+          "document_id": "doc51",
+          "page": 3
+        },
+        {
+          "document_id": "doc55",
+          "page": 7
+        },
+        {
+          "document_id": "doc55",
+          "page": 7
+        },
+        {
+          "document_id": "doc55",
+          "page": 5
+        }
+      ],
+      "think_trace": "{\"intent\":\"세제\",\"route\":\"fast_path\",\"route_confidence\":0.95,\"fallback_reason\":null,\"tool_calls\":[{\"tool_name\":\"retrieve_evidence\",\"args\":{\"query\":\"일반 회사원 명예퇴직금 절세 알려줘\",\"topic\":\"세제\",\"top_k\":5},\"status\":\"ok\",\"duration_ms\":58.47433300004923},{\"tool_name\":\"retrieve_evidence\",\"args\":{\"query\":\"일반 회사원 명예퇴직금 절세 알려줘 연금계좌 재원별 인출 과세 퇴직금 운용수익\",\"topic\":\"세제\",\"top_k\":5},\"status\":\"ok\",\"duration_ms\":47.64766700100154}],\"hcx_invoked\":true,\"hcx_attempts\":1,\"hcx_success\":true,\"hcx_first_pass\":true,\"hcx_regenerated\":false,\"deterministic_repaired\":false,\"hcx_timeout_count\":0,\"fallback_used\":false,\"hcx_fallback_reason\":null,\"hcx_audit\":[{\"phase\":\"initial\",\"output\":\"퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%, 60%, 50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.\",\"transport\":[{\"request_id\":\"req_893048238e3f4c95bc16\",\"case_id\":\"BLIND-D\",\"attempt\":1,\"started_at\":\"2026-08-28T22:53:40.085685+00:00\",\"duration_ms\":2108.111,\"success\":true,\"exception_class\":null,\"transport_error_type\":null,\"upstream_http_status\":200,\"retry_after\":null,\"timeout\":false,\"retry\":false,\"final_exhausted\":false,\"status\":\"ok\"}]}],\"prompt_metrics\":{\"prompt_chars\":1286,\"retrieved_evidence_count\":4,\"retrieved_evidence_chars\":94,\"product_fact_count\":0,\"rule_result_count\":0},\"rule_results\":[],\"product_facts\":[],\"claim_plan\":[{\"subtask\":\"retirement_tax\",\"status\":\"answerable\",\"claims\":[{\"text\":\"퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.\",\"evidence_ids\":[\"doc51-p002-t014-4741fd19a4\",\"doc51-p003-t018-0641c6141d\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]}],\"recommendation_constraints\":[]}",
+      "hcx_invoked": true,
+      "hcx_attempts": 1,
+      "hcx_success": true,
+      "hcx_first_pass": true,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [
+        {
+          "phase": "initial",
+          "output": "퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%, 60%, 50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.",
+          "transport": [
+            {
+              "request_id": "req_893048238e3f4c95bc16",
+              "case_id": "BLIND-D",
+              "attempt": 1,
+              "started_at": "2026-08-28T22:53:40.085685+00:00",
+              "duration_ms": 2108.111,
+              "success": true,
+              "exception_class": null,
+              "transport_error_type": null,
+              "upstream_http_status": 200,
+              "retry_after": null,
+              "timeout": false,
+              "retry": false,
+              "final_exhausted": false,
+              "status": "ok"
+            }
+          ]
+        }
+      ],
+      "prompt_metrics": {
+        "prompt_chars": 1286,
+        "retrieved_evidence_count": 4,
+        "retrieved_evidence_chars": 94,
+        "product_fact_count": 0,
+        "rule_result_count": 0
+      },
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T22:53:39.977921+00:00",
+        "response_error": null,
+        "request_id": "req_893048238e3f4c95bc16",
+        "call_sequence": 5,
+        "previous_request_gap_ms": 0.001
+      }
+    },
+    {
+      "id": "BLIND-E",
+      "category": "tax",
+      "difficulty": "medium",
+      "question": "임원 퇴직금 IRP 절세 알려줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 2171.543,
+      "auto_result": "MANUAL_REVIEW",
+      "fail_reasons": [],
+      "details": [],
+      "answer": "퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%, 60%, 50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.",
+      "retrieved_context": [
+        "퇴직금 IRP 또는 연금저축펀드에 입금해서 연금수령 시 절세혜택",
+        "⑤ 상근임원이 비상근임원이 되어 퇴직금을 받은 경우",
+        "① 직원이 임원으로 승진하면서 퇴직금을 받은 경우",
+        "| 55세 미만 | 55세 이상\nDC법정퇴직금 | IRP 의무이전 | IRP·일반계좌 선택가능\n(IRP 수령 시 연금저축으로 계약이전 가능)\nDB법정퇴직금 | IRP 의무이전 | IRP·연금저축·일반계좌 선택 가능\n법정외퇴직금\n(퇴직위로금 등) | IRP·연금저축·일반계좌 선택 가능 | IRP·연금저축·일반계좌 선택 가능",
+        "법정퇴직금은 근퇴법에서 의무적으로 지급하도록 정한 퇴직금이다. 이 금액은 반드시 IRP로만 이전할 수 있다. 반면, 법정외퇴직금은 회사가 내부 규정에 따라 법정기준을 초과해 추가로 지급하는 퇴직금이다. 이 금액은 IRP뿐아니라 연금저축에도 입금할 수 있다.",
+        "만 55세 미만인 근로자가 퇴직하면 근로자퇴직급여보장법에 따라 법정퇴직금을 IRP(개인형 퇴직연금계좌)로 의무 이전해야 한다. 만 55세가 되기전에 중도인출 하고 싶다면 근퇴법상 중도인출 사유에 해당해야 한다. 그렇지 않다면 계좌를 해지하여 전액 일시금으로 인출하는 방법 밖에 없다. 만55세 미만은 IRP로 받는 것이 선택이 아닌 법적 의무임을 먼저 인식하라.",
+        "④ 과세 : 중도인출 사유에 해당된다면 퇴직금에 대해서는 퇴직소득세를 차감 후 지급"
+      ],
+      "retrieved_provenance": [
+        {
+          "document_id": "doc51",
+          "page": 1
+        },
+        {
+          "document_id": "doc55",
+          "page": 18
+        },
+        {
+          "document_id": "doc55",
+          "page": 18
+        },
+        {
+          "document_id": "doc51",
+          "page": 2
+        },
+        {
+          "document_id": "doc51",
+          "page": 2
+        },
+        {
+          "document_id": "doc51",
+          "page": 1
+        },
+        {
+          "document_id": "doc55",
+          "page": 23
+        }
+      ],
+      "think_trace": "{\"intent\":\"세제\",\"route\":\"deep_path\",\"route_confidence\":0.65,\"fallback_reason\":\"low_confidence_or_comparison\",\"tool_calls\":[{\"tool_name\":\"retrieve_evidence\",\"args\":{\"query\":\"임원 퇴직금 IRP 절세 알려줘\",\"topic\":\"세제\",\"top_k\":5},\"status\":\"ok\",\"duration_ms\":58.91133299883222},{\"tool_name\":\"retrieve_evidence\",\"args\":{\"query\":\"임원 퇴직금 IRP 절세 알려줘 연금계좌 재원별 인출 과세 퇴직금 운용수익\",\"topic\":\"세제\",\"top_k\":5},\"status\":\"ok\",\"duration_ms\":48.34554099943489}],\"hcx_invoked\":true,\"hcx_attempts\":1,\"hcx_success\":true,\"hcx_first_pass\":true,\"hcx_regenerated\":false,\"deterministic_repaired\":false,\"hcx_timeout_count\":0,\"fallback_used\":false,\"hcx_fallback_reason\":null,\"hcx_audit\":[{\"phase\":\"initial\",\"output\":\"퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%, 60%, 50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.\",\"transport\":[{\"request_id\":\"req_3711320b67fe43f6a2e8\",\"case_id\":\"BLIND-E\",\"attempt\":1,\"started_at\":\"2026-08-28T22:53:42.339623+00:00\",\"duration_ms\":2058.951,\"success\":true,\"exception_class\":null,\"transport_error_type\":null,\"upstream_http_status\":200,\"retry_after\":null,\"timeout\":false,\"retry\":false,\"final_exhausted\":false,\"status\":\"ok\"}]}],\"prompt_metrics\":{\"prompt_chars\":1533,\"retrieved_evidence_count\":4,\"retrieved_evidence_chars\":270,\"product_fact_count\":0,\"rule_result_count\":0},\"rule_results\":[],\"product_facts\":[],\"claim_plan\":[{\"subtask\":\"retirement_tax\",\"status\":\"answerable\",\"claims\":[{\"text\":\"퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.\",\"evidence_ids\":[\"doc51-p001-t001-4ea29f1490\",\"doc51-p002-t002-f295169201\",\"doc51-p002-t012-8a5fa0941e\",\"doc51-p001-t008-8eda40c8cf\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]}],\"recommendation_constraints\":[]}",
+      "hcx_invoked": true,
+      "hcx_attempts": 1,
+      "hcx_success": true,
+      "hcx_first_pass": true,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [
+        {
+          "phase": "initial",
+          "output": "퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%, 60%, 50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.",
+          "transport": [
+            {
+              "request_id": "req_3711320b67fe43f6a2e8",
+              "case_id": "BLIND-E",
+              "attempt": 1,
+              "started_at": "2026-08-28T22:53:42.339623+00:00",
+              "duration_ms": 2058.951,
+              "success": true,
+              "exception_class": null,
+              "transport_error_type": null,
+              "upstream_http_status": 200,
+              "retry_after": null,
+              "timeout": false,
+              "retry": false,
+              "final_exhausted": false,
+              "status": "ok"
+            }
+          ]
+        }
+      ],
+      "prompt_metrics": {
+        "prompt_chars": 1533,
+        "retrieved_evidence_count": 4,
+        "retrieved_evidence_chars": 270,
+        "product_fact_count": 0,
+        "rule_result_count": 0
+      },
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T22:53:42.230705+00:00",
+        "response_error": null,
+        "request_id": "req_3711320b67fe43f6a2e8",
+        "call_sequence": 6,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G043",
+      "category": "combined",
+      "difficulty": "low",
+      "question": "명예퇴직금과 법정퇴직금을 서로 다른 계좌로 받을 수 있나요?",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1753.618,
+      "auto_result": "MANUAL_REVIEW",
+      "fail_reasons": [],
+      "details": [],
+      "answer": "제공된 일반 근로자 자료만으로는 명예퇴직금과 법정퇴직금을 서로 다른 계좌로 받을 수 있다고 확정할 수 없습니다. 교사·공무원 전용 자료의 퇴직수당 특례는 일반 질문에 적용하지 않습니다.\n\n[한계] 제공된 일반 근로자 자료만으로는 명예퇴직금과 법정퇴직금을 서로 다른 계좌로 받을 수 있다고 확정할 수 없습니다. 교사·공무원 전용 자료의 퇴직수당 특례는 일반 질문에 적용하지 않습니다.",
+      "retrieved_context": [
+        "- 퇴직연금 적립금은 이전 받을 사업자계좌로 직접 이체 (적립비율지급)",
+        "② (DB→DC이전) 사내적립금도 이전 받을 사업자계좌로 직접 이체 (DC는 100% 사외적립의무)",
+        "연금 수령 혜택을 받으려면 퇴직금을 연금계좌(IRP·연금저축)으로 받아야한다. 그런데 어느 계좌로 받을 수 있는지는 퇴직자의 나이와 퇴직금 종류에 따라 다르다. 퇴직 전에 반드시 본인의 상황에 맞는 경로를 먼저 파악하라.",
+        "만 55세 미만인 근로자가 퇴직하면 근로자퇴직급여보장법에 따라 법정퇴직금을 IRP(개인형 퇴직연금계좌)로 의무 이전해야 한다. 만 55세가 되기전에 중도인출 하고 싶다면 근퇴법상 중도인출 사유에 해당해야 한다. 그렇지 않다면 계좌를 해지하여 전액 일시금으로 인출하는 방법 밖에 없다. 만55세 미만은 IRP로 받는 것이 선택이 아닌 법적 의무임을 먼저 인식하라."
+      ],
+      "retrieved_provenance": [
+        {
+          "document_id": "doc55",
+          "page": 15
+        },
+        {
+          "document_id": "doc55",
+          "page": 15
+        },
+        {
+          "document_id": "doc51",
+          "page": 1
+        },
+        {
+          "document_id": "doc51",
+          "page": 1
+        }
+      ],
+      "think_trace": "{\"intent\":\"세제\",\"route\":\"fast_path\",\"route_confidence\":0.8,\"fallback_reason\":null,\"tool_calls\":[{\"tool_name\":\"retrieve_evidence\",\"args\":{\"query\":\"명예퇴직금과 법정퇴직금을 서로 다른 계좌로 받을 수 있나요?\",\"topic\":\"세제\",\"top_k\":5},\"status\":\"ok\",\"duration_ms\":60.99279199770535},{\"tool_name\":\"retrieve_evidence\",\"args\":{\"query\":\"명예퇴직금과 법정퇴직금을 서로 다른 계좌로 받을 수 있나요? 연금계좌 재원별 인출 과세 퇴직금 운용수익\",\"topic\":\"세제\",\"top_k\":5},\"status\":\"ok\",\"duration_ms\":48.26558399872738}],\"hcx_invoked\":true,\"hcx_attempts\":1,\"hcx_success\":true,\"hcx_first_pass\":false,\"hcx_regenerated\":false,\"deterministic_repaired\":true,\"hcx_timeout_count\":0,\"fallback_used\":false,\"hcx_fallback_reason\":null,\"hcx_audit\":[{\"phase\":\"initial\",\"output\":\"제공된 일반 근로자 자료만으로는 명예퇴직금과 법정퇴직금을 서로 다른 계좌로 받을 수 있다고 확정할 수 없습니다. 교사·공무원 전용 자료의 퇴직수당 특례는 일반 질문에 적용하지 않습니다.\",\"transport\":[{\"request_id\":\"req_a87f1e7489a24a19b8c4\",\"case_id\":\"G043\",\"attempt\":1,\"started_at\":\"2026-08-28T22:53:44.547132+00:00\",\"duration_ms\":1639.314,\"success\":true,\"exception_class\":null,\"transport_error_type\":null,\"upstream_http_status\":200,\"retry_after\":null,\"timeout\":false,\"retry\":false,\"final_exhausted\":false,\"status\":\"ok\"}],\"violations\":[\"필수 limitation 누락\"]},{\"phase\":\"deterministic_repair\",\"violations\":[\"필수 limitation 누락\"],\"action\":\"append_contract_limitation\"}],\"prompt_metrics\":{\"prompt_chars\":1317,\"retrieved_evidence_count\":4,\"retrieved_evidence_chars\":419,\"product_fact_count\":0,\"rule_result_count\":0},\"rule_results\":[],\"product_facts\":[],\"claim_plan\":[],\"recommendation_constraints\":[]}",
+      "hcx_invoked": true,
+      "hcx_attempts": 1,
+      "hcx_success": true,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": true,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [
+        {
+          "phase": "initial",
+          "output": "제공된 일반 근로자 자료만으로는 명예퇴직금과 법정퇴직금을 서로 다른 계좌로 받을 수 있다고 확정할 수 없습니다. 교사·공무원 전용 자료의 퇴직수당 특례는 일반 질문에 적용하지 않습니다.",
+          "transport": [
+            {
+              "request_id": "req_a87f1e7489a24a19b8c4",
+              "case_id": "G043",
+              "attempt": 1,
+              "started_at": "2026-08-28T22:53:44.547132+00:00",
+              "duration_ms": 1639.314,
+              "success": true,
+              "exception_class": null,
+              "transport_error_type": null,
+              "upstream_http_status": 200,
+              "retry_after": null,
+              "timeout": false,
+              "retry": false,
+              "final_exhausted": false,
+              "status": "ok"
+            }
+          ],
+          "violations": [
+            "필수 limitation 누락"
+          ]
+        },
+        {
+          "phase": "deterministic_repair",
+          "violations": [
+            "필수 limitation 누락"
+          ],
+          "action": "append_contract_limitation"
+        }
+      ],
+      "prompt_metrics": {
+        "prompt_chars": 1317,
+        "retrieved_evidence_count": 4,
+        "retrieved_evidence_chars": 419,
+        "product_fact_count": 0,
+        "rule_result_count": 0
+      },
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T22:53:44.435855+00:00",
+        "response_error": null,
+        "request_id": "req_a87f1e7489a24a19b8c4",
+        "call_sequence": 7,
+        "previous_request_gap_ms": 0.001
+      }
+    },
+    {
+      "id": "G044",
+      "category": "combined",
+      "difficulty": "high",
+      "question": "교직원인데 명퇴수당 1억원을 IRP에 넣으면 무조건 절세되나요?",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 6830.733,
+      "auto_result": "MANUAL_REVIEW",
+      "fail_reasons": [],
+      "details": [],
+      "answer": "교사·공무원 안내에 따르면 퇴직수당과 명예퇴직수당은 퇴직소득이며, 명예퇴직수당 전액은 퇴직소득세 과세대상입니다.\n\n퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다.\n\n세후 수령일부터 60일 이내에 연금계좌에 입금한 뒤 공무원연금공단 등 담당부서에 퇴직소득세 환급을 신청하면, 차감된 세금을 돌려받아 세전 금액이 연금계좌에 입금된 것과 같은 구조가 됩니다.\n\n연금계좌 입금 단계의 퇴직소득세 환급·과세이연 절차와 이후 연금수령 시 적용되는 일반 퇴직소득세 납부비율은 서로 구분해야 합니다. [주의] 절세 효과의 크기는 실제 퇴직소득세와 수령 방식에 따라 달라 일률적으로 단정할 수 없습니다.\n\n퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.",
+      "retrieved_context": [
+        "공무원은 퇴직할 때 퇴직연금 월지급식을 가장 많이 선택한다. 종신까지 매월 공무원연금을 받을 수 있기 때문이다. 이 외에도 근무기간에 따라 퇴직수당과 정년 전 퇴직일 경우 명예퇴직수당을 일시금으로 지급받게 된다. 퇴직수당과 명예퇴직수당은 퇴직소득이다. 퇴직소득세 차감 후 일반계좌로 받게 되는데 세후로 퇴직소득을 받은 경우 60일 내에 연금저축계좌나 IRP로 입금할 수 있다. 공무원연금공단 등 담당부서로 퇴직소득세 환급을 신청해서 차감됐던 세금을 다시 돌려받으면 퇴직수당과 명예퇴직수당은 세전으로 연금계좌에 입금된 것과 동일하게 된다.",
+        "60일 이내에 과세이연 신청을 하게 되면 퇴직소득세 환급의 업무가 발생",
+        "주의할 점이 있다. 이 감면은 퇴직소득에서 발생한 퇴직소득세에만 적용된다. 연금계좌 내에서 세액공제를 받은 납입금과 운용수익에는 연금소득세(3.3% ~ 5.5%)가 별도로 적용된다. 두 가지 세금이 섞이지 않도록 연금계좌 내 재원이 어떻게 구성되어 있는지 파악해두는 것이 중요하다.",
+        "공무원 · 교사 퇴직수당(명퇴수당) 연금계좌 절세 안내",
+        "퇴직수당으로 수령 받은 금액 중 일부 금액은 연금계좌로 입금이 안될 수 있다. 퇴직수당은 입사일부터 퇴직일까지 쌓인 금액인데 2002년을 기점으로 그 전 기여분은 비과세되고 이후 기여분만 퇴직소득 과세 대상이다. 2002년 전 입사자인 경우 퇴직수당 중 일부는 비과세되는데, 퇴직소득으로 과세되는 금액만 연금계좌로 입금할 수 있다. 퇴직소득 원천징수영수증에 적힌 세후 금액을 확인해서 그 금액만 연금계좌로 입금해야 한다. 명예퇴직수당은 전액이 퇴직소득세 과세대상이어서 세후 금액 전액을 연금계좌로 입금할 수 있다."
+      ],
+      "retrieved_provenance": [
+        {
+          "document_id": "doc26",
+          "page": 1
+        },
+        {
+          "document_id": "doc55",
+          "page": 17
+        },
+        {
+          "document_id": "doc51",
+          "page": 2
+        },
+        {
+          "document_id": "doc26",
+          "page": 1
+        },
+        {
+          "document_id": "doc26",
+          "page": 1
+        }
+      ],
+      "think_trace": "{\"intent\":\"세제\",\"route\":\"fast_path\",\"route_confidence\":0.95,\"fallback_reason\":null,\"tool_calls\":[{\"tool_name\":\"retrieve_evidence\",\"args\":{\"query\":\"교직원인데 명퇴수당 1억원을 IRP에 넣으면 무조건 절세되나요?\",\"topic\":\"세제\",\"top_k\":5},\"status\":\"ok\",\"duration_ms\":61.70341699908022}],\"hcx_invoked\":true,\"hcx_attempts\":1,\"hcx_success\":true,\"hcx_first_pass\":false,\"hcx_regenerated\":false,\"deterministic_repaired\":true,\"hcx_timeout_count\":0,\"fallback_used\":false,\"hcx_fallback_reason\":null,\"hcx_audit\":[{\"phase\":\"initial\",\"output\":\"아니요, 교직원인 경우에도 명퇴수당 1억 원을 IRP에 넣는다고 해서 무조건 절세가 되는 것은 아닙니다.\\n\\n우선, 퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있으며, 이를 통해 퇴직소득세 환급을 신청하여 차감된 세금을 돌려받을 수 있습니다. 그러나, 연금계좌 내에서 세액공제를 받은 납입금과 운용수익에는 연금소득세(3.3%~5.5%)가 별도로 적용되기 때문에, 절세효과가 있는지는 실제 퇴직소득세와 수령방식에 따라 다를 수 있습니다.\\n\\n또한, 퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되며, 연금 수령 시에는 실제 수령 연차에 따라 이연퇴직소득세의 70%, 60%, 50%가 적용됩니다. 따라서 실제로 얼마만큼의 세금을 내게 될지를 정확히 알기 위해서는 예상 퇴직소득세와 수령 일정을 고려해야 하며, 이에 따라 절세 효과가 있을 수도 있고 없을 수도 있다는 점을 유의하셔야 합니다. \\n\\n결론적으로, 명퇴수당을 IRP에 넣는 것이 항상 절세로 이어지는 것은 아니므로 자신의 상황에 맞는 최선의 방법을 찾기 위해 전문가와의\",\"transport\":[{\"request_id\":\"req_50c26edf6bbe4e0097f0\",\"case_id\":\"G044\",\"attempt\":1,\"started_at\":\"2026-08-28T22:53:46.285302+00:00\",\"duration_ms\":6762.566,\"success\":true,\"exception_class\":null,\"transport_error_type\":null,\"upstream_http_status\":200,\"retry_after\":null,\"timeout\":false,\"retry\":false,\"final_exhausted\":false,\"status\":\"ok\"}],\"violations\":[\"핵심 grounded contract 변경 또는 일부 누락\",\"필수 limitation 누락\",\"근거 없는 숫자(100000000)\"]},{\"phase\":\"deterministic_repair\",\"violations\":[\"핵심 grounded contract 변경 또는 일부 누락\",\"필수 limitation 누락\",\"근거 없는 숫자(100000000)\"],\"action\":\"restore_grounded_contract\"}],\"prompt_metrics\":{\"prompt_chars\":3770,\"retrieved_evidence_count\":4,\"retrieved_evidence_chars\":733,\"product_fact_count\":0,\"rule_result_count\":0},\"rule_results\":[],\"product_facts\":[],\"claim_plan\":[{\"subtask\":\"benefit_legal_character\",\"status\":\"answerable\",\"claims\":[{\"text\":\"교사·공무원 안내에 따르면 퇴직수당과 명예퇴직수당은 퇴직소득이며, 명예퇴직수당 전액은 퇴직소득세 과세대상입니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t006-60f7982d80\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"account_transfer_or_deposit\",\"status\":\"answerable\",\"claims\":[{\"text\":\"퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있습니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t006-60f7982d80\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"tax_refund_procedure\",\"status\":\"answerable\",\"claims\":[{\"text\":\"세후 수령일부터 60일 이내에 연금계좌에 입금한 뒤 공무원연금공단 등 담당부서에 퇴직소득세 환급을 신청하면, 차감된 세금을 돌려받아 세전 금액이 연금계좌에 입금된 것과 같은 구조가 됩니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t006-60f7982d80\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"retirement_tax_effect\",\"status\":\"answerable\",\"claims\":[{\"text\":\"연금계좌 입금 단계의 퇴직소득세 환급·과세이연 절차와 이후 연금수령 시 적용되는 일반 퇴직소득세 납부비율은 서로 구분해야 합니다. [주의] 절세 효과의 크기는 실제 퇴직소득세와 수령 방식에 따라 달라 일률적으로 단정할 수 없습니다.\",\"evidence_ids\":[\"doc26-p001-t003-1323c591c2\",\"doc26-p001-t001-f93432fb68\",\"doc26-p001-t006-60f7982d80\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]},{\"subtask\":\"retirement_tax\",\"status\":\"answerable\",\"claims\":[{\"text\":\"퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되고, 연금수령에는 실제수령연차에 따라 이연퇴직소득세의 70%·60%·50%가 적용됩니다. [한계] 실제 세액 계산에는 예상 퇴직소득세가 필요하며 수령 일정도 확인해야 합니다.\",\"evidence_ids\":[\"doc51-p002-t017-714f82f22c\"],\"rule_result_ids\":[],\"product_fact_ids\":[]}]}],\"recommendation_constraints\":[]}",
+      "hcx_invoked": true,
+      "hcx_attempts": 1,
+      "hcx_success": true,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": true,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [
+        {
+          "phase": "initial",
+          "output": "아니요, 교직원인 경우에도 명퇴수당 1억 원을 IRP에 넣는다고 해서 무조건 절세가 되는 것은 아닙니다.\n\n우선, 퇴직소득세를 차감한 뒤 일반계좌로 받은 명예퇴직수당은 세후 수령일부터 60일 이내에 연금저축계좌 또는 IRP에 입금할 수 있으며, 이를 통해 퇴직소득세 환급을 신청하여 차감된 세금을 돌려받을 수 있습니다. 그러나, 연금계좌 내에서 세액공제를 받은 납입금과 운용수익에는 연금소득세(3.3%~5.5%)가 별도로 적용되기 때문에, 절세효과가 있는지는 실제 퇴직소득세와 수령방식에 따라 다를 수 있습니다.\n\n또한, 퇴직금 재원의 일시금 수령에는 퇴직소득세율 100%가 적용되며, 연금 수령 시에는 실제 수령 연차에 따라 이연퇴직소득세의 70%, 60%, 50%가 적용됩니다. 따라서 실제로 얼마만큼의 세금을 내게 될지를 정확히 알기 위해서는 예상 퇴직소득세와 수령 일정을 고려해야 하며, 이에 따라 절세 효과가 있을 수도 있고 없을 수도 있다는 점을 유의하셔야 합니다. \n\n결론적으로, 명퇴수당을 IRP에 넣는 것이 항상 절세로 이어지는 것은 아니므로 자신의 상황에 맞는 최선의 방법을 찾기 위해 전문가와의",
+          "transport": [
+            {
+              "request_id": "req_50c26edf6bbe4e0097f0",
+              "case_id": "G044",
+              "attempt": 1,
+              "started_at": "2026-08-28T22:53:46.285302+00:00",
+              "duration_ms": 6762.566,
+              "success": true,
+              "exception_class": null,
+              "transport_error_type": null,
+              "upstream_http_status": 200,
+              "retry_after": null,
+              "timeout": false,
+              "retry": false,
+              "final_exhausted": false,
+              "status": "ok"
+            }
+          ],
+          "violations": [
+            "핵심 grounded contract 변경 또는 일부 누락",
+            "필수 limitation 누락",
+            "근거 없는 숫자(100000000)"
+          ]
+        },
+        {
+          "phase": "deterministic_repair",
+          "violations": [
+            "핵심 grounded contract 변경 또는 일부 누락",
+            "필수 limitation 누락",
+            "근거 없는 숫자(100000000)"
+          ],
+          "action": "restore_grounded_contract"
+        }
+      ],
+      "prompt_metrics": {
+        "prompt_chars": 3770,
+        "retrieved_evidence_count": 4,
+        "retrieved_evidence_chars": 733,
+        "product_fact_count": 0,
+        "rule_result_count": 0
+      },
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T22:53:46.221924+00:00",
+        "response_error": null,
+        "request_id": "req_50c26edf6bbe4e0097f0",
+        "call_sequence": 8,
+        "previous_request_gap_ms": 0.002
+      }
+    }
+  ]
+}

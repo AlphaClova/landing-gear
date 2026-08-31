@@ -18,7 +18,6 @@ from app.api.schemas import (
     Citation,
     ClaimValidation,
     ClaimValidationEntry,
-    ProductResult,
     ToolCallTrace,
     WithdrawalComparisonResponse,
     WithdrawalEvidenceItem,
@@ -27,9 +26,11 @@ from app.api.schemas import (
 )
 from app.core.errors import ErrorCode, ToolError
 from app.core.logging import get_logger
+from app.core.query_normalization import ALIASES, has_alias, is_teacher_retirement_domain, procedure_type, tax_intent, tax_source_types
+from app.tools.withdrawal_comparison import calculate_withdrawal_comparison as b_calculate_withdrawal_comparison
 from app.tools.product_query import query_products as b_query_products
 from app.tools.retriever import retrieve_evidence as b_retrieve_evidence
-from app.tools.withdrawal_comparison import calculate_withdrawal_comparison as b_calculate_withdrawal_comparison
+from app.tools.rule_engine import RoundingPolicyUndefinedError, calc_retirement_lump_sum_tax
 
 logger = get_logger(__name__)
 
@@ -54,7 +55,7 @@ class RuleEngine(Protocol):
 
 
 class ProductCatalog(Protocol):
-    def query_products(self, *, plan_type: str | None, category: str | None) -> list[ProductResult]: ...
+    def query_products(self, *, plan_type: str | None, category: str | None) -> list[dict[str, Any]]: ...
 
 
 # ---------------------------------------------------------------------------
@@ -93,33 +94,6 @@ def to_withdrawal_comparison_response(raw: object) -> WithdrawalComparisonRespon
     if is_dataclass(raw) and not isinstance(raw, type):
         raw = asdict(raw)
     return WithdrawalComparisonResponse.model_validate(raw)
-
-
-def to_citation(raw: object) -> Citation:
-    """B EvidenceResult(dataclass 또는 dict) -> A `Citation`. 필드명이 일부 다르다
-    (evidence_id -> id) — chunk_id/source_priority/score는 Citation 계약에 없어 버린다."""
-    if isinstance(raw, Citation):
-        return raw
-    if is_dataclass(raw) and not isinstance(raw, type):
-        raw = asdict(raw)
-    return Citation(
-        id=raw["evidence_id"],
-        document_id=raw["document_id"],
-        page=raw.get("page"),
-        section=raw.get("section"),
-        source=raw["source"],
-        excerpt=raw["excerpt"],
-    )
-
-
-def to_product_result(raw: object) -> ProductResult:
-    """B ProductResult(dataclass 또는 dict) -> A `ProductResult`. 필드 shape이 1:1이라
-    손실 없이 그대로 파싱한다 (provenance 필드 포함)."""
-    if isinstance(raw, ProductResult):
-        return raw
-    if is_dataclass(raw) and not isinstance(raw, type):
-        raw = asdict(raw)
-    return ProductResult.model_validate(raw)
 
 
 # ---------------------------------------------------------------------------
@@ -205,17 +179,30 @@ class MockRuleEngine:
 
 
 class MockProductCatalog:
-    def query_products(self, *, plan_type: str | None = None, category: str | None = None) -> list[ProductResult]:
+    def query_products(self, *, plan_type: str | None = None, category: str | None = None) -> list[dict[str, str]]:
         return []
 
 
 # ---------------------------------------------------------------------------
-# B RuleEngine — calculate_withdrawal_comparison만 B의 실제 구현으로 연결한다.
-# calculate()는 B가 아직 generic dispatcher를 제공하지 않아 Mock을 유지한다.
+# B RuleEngine adapter — A rule IDs를 기존 B deterministic 함수에 연결한다.
 # ---------------------------------------------------------------------------
 
 
-class BRuleEngine(MockRuleEngine):
+class BRuleEngine:
+    def calculate(self, rule_id: str, params: dict[str, float | int | str]) -> CalculationResult:
+        if rule_id != "retirement_income_tax":
+            raise ValueError(f"unsupported production rule_id: {rule_id}")
+        raw = calc_retirement_lump_sum_tax(params.get("expected_tax_won"))  # type: ignore[arg-type]
+        return CalculationResult(
+            rule_id=raw.rule_id,
+            rule_version=raw.rule_version,
+            label="예상 퇴직소득세",
+            value=raw.value,  # type: ignore[arg-type]
+            unit="원",
+            rate=str(raw.rate) if raw.rate is not None else None,
+            formula=raw.formula,
+        )
+
     def calculate_withdrawal_comparison(
         self, *, retirement_amount: int, deferred_retirement_tax: int
     ) -> Any:
@@ -223,13 +210,48 @@ class BRuleEngine(MockRuleEngine):
 
 
 class BEvidenceProvider:
+    _TOPICS = {
+        "제도": "pension_system",
+        "세제": "withdrawal_tax",
+        "종합": "withdrawal_tax",
+        "상품": "product",
+        "절차": "withdrawal_tax",
+    }
+
     def retrieve_evidence(self, query: str, *, topic: str | None = None, top_k: int = 5) -> list[Citation]:
-        return [to_citation(item) for item in b_retrieve_evidence(query, topic, top_k)]
+        results = b_retrieve_evidence(query, self._TOPICS.get(topic), top_k)
+        return [
+            Citation(
+                id=item.evidence_id,
+                document_id=item.document_id,
+                page=item.page,
+                section=item.section,
+                source=item.source,
+                excerpt=item.excerpt,
+                source_priority=item.source_priority,
+                score=item.score,
+            )
+            for item in results
+        ]
 
 
 class BProductCatalog:
-    def query_products(self, *, plan_type: str | None = None, category: str | None = None) -> list[ProductResult]:
-        return [to_product_result(item) for item in b_query_products(plan_type, category)]
+    _RISK_LABELS = {
+        1: "매우 높은 위험",
+        2: "높은 위험",
+        3: "다소 높은 위험",
+        4: "보통 위험",
+        5: "낮은 위험",
+        6: "매우 낮은 위험",
+    }
+
+    def query_products(self, *, plan_type: str | None = None, category: str | None = None) -> list[dict[str, Any]]:
+        products = []
+        for item in b_query_products(plan_type, category):
+            row = asdict(item)
+            row["risk_label"] = self._RISK_LABELS.get(item.risk_level)
+            products.append(row)
+        return products
 
 
 # ---------------------------------------------------------------------------
@@ -254,8 +276,14 @@ class ToolResult:
     evidence: list[Citation] = field(default_factory=list)
     calculations: list[CalculationResult] = field(default_factory=list)
     withdrawal_result: WithdrawalComparisonResponse | None = None
-    products: list[ProductResult] = field(default_factory=list)
+    products: list[dict[str, Any]] = field(default_factory=list)
     traces: list[ToolCallTrace] = field(default_factory=list)
+    limitations: list[str] = field(default_factory=list)
+    input_slots: dict[str, object] = field(default_factory=dict)
+    tax_intent: str | None = None
+    tax_source_types: tuple[str, ...] = ()
+    procedure_type: str | None = None
+    recommendation_constraints: list[dict[str, object]] = field(default_factory=list)
 
 
 class ToolRouter:
@@ -269,6 +297,14 @@ class ToolRouter:
         self._rules = rule_engine or MockRuleEngine()
         self._products = product_catalog or MockProductCatalog()
 
+    def provider_status(self) -> dict[str, str]:
+        """Return provider classes without exposing credentials or configuration values."""
+        return {
+            "EVIDENCE_PROVIDER": "mock" if isinstance(self._evidence, MockEvidenceProvider) else "real",
+            "RULE_PROVIDER": "mock" if type(self._rules) is MockRuleEngine else "real",
+            "PRODUCT_PROVIDER": "mock" if isinstance(self._products, MockProductCatalog) else "real",
+        }
+
     def run(
         self,
         intent: str,
@@ -278,32 +314,89 @@ class ToolRouter:
         rule_id: str | None = None,
     ) -> ToolResult:
         allowed = ALLOWED_TOOLS_BY_INTENT.get(intent, ())
-        result = ToolResult()
+        result = ToolResult(input_slots=dict(slots), tax_intent=tax_intent(question), tax_source_types=tax_source_types(question), procedure_type=procedure_type(question))
 
         if "retrieve_evidence" in allowed:
-            # A의 intent 라벨("종합"/"세제"...)과 B의 chunk topic 키(pension_system/withdrawal_tax)가
-            # 서로 다른 taxonomy라 intent를 그대로 topic 필터로 넘기면 항상 0건이 된다.
-            # 매핑이 B와 확정되기 전까지는 topic 필터 없이(relevance만으로) 검색한다.
-            result.evidence, trace = self._call_retrieve_evidence(question, None)
-            result.traces.append(trace)
+            queries = self._evidence_queries(question, intent, result)
+            seen: set[str] = set()
+            for query, topic in queries:
+                evidence, trace = self._call_retrieve_evidence(query, topic)
+                result.traces.append(trace)
+                for item in evidence:
+                    if item.id not in seen and (is_teacher_retirement_domain(question) or item.document_id != "doc26"):
+                        result.evidence.append(item)
+                        seen.add(item.id)
 
-        if "calculate" in allowed and rule_id:
+        if "calculate" in allowed and rule_id and slots.get("expected_tax_won") is not None:
             calc, trace = self._call_calculate(rule_id, slots)
             result.calculations.append(calc)
             result.traces.append(trace)
 
-        if "calculate_withdrawal_comparison" in allowed and rule_id == _WITHDRAWAL_COMPARISON_RULE_ID:
-            result.withdrawal_result, trace = self._call_calculate_withdrawal_comparison(slots)
+        if (
+            "calculate_withdrawal_comparison" in allowed
+            and rule_id == _WITHDRAWAL_COMPARISON_RULE_ID
+            and slots.get("expected_tax_won") is not None
+        ):
+            try:
+                result.withdrawal_result, trace = self._call_calculate_withdrawal_comparison(slots)
+            except ToolError as exc:
+                if not isinstance(exc.__cause__, RoundingPolicyUndefinedError):
+                    raise
+                trace = ToolCallTrace(
+                    tool_name="calculate_withdrawal_comparison",
+                    args={"rule_id": _WITHDRAWAL_COMPARISON_RULE_ID},
+                    status="error",
+                    duration_ms=0.0,
+                )
+                result.limitations.append(
+                    "[한계] Rule Engine에 문서화된 원 단위 반올림 정책이 없어 이 입력값의 연금수령 세액을 계산할 수 없습니다."
+                )
             result.traces.append(trace)
+            if result.withdrawal_result is not None:
+                result.calculations.extend(self._withdrawal_calculations(result.withdrawal_result))
+                result.evidence.extend(self._withdrawal_citations(result.withdrawal_result))
 
-        if "query_products" in allowed:
-            products, trace = self._call_query_products(slots)
+        needs_catalog = "예금" not in question and (
+            has_alias(question, "product_family")
+            or any(marker in question for marker in ("펀드", "채권", "상품 목록", "상품을 보여", "상품 후보", "상품 비교", "상품 선택", "추천", "골라"))
+        )
+        recommendation_needs_plan = any(marker in question for marker in ("상품 선택", "상품 추천", "추천", "골라")) and not slots.get("plan_type")
+        if "query_products" in allowed and needs_catalog and not recommendation_needs_plan:
+            products, trace = self._call_query_products(slots, question)
             result.products = products
             result.traces.append(trace)
+            result.evidence.extend(self._product_citations(products))
+
+        if any(marker in question for marker in ("후보", "추천", "골라", "상품 선택")):
+            if slots.get("plan_type"):
+                result.recommendation_constraints.append({"constraint": f"plan_type={slots['plan_type']}", "applied": bool(result.products), "source": "product_fact"})
+            if slots.get("risk_tolerance") == "stable":
+                result.recommendation_constraints.append({"constraint": "risk_preference=stable", "applied": bool(result.products), "mapping": "risk_level>=5"})
+            if slots.get("investment_horizon") is not None:
+                result.recommendation_constraints.append({"constraint": f"investment_horizon={slots['investment_horizon']}y", "applied": False, "reason": "no supported horizon field"})
 
         return result
 
-    def _call_retrieve_evidence(self, question: str, topic: str | None) -> tuple[list[Citation], ToolCallTrace]:
+    @staticmethod
+    def _evidence_queries(question: str, intent: str, result: ToolResult) -> list[tuple[str, str]]:
+        queries = [(question, intent)]
+        if has_alias(question, "db") or has_alias(question, "dc"):
+            queries.append((f"{question} 확정급여형 확정기여형 운용 주체 최종 퇴직급여", "제도"))
+        if result.tax_intent == "PENSION_WITHDRAWAL_TAX":
+            queries.append((f"{question} 실제수령연차 이연퇴직소득세 70% 60% 50%", "세제"))
+        if result.tax_source_types:
+            queries.append((f"{question} 연금계좌 재원별 인출 과세 퇴직금 운용수익", "세제"))
+        if result.procedure_type == "ACCOUNT_TERMINATION":
+            queries.append((f"{question} DB DC 계약 종료 해지", "절차"))
+        elif result.procedure_type == "ACCOUNT_OPENING":
+            queries.append((f"{question} 신규 계좌 개설 필요서류", "절차"))
+        elif result.procedure_type == "ACCOUNT_TRANSFER" or (has_alias(question, "dc") and "연금저축" in question):
+            queries.append((f"{question} DC 퇴직금 IRP 수령 후 연금저축 계약이전", "절차"))
+        elif result.procedure_type == "EARLY_WITHDRAWAL":
+            queries.append((f"{question} IRP 중도인출 해지 과세 수령계좌", "절차"))
+        return queries
+
+    def _call_retrieve_evidence(self, question: str, topic: str) -> tuple[list[Citation], ToolCallTrace]:
         try:
             args = RetrieveEvidenceArgs(query=question, topic=topic)
         except ValidationError as exc:
@@ -340,7 +433,7 @@ class ToolRouter:
     ) -> tuple[WithdrawalComparisonResponse, ToolCallTrace]:
         try:
             args = WithdrawalComparisonArgs(
-                retirement_amount=slots.get("retirement_amount_won"),  # type: ignore[arg-type]
+                retirement_amount=slots.get("retirement_amount_won", 0),  # type: ignore[arg-type]
                 deferred_retirement_tax=slots.get("expected_tax_won"),  # type: ignore[arg-type]
             )
         except ValidationError as exc:
@@ -367,7 +460,7 @@ class ToolRouter:
         )
         return result, trace
 
-    def _call_query_products(self, slots: dict[str, object]) -> tuple[list[ProductResult], ToolCallTrace]:
+    def _call_query_products(self, slots: dict[str, object], question: str) -> tuple[list[dict[str, Any]], ToolCallTrace]:
         try:
             args = QueryProductsArgs(
                 plan_type=slots.get("plan_type"),  # type: ignore[arg-type]
@@ -379,9 +472,90 @@ class ToolRouter:
         start = time.monotonic()
         try:
             products = self._products.query_products(plan_type=args.plan_type, category=args.category)
+            family_marker = next((marker for marker in ALIASES["product_family"] if marker.lower() in question.lower()), None)
+            if family_marker:
+                if family_marker.lower() in {"솔로몬", "solomon"}:
+                    products = [item for item in products if "솔로몬" in str(item.get("product_name", ""))]
+                else:
+                    products = [item for item in products if (
+                        "국공채" in str(item.get("product_name", ""))
+                        or item.get("asset_type") == "국공채"
+                    )]
+                compact = question.replace(" ", "")
+                explicit_multi = "·" in question or "각" in question or "기간별" in question
+                # 여러 기간을 함께 묻는 비교 질문에서는 한 기간으로 축소하지 않는다.
+                if explicit_multi:
+                    pass
+                elif "중장기" in compact:
+                    products = [item for item in products if "중장기" in str(item.get("product_name", ""))]
+                elif "초단기" in compact:
+                    products = [item for item in products if "초단기" in str(item.get("product_name", ""))]
+                elif "단기" in compact:
+                    products = [item for item in products if "단기" in str(item.get("product_name", "")) and "초단기" not in str(item.get("product_name", ""))]
+                elif "장기" in compact:
+                    products = [item for item in products if "장기" in str(item.get("product_name", "")) and "중장기" not in str(item.get("product_name", ""))]
+            if slots.get("risk_tolerance") == "stable":
+                products = [item for item in products if isinstance(item.get("risk_level"), int) and item["risk_level"] >= 5]
+                products.sort(key=lambda item: (-item["risk_level"], str(item.get("product_id", ""))))
+                products = products[:5]
             status = "ok"
         except Exception as exc:  # noqa: BLE001
             raise ToolError("query_products", str(exc)) from exc
         duration_ms = (time.monotonic() - start) * 1000
         trace = ToolCallTrace(tool_name="query_products", args=args.model_dump(), status=status, duration_ms=duration_ms)
         return products, trace
+
+    @staticmethod
+    def _product_citations(products: list[dict[str, Any]]) -> list[Citation]:
+        citations: list[Citation] = []
+        for item in products:
+            name = item.get("product_name")
+            if not name or not item.get("document_id"):
+                continue
+            excerpt = (
+                f"상품명: {name}; 자산유형: {item.get('asset_type')}; "
+                f"위험등급: {item.get('risk_level')}등급({item.get('risk_label')}); "
+                f"가입계좌: {item.get('plan_types')}"
+            )
+            citations.append(
+                Citation(
+                    id=f"product-{item['product_id']}",
+                    document_id=str(item["document_id"]),
+                    page=item.get("page"),
+                    source=str(item.get("source", "")),
+                    excerpt=excerpt,
+                    source_priority=item.get("source_priority"),
+                )
+            )
+        return citations
+
+    @staticmethod
+    def _withdrawal_calculations(value: WithdrawalComparisonResponse) -> list[CalculationResult]:
+        return [
+            CalculationResult(
+                rule_id=scenario.rule_id,
+                rule_version=scenario.rule_version,
+                label=scenario.scenario,
+                value=scenario.tax_value,
+                unit=value.comparison.unit,
+                rate=str(scenario.applicable_rate),
+                formula=scenario.formula,
+            )
+            for scenario in value.comparison.scenarios
+        ]
+
+    @staticmethod
+    def _withdrawal_citations(value: WithdrawalComparisonResponse) -> list[Citation]:
+        return [
+            Citation(
+                id=item.evidence_id,
+                document_id=item.document_id,
+                page=item.page,
+                section=item.section,
+                source=item.document_id,
+                excerpt=item.quote or "",
+                source_priority=item.source_priority,
+                score=item.score,
+            )
+            for item in value.evidence
+        ]

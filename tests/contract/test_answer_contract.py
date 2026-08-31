@@ -47,6 +47,26 @@ def test_answer_loose_mode_returns_internal_answer() -> None:
     assert body["request_id"]
 
 
+def test_answer_get_is_backward_compatible_with_strict_contract(monkeypatch) -> None:
+    from app.core import config as config_module
+    monkeypatch.setenv("EVAL_SCHEMA_MODE", "strict")
+    config_module.get_settings.cache_clear()
+    try:
+        resp = client.get("/answer", params={"question_id": "q-get", "question": "퇴직연금 제도 알려줘"})
+        assert resp.status_code == 200
+        assert set(resp.json()) == {"question_id", "question", "retrieved_context", "think_trace", "answer"}
+        assert resp.json()["question_id"] == "q-get"
+    finally:
+        config_module.get_settings.cache_clear()
+
+
+def test_ready_reports_production_b_provider_wiring() -> None:
+    body = client.get("/ready").json()
+    assert body["EVIDENCE_PROVIDER"] == "real"
+    assert body["RULE_PROVIDER"] == "real"
+    assert body["PRODUCT_PROVIDER"] == "real"
+
+
 def test_answer_error_response_has_code_and_request_id(monkeypatch) -> None:
     from app.api import dependencies as deps
     from app.core.errors import ErrorCode, ToolError

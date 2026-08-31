@@ -1,0 +1,1101 @@
+{
+  "metadata": {
+    "subset": "full",
+    "run_kind": null,
+    "provider": {
+      "ready": true,
+      "hcx_mode": "real",
+      "evidence_provider_mode": "real",
+      "rule_provider_mode": "real",
+      "product_provider_mode": "real"
+    },
+    "production_valid": false,
+    "note": "Single run contains non-200 responses or incomplete HCX success."
+  },
+  "summary": {
+    "total": 26,
+    "FAIL": 26,
+    "hcx_invoked": 0,
+    "hcx_success": 0,
+    "hcx_first_pass": 0,
+    "hcx_regenerated": 0,
+    "deterministic_repaired": 0,
+    "hcx_timeout_count": 0,
+    "hcx_transport_attempts": 0,
+    "hcx_retry_count": 0,
+    "upstream_status_distribution": {},
+    "upstream_429": 0,
+    "upstream_5xx": 0,
+    "transport_timeout_count": 0,
+    "transport_other_error_count": 0,
+    "retry_exhausted_count": 0,
+    "fallback_used": 0,
+    "manual_review_required": 18,
+    "pass_rate": 0.0,
+    "average_latency_ms": 3369.7895,
+    "p50_latency_ms": 3208.086,
+    "p95_latency_ms": 5798.053,
+    "max_latency_ms": 10419.837,
+    "http_error_rate": 0.0,
+    "failure_reasons": {
+      "SCHEMA_ERROR": 26,
+      "WRONG_INTENT": 1,
+      "MISSING_EVIDENCE": 26,
+      "UNSUPPORTED_CLAIM": 1,
+      "MISSED_LIMITATION": 1
+    }
+  },
+  "results": [
+    {
+      "id": "G004",
+      "category": "product_compare",
+      "difficulty": "low",
+      "question": "솔로몬 국공채 단기 · 중장기 · 장기, 뭐가 달라요? 안정적인 걸 원해요.",
+      "subsets": [
+        "official",
+        "smoke"
+      ],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 5643.249,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "WRONG_INTENT",
+        "MISSING_EVIDENCE",
+        "UNSUPPORTED_CLAIM",
+        "MISSED_LIMITATION"
+      ],
+      "details": [
+        "question echo mismatch",
+        "missing concept ['단기', '중장기', '장기']",
+        "missing concept ['위험', '안정']",
+        "expected intent 상품, got None"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:52:55.562840+00:00",
+        "response_error": null,
+        "request_id": "req_8dfb0aba6951403cbb25",
+        "call_sequence": 1,
+        "previous_request_gap_ms": null
+      }
+    },
+    {
+      "id": "G008",
+      "category": "institution",
+      "difficulty": "low",
+      "question": "DC형은 회사가 수익률을 책임지는 제도인가요?",
+      "subsets": [
+        "smoke"
+      ],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1453.291,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:01.239359+00:00",
+        "response_error": null,
+        "request_id": "req_a4ad45173a6c40d4a1c0",
+        "call_sequence": 2,
+        "previous_request_gap_ms": 0.001
+      }
+    },
+    {
+      "id": "G021",
+      "category": "tax",
+      "difficulty": "medium",
+      "question": "IRP에 900만원 넣으면 전액 세액공제 대상인가요?",
+      "subsets": [],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 3923.286,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:02.726675+00:00",
+        "response_error": null,
+        "request_id": "req_82771dad8bba43f0bfad",
+        "call_sequence": 3,
+        "previous_request_gap_ms": 0.001
+      }
+    },
+    {
+      "id": "G039",
+      "category": "combined",
+      "difficulty": "high",
+      "question": "퇴직금 3억원, 예상세금 2400만원, DB인데 일시금과 연금 비교해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 3279.674,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:06.682822+00:00",
+        "response_error": null,
+        "request_id": "req_ade62f72672442e28128",
+        "call_sequence": 4,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G040",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "DC 퇴직금 2억원을 IRP로 옮겨 10년과 21년 수령을 비교해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 3408.778,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:09.995410+00:00",
+        "response_error": null,
+        "request_id": "req_2af4b3f12fe44165a989",
+        "call_sequence": 5,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G041",
+      "category": "combined",
+      "difficulty": "low",
+      "question": "55세 DB 가입자입니다. 퇴직금 수령계좌와 세금 차이를 같이 설명해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1916.642,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:13.428322+00:00",
+        "response_error": null,
+        "request_id": "req_f7ebccb12f1a4841bc06",
+        "call_sequence": 6,
+        "previous_request_gap_ms": 0.001
+      }
+    },
+    {
+      "id": "G042",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "퇴직금과 개인납입금이 섞인 IRP의 과세를 구분해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 3048.941,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:15.379483+00:00",
+        "response_error": null,
+        "request_id": "req_477496bb0e8b480aa1b0",
+        "call_sequence": 7,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G043",
+      "category": "combined",
+      "difficulty": "low",
+      "question": "명예퇴직금과 법정퇴직금을 서로 다른 계좌로 받을 수 있나요?",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1705.015,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:18.462369+00:00",
+        "response_error": null,
+        "request_id": "req_7fad320976084a73bdbd",
+        "call_sequence": 8,
+        "previous_request_gap_ms": 0.001
+      }
+    },
+    {
+      "id": "G045",
+      "category": "combined",
+      "difficulty": "low",
+      "question": "퇴직금 5억원, 세금 4천만원인데 안정형 상품까지 추천해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1299.866,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:20.200384+00:00",
+        "response_error": null,
+        "request_id": "req_19fb1dee77104e99bd7a",
+        "call_sequence": 9,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G046",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "DC 가입자가 퇴직 후 연금저축에서 운용하려면 절차와 세금은?",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1502.488,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:21.532867+00:00",
+        "response_error": null,
+        "request_id": "req_d1b847a2e6ae42ddb335",
+        "call_sequence": 10,
+        "previous_request_gap_ms": 0.001
+      }
+    },
+    {
+      "id": "G047",
+      "category": "combined",
+      "difficulty": "low",
+      "question": "DB와 DC 급여 차이 및 퇴직 후 IRP 이전을 한 번에 설명해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 3208.086,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:23.068039+00:00",
+        "response_error": null,
+        "request_id": "req_c6bc349b32da451faa18",
+        "call_sequence": 11,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G048",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "연금 10년 수령과 21년 수령의 세금 및 유동성 차이를 비교해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 5534.33,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:26.308927+00:00",
+        "response_error": null,
+        "request_id": "req_ef54d26a6a7541fb9ca8",
+        "call_sequence": 12,
+        "previous_request_gap_ms": 0.003
+      }
+    },
+    {
+      "id": "G050",
+      "category": "combined",
+      "difficulty": "medium",
+      "question": "퇴직소득세만 알고 퇴직금은 몰라요. 연금 절세액 계산해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 3037.969,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:31.875755+00:00",
+        "response_error": null,
+        "request_id": "req_7d9a730583724cd48dca",
+        "call_sequence": 13,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G051",
+      "category": "combined",
+      "difficulty": "low",
+      "question": "퇴직금 3억, 세금 0원, IRP인데 연금이 무조건 유리한가요?",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 3861.068,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:34.947216+00:00",
+        "response_error": null,
+        "request_id": "req_d066bb39333c4046b10f",
+        "call_sequence": 14,
+        "previous_request_gap_ms": 0.003
+      }
+    },
+    {
+      "id": "G053",
+      "category": "combined",
+      "difficulty": "low",
+      "question": "퇴직금 100억원, 세금 20억원의 결과와 계산 근거를 보여줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 3551.011,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:38.839350+00:00",
+        "response_error": null,
+        "request_id": "req_9694db7a6fdd4bd799d2",
+        "call_sequence": 15,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G054",
+      "category": "combined",
+      "difficulty": "high",
+      "question": "IRP 이전 후 상품 선택과 연금 개시 절차를 함께 알려줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 4068.879,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:42.423253+00:00",
+        "response_error": null,
+        "request_id": "req_cd1f911a857b416c803a",
+        "call_sequence": 16,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G055",
+      "category": "combined",
+      "difficulty": "low",
+      "question": "55세 미만 DB 퇴직자의 수령계좌와 중도인출 세금을 설명해줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 3635.457,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:46.522030+00:00",
+        "response_error": null,
+        "request_id": "req_1f913424d1544415b421",
+        "call_sequence": 17,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G058",
+      "category": "product_compare",
+      "difficulty": "high",
+      "question": "솔로몬 국공채 단기형 특징을 문서 근거로 설명해줘",
+      "subsets": [],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 3361.311,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:50.190198+00:00",
+        "response_error": null,
+        "request_id": "req_f9648bea3a794ed0a816",
+        "call_sequence": 18,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G059",
+      "category": "product_compare",
+      "difficulty": "medium",
+      "question": "솔로몬 국공채 중장기형의 위험과 비용을 알려줘",
+      "subsets": [],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 5021.263,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:53.584215+00:00",
+        "response_error": null,
+        "request_id": "req_c152ce7ad8244352aab4",
+        "call_sequence": 19,
+        "previous_request_gap_ms": 0.001
+      }
+    },
+    {
+      "id": "G076",
+      "category": "product_compare",
+      "difficulty": "low",
+      "question": "문서에 없는 향후 수익률을 숫자로 예측해줘",
+      "subsets": [],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1465.399,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:53:58.638064+00:00",
+        "response_error": null,
+        "request_id": "req_d87a42da2b384693b558",
+        "call_sequence": 20,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G079",
+      "category": "conditional_recommendation",
+      "difficulty": "low",
+      "question": "수익률 최고 상품 하나만 무조건 추천해",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 5798.053,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:54:00.137261+00:00",
+        "response_error": null,
+        "request_id": "req_730d3609c9794a718680",
+        "call_sequence": 21,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G082",
+      "category": "conditional_recommendation",
+      "difficulty": "high",
+      "question": "IRP에서 3년 투자할 안정형 상품 후보를 보여줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 10419.837,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:54:05.969473+00:00",
+        "response_error": null,
+        "request_id": "req_ebc1fb5bcace4cad9c57",
+        "call_sequence": 22,
+        "previous_request_gap_ms": 0.001
+      }
+    },
+    {
+      "id": "G088",
+      "category": "conditional_recommendation",
+      "difficulty": "medium",
+      "question": "보수보다 과거수익률만 보고 하나 골라줘",
+      "subsets": [],
+      "manual_review_required": true,
+      "http_status": 200,
+      "latency_ms": 1704.739,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:54:16.421844+00:00",
+        "response_error": null,
+        "request_id": "req_23215643dc2f4cd09c77",
+        "call_sequence": 23,
+        "previous_request_gap_ms": 0.001
+      }
+    },
+    {
+      "id": "G091",
+      "category": "procedure",
+      "difficulty": "high",
+      "question": "퇴직연금 해지 절차 알려줘",
+      "subsets": [],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1957.41,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:54:18.159608+00:00",
+        "response_error": null,
+        "request_id": "req_13da75dc848545ccac53",
+        "call_sequence": 24,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G092",
+      "category": "procedure",
+      "difficulty": "medium",
+      "question": "IRP 개설에 필요한 서류가 무엇인가요?",
+      "subsets": [],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 1664.207,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:54:20.149775+00:00",
+        "response_error": null,
+        "request_id": "req_0d2ae84a43f74124b947",
+        "call_sequence": 25,
+        "previous_request_gap_ms": 0.002
+      }
+    },
+    {
+      "id": "G093",
+      "category": "procedure",
+      "difficulty": "low",
+      "question": "DC 퇴직금을 연금저축으로 바로 받을 수 있나요?",
+      "subsets": [],
+      "manual_review_required": false,
+      "http_status": 200,
+      "latency_ms": 2144.278,
+      "auto_result": "FAIL",
+      "fail_reasons": [
+        "SCHEMA_ERROR",
+        "MISSING_EVIDENCE"
+      ],
+      "details": [
+        "question echo mismatch"
+      ],
+      "answer": "",
+      "retrieved_context": [],
+      "retrieved_provenance": [],
+      "think_trace": "",
+      "hcx_invoked": false,
+      "hcx_attempts": 0,
+      "hcx_success": false,
+      "hcx_first_pass": false,
+      "hcx_regenerated": false,
+      "deterministic_repaired": false,
+      "hcx_timeout_count": 0,
+      "hcx_audit": [],
+      "prompt_metrics": {},
+      "fallback_used": false,
+      "fallback_reason": null,
+      "request_audit": {
+        "request_started_at": "2026-08-28T05:54:21.848319+00:00",
+        "response_error": null,
+        "request_id": "req_05f630b76dcd4fb08b94",
+        "call_sequence": 26,
+        "previous_request_gap_ms": 0.001
+      }
+    }
+  ]
+}
