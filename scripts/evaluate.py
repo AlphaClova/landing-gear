@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from app.api.schemas import parse_retrieved_context
+
 FIELDS={"question_id","question","retrieved_context","think_trace","answer"}
 ORDER=["HTTP_ERROR","TIMEOUT","SCHEMA_ERROR","WRONG_INTENT","WRONG_NUMBER","MISSING_EVIDENCE","WRONG_EVIDENCE","UNSUPPORTED_CLAIM","MISSED_CLARIFICATION","MISSED_LIMITATION","FALSE_PREMISE_ACCEPTED","UNSAFE_RESPONSE"]
 RISK_LABELS={1:"매우 높은 위험",2:"높은 위험",3:"다소 높은 위험",4:"보통 위험",5:"낮은 위험",6:"매우 낮은 위험"}
@@ -43,9 +45,12 @@ def score(c,status,b,lat,error,audit=None):
  if error and error.startswith("TIMEOUT"): why+=["TIMEOUT"]
  elif status!=200: why+=["HTTP_ERROR"]
  if not isinstance(b,dict): why+=["SCHEMA_ERROR"]; b={}
- elif set(b)!=FIELDS or not isinstance(b.get("retrieved_context"),list): why+=["SCHEMA_ERROR"]
+ elif set(b)!=FIELDS or not all(isinstance(b.get(k),str) for k in FIELDS): why+=["SCHEMA_ERROR"]
  if b.get("question_id")!=c["id"] or b.get("question")!=c["question"]: why+=["SCHEMA_ERROR"]; detail+=["question echo mismatch"]
- answer=b.get("answer","") if isinstance(b.get("answer",""),str) else ""; ctx=b.get("retrieved_context",[]) if isinstance(b.get("retrieved_context",[]),list) else []; context="\n".join(map(str,ctx)); combined=answer+"\n"+context
+ answer=b.get("answer","") if isinstance(b.get("answer",""),str) else ""
+ public_context=b.get("retrieved_context","") if isinstance(b.get("retrieved_context"),str) else ""
+ ctx=parse_retrieved_context(public_context)
+ context=public_context; combined=answer+"\n"+context
  if not answer.strip(): why+=["SCHEMA_ERROR"]
  asks=any(x in answer for x in ("필요한 조건","알려주세요","확인이 필요","정보가 없어")) or answer.rstrip().endswith("?")
  limits=any(x in answer for x in ("[한계]","[주의]","[거절]","범위를 벗어나","제공된 자료로 확인하기 어렵","확인할 수 없","답변하기 어렵","답변드리기 어렵","답변을 드릴 수 없","제공할 수 없","근거가 없","정보가 부족")) or bool(re.search(r"정확한.{0,20}(?:말씀|안내|답변|확인|제공).{0,12}(?:수 없|어렵)",answer))

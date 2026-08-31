@@ -6,6 +6,14 @@ import re
 
 from app.agent.canonical import detect_false_premise
 from app.agent.hcx_client import HCXClient
+from app.agent.product_evidence import (
+    allows_product_evidence_enrichment,
+    build_product_evidence_bundles,
+    citations_for_product,
+    is_prospectus_citation,
+    render_cost_claim,
+    render_product_comparison,
+)
 from app.agent.router import Intent
 from app.agent.tools import ToolResult
 from app.api.schemas import CalculationResult, Citation, ComparisonResult, ComparisonRow, RequiredSlot, WithdrawalComparisonResponse
@@ -192,7 +200,7 @@ class Composer:
             return GroundedContext(question, intent, "result", result.evidence, result.products, result.calculations,
                 [fallback], [], forbidden, [fallback], [], fallback)
         correction_pair = self._false_premise_correction(question, result)
-        claim_plan = self._build_claim_plan(question, result)
+        claim_plan = self._build_claim_plan(question, result, intent)
         if correction_pair:
             fallback_correction, evidence_id = correction_pair
             sourced = [item for item in result.evidence if item.id == evidence_id] or result.evidence[:1]
@@ -201,7 +209,7 @@ class Composer:
             # Do not render an unfiltered catalog while recommendation constraints
             # are incomplete. Other answerable procedure/tax subtasks remain.
             claim_plan = [item for item in claim_plan if item.get("subtask") != "product_facts"]
-        fallback = self._render_claim_plan(claim_plan) or self._grounded_message(question, result)
+        fallback = self._render_claim_plan(claim_plan) or self._grounded_message(question, result, intent)
         if correction_pair and fallback and correction_pair[0] not in fallback:
             fallback = f"{correction_pair[0]}\n\n{fallback}"
         elif correction_pair and not fallback:
@@ -330,7 +338,7 @@ class Composer:
     def _unsupported(subtask: str, limitation: str) -> dict[str, object]:
         return {"subtask": subtask, "status": "unsupported", "claims": [], "limitation": limitation}
 
-    def _build_claim_plan(self, question: str, result: ToolResult) -> list[dict[str, object]]:
+    def _build_claim_plan(self, question: str, result: ToolResult, intent: Intent | None = None) -> list[dict[str, object]]:
         plan: list[dict[str, object]] = []
         doc51 = [item for item in result.evidence if item.document_id == "doc51"]
         receipt_evidence = [item for item in result.evidence if item.document_id in {"doc51", "doc55"}]
@@ -471,6 +479,14 @@ class Composer:
         future_return = any(x in question for x in ("향후 수익률", "미래 수익률", "장래", "수익률 수치"))
         if future_return:
             plan.append(self._unsupported("future_return", "[한계] 제공 문서에 없는 향후 수익률 숫자는 예측할 수 없습니다. 현재 문서와 Product Fact에서 확인되는 과거 수익률·위험·비용만 근거 범위에서 비교할 수 있습니다."))
+        elif result.products and allows_product_evidence_enrichment(intent):
+            product_text, product_evidence, _ = render_product_comparison(question, result.products, result.evidence, intent=intent)
+            plan.append(self._claim(
+                "product_facts",
+                product_text,
+                evidence=product_evidence or None,
+                products=result.products,
+            ))
         elif result.products:
             plan.append(self._claim("product_facts", self._compose_product_facts(result), products=result.products))
         for resolution in result.product_resolutions:
@@ -518,7 +534,19 @@ class Composer:
             ))
 
         requested_cost = any(x in question for x in ("비용", "보수", "수수료"))
-        if requested_cost:
+        if requested_cost and allows_product_evidence_enrichment(intent):
+            cost_text = None
+            cost_evidence: list = []
+            for bundle in build_product_evidence_bundles(result.products, result.evidence, intent=intent):
+                cost_text = render_cost_claim(bundle, intent=intent)
+                if cost_text:
+                    cost_evidence = bundle.citations
+                    break
+            if cost_text:
+                plan.append(self._claim("product_cost", cost_text, evidence=cost_evidence))
+            else:
+                plan.append(self._unsupported("product_cost", "[한계] 현재 확보된 Product Fact와 투자설명서 근거에서는 요청한 비용 값을 확인하지 못했습니다."))
+        elif requested_cost:
             cost_evidence = next((item for item in result.evidence if result.products and
                 str(result.products[0].get("product_name", "")).replace(" ", "") in item.excerpt.replace(" ", "") and
                 "총보수" in item.excerpt and "총비용" in item.excerpt), None)
@@ -560,13 +588,25 @@ class Composer:
         elif is_tax_deduction_question(c.question): wanted, anchors = {"doc41", "doc55"}, ("600만원", "900만원", "세액공제율")
         elif is_teacher_retirement_domain(c.question): wanted, anchors = {"doc26", "doc51"}, ("명예퇴직수당", "60일", "퇴직소득")
         selected = [x for x in c.evidence if wanted is None or x.document_id in wanted]
-        if c.products: selected = [x for x in selected if x.document_id.startswith("r2_")][:len(c.products)]
+        if allows_product_evidence_enrichment(c.intent) and c.products:
+            matched: list[Citation] = []
+            for product in c.products:
+                matched.extend(citations_for_product(product, c.evidence)[:1])
+            selected = matched or [x for x in selected if is_prospectus_citation(x)][:len(c.products)]
+        elif c.products:
+            selected = [x for x in selected if x.document_id.startswith("r2_")][:len(c.products)]
         rows = []
         for item in selected[:4]:
             text = item.excerpt
             positions = [text.find(a) for a in anchors if a in text]
             start = max(0, min(positions)-80) if positions else 0
-            excerpt = text[start:start + (240 if c.products else 360)]
+            if allows_product_evidence_enrichment(c.intent) and c.products:
+                for marker in ("2. 투자전략", "1. 투자목적", "수수료선취-오프라인(A)"):
+                    idx = text.find(marker)
+                    if idx >= 0:
+                        start = idx
+                        break
+            excerpt = text[start:start + (720 if allows_product_evidence_enrichment(c.intent) and c.products else (240 if c.products else 360))]
             rows.append({"document_id":item.document_id, "page":item.page, "excerpt":excerpt})
         return rows
 
@@ -577,7 +617,7 @@ class Composer:
                 "retrieved_evidence_chars":sum(len(str(x["excerpt"])) for x in evidence),
                 "product_fact_count":len(c.products), "rule_result_count":len(c.calculations)}
 
-    def _grounded_message(self, question: str, result: ToolResult) -> str | None:
+    def _grounded_message(self, question: str, result: ToolResult, intent: Intent | None = None) -> str | None:
         parts: list[str] = []
         if result.withdrawal_result is not None:
             lines = [
@@ -638,7 +678,7 @@ class Composer:
                 return ("아니요. 현재 요청에서 조회된 투자설명서에 따르면 해당 집합투자증권은 예금자보호 대상이 아닙니다." +
                         loss + " [한계] 안정성 우열이나 개인 적합성은 제공된 근거만으로 단정하지 않습니다.")
         if result.products and (has_alias(question, "product_family") or self._is_grounded_product_compare(question, result) or result.input_slots.get("risk_tolerance") == "stable"):
-            parts.append(self._compose_product_facts(result))
+            parts.append(self._compose_product_facts(result, question, intent))
         if any(x in question for x in ("향후 수익률", "미래 수익률", "장래", "수익률 수치")):
             parts.append("[한계] 제공 문서에 없는 향후 수익률 숫자는 예측할 수 없습니다. 현재 문서와 Product Fact에서 확인되는 과거 수익률·위험·비용만 근거 범위에서 비교할 수 있습니다.")
         return "\n\n".join(dict.fromkeys(parts)) if parts else None
@@ -659,7 +699,10 @@ class Composer:
     @staticmethod
     def _is_grounded_product_compare(q, r): return bool(r.products) and is_comparison_question(q)
     @staticmethod
-    def _compose_product_facts(r):
+    def _compose_product_facts(r, question="", intent: Intent | None = None):
+        if allows_product_evidence_enrichment(intent):
+            text, _, _ = render_product_comparison(question, r.products, r.evidence, intent=intent)
+            return text
         lines=[f"- {p.get('product_name')}: 자산유형 {p.get('asset_type')}, 위험등급 {p.get('risk_level')}등급({p.get('risk_label')}), 가입 가능 계좌 {p.get('plan_types')}" for p in r.products]
         return "제공된 Product Fact와 투자설명서 기준 비교입니다.\n"+"\n".join(lines)+"\n위험등급은 1등급이 매우 높은 위험, 2등급이 높은 위험, 3등급이 다소 높은 위험, 4등급이 보통 위험, 5등급이 낮은 위험, 6등급이 매우 낮은 위험입니다. [한계] 각 상품의 투자전략·클래스·총보수·비용·과거수익률은 현재 구조화된 Product Fact에서 확인되지 않습니다. 상품명만으로 듀레이션·변동성이나 개인 적합성을 단정할 수 없습니다."
 

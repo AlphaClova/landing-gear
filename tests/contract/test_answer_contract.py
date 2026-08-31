@@ -44,6 +44,7 @@ def test_answer_default_returns_exact_official_contract() -> None:
     assert resp.status_code == 200
     body = resp.json()
     assert set(body) == {"question_id", "question", "retrieved_context", "think_trace", "answer"}
+    assert all(isinstance(value, str) for value in body.values())
 
 
 def test_answer_get_is_backward_compatible_with_strict_contract(monkeypatch) -> None:
