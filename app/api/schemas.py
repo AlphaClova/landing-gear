@@ -7,6 +7,7 @@ B(검색/계산)와 C(프론트)가 그대로 참조하는 파일이다. 필드�
 
 import json
 import re
+from difflib import SequenceMatcher
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -288,6 +289,108 @@ def serialize_retrieved_context(citations: list[Citation]) -> str:
     return "\n\n".join(blocks)
 
 
+def _normalized_evidence_text(value: str) -> str:
+    """Normalize presentation-only differences for public evidence deduplication."""
+    return re.sub(r"[^0-9a-zA-Z가-힣]+", "", value).casefold()
+
+
+def _is_duplicate_evidence(normalized: str, seen: set[str]) -> bool:
+    if not normalized:
+        return False
+    if normalized in seen:
+        return True
+    return any(
+        min(len(normalized), len(previous)) >= 40
+        and re.findall(r"\d+(?:\.\d+)?", normalized) == re.findall(r"\d+(?:\.\d+)?", previous)
+        and SequenceMatcher(None, normalized, previous).ratio() >= 0.92
+        for previous in seen
+    )
+
+
+def select_public_citations(internal: InternalAnswer, question: str) -> list[Citation]:
+    """Select only evidence used by the verified public answer contract.
+
+    Retrieval and internal verification deliberately retain the complete candidate
+    set.  The composer already records the evidence used for factual claims in the
+    claim plan, so the public boundary can reuse that mapping without changing the
+    answer or retrieval behaviour.
+    """
+    citations = internal.citations
+    if not citations:
+        return []
+
+    claim_plan = internal.trace.claim_plan
+    used_evidence_ids: set[str] = set()
+    used_product_ids: set[str] = set()
+    for subtask in claim_plan:
+        for claim in subtask.get("claims", []) or []:
+            if not isinstance(claim, dict):
+                continue
+            used_evidence_ids.update(str(value) for value in claim.get("evidence_ids", []) or [])
+            used_product_ids.update(str(value) for value in claim.get("product_fact_ids", []) or [])
+
+    # Rule-engine comparisons carry their evidence mapping outside claim_plan.
+    if internal.withdrawal_result is not None:
+        for scenario in internal.withdrawal_result.comparison.scenarios:
+            used_evidence_ids.update(scenario.evidence_ids)
+
+    product_locations: set[tuple[str, int | None]] = set()
+    used_product_document_ids: set[str] = set()
+    product_document_ids: set[str] = set()
+    product_names_by_id: dict[str, str] = {}
+    for product in internal.trace.product_facts:
+        document_id = str(product.get("document_id") or "")
+        if document_id:
+            product_document_ids.add(document_id)
+        product_id = str(product.get("product_id") or "")
+        product_name = str(product.get("product_name") or "")
+        if product_id and product_name:
+            product_names_by_id[product_id] = product_name
+        if product_id in used_product_ids and document_id:
+            used_product_document_ids.add(document_id)
+            page = product.get("page")
+            product_locations.add((document_id, page if isinstance(page, int) else None))
+
+    selected: list[Citation]
+    if used_evidence_ids or product_locations:
+        selected = [
+            item for item in citations
+            if item.id in used_evidence_ids
+            or (item.document_id, item.page) in product_locations
+        ]
+        selected_product_documents = {item.document_id for item in selected}
+        for document_id in used_product_document_ids - selected_product_documents:
+            fallback = next((item for item in citations if item.document_id == document_id), None)
+            if fallback is not None:
+                selected.append(fallback)
+    else:
+        # Older/limitation paths may not have a claim plan. Preserve their
+        # non-product evidence, while preventing an unresolved recommendation
+        # step from publishing an incidental prospectus hit.
+        selected = list(citations)
+
+    public_text = f"{question}\n{internal.message}"
+    named_product_ids = {
+        product_id for product_id, name in product_names_by_id.items()
+        if name and name in public_text
+    }
+    if not used_product_ids and not named_product_ids:
+        selected = [item for item in selected if item.document_id not in product_document_ids]
+
+    deduplicated: list[Citation] = []
+    seen_ids: set[str] = set()
+    seen_text: set[str] = set()
+    for item in selected:
+        normalized_text = _normalized_evidence_text(item.excerpt)
+        if item.id in seen_ids or _is_duplicate_evidence(normalized_text, seen_text):
+            continue
+        deduplicated.append(item)
+        seen_ids.add(item.id)
+        if normalized_text:
+            seen_text.add(normalized_text)
+    return deduplicated
+
+
 def parse_retrieved_context(raw: str) -> list[str]:
     """Public retrieved_context string → excerpt list for internal evaluation."""
     if not raw:
@@ -342,7 +445,7 @@ def to_eval_response(internal: InternalAnswer, question_id: str, question: str) 
     return PublicAnswerResponse(
         question_id=str(question_id or ""),
         question=str(question or ""),
-        retrieved_context=serialize_retrieved_context(internal.citations),
+        retrieved_context=serialize_retrieved_context(select_public_citations(internal, question)),
         think_trace=json.dumps(public_trace, ensure_ascii=False),
         answer=str(answer or ""),
     )
