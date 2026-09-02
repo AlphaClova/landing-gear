@@ -61,9 +61,33 @@ describe('public GET /answer client', () => {
     }))
     const client = new HttpPublicAnswerClient('http://127.0.0.1:8000', 1000, fetcher)
     await expect(client.answer('Q-1', payload.question)).resolves.toEqual(payload)
-    expect(fetcher).toHaveBeenCalledWith(
-      getPublicAnswerUrl('http://127.0.0.1:8000', 'Q-1', payload.question),
-      expect.objectContaining({ method: 'GET' }),
-    )
+    const [url, init] = fetcher.mock.calls[0]
+    expect(url).toBe(getPublicAnswerUrl('http://127.0.0.1:8000', 'Q-1', payload.question))
+    expect(init).toEqual(expect.objectContaining({ method: 'GET' }))
+    const parsedUrl = new URL(String(url))
+    expect(parsedUrl.searchParams.get('question_id')).toBe('Q-1')
+    expect(parsedUrl.searchParams.get('question')).toBe(payload.question)
+  })
+
+  it('does not call the default native fetch as a method (Illegal invocation)', async () => {
+    const brandedFetch = vi.fn(function (this: unknown) {
+      if (this != null && this !== globalThis && this !== window) {
+        throw new TypeError("Failed to execute 'fetch' on 'Window': Illegal invocation")
+      }
+      return Promise.resolve(new Response(JSON.stringify(payload), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }))
+    }) as typeof fetch
+    vi.stubGlobal('fetch', brandedFetch)
+    const client = new HttpPublicAnswerClient('http://127.0.0.1:8000', 1000)
+    await expect(client.answer('Q-1', payload.question)).resolves.toEqual({
+      question_id: payload.question_id,
+      question: payload.question,
+      retrieved_context: payload.retrieved_context,
+      think_trace: payload.think_trace,
+      answer: payload.answer,
+    })
+    expect(brandedFetch).toHaveBeenCalled()
   })
 })

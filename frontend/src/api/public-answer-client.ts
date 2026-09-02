@@ -72,11 +72,11 @@ export function parsePublicAnswerResponse(value: unknown): PublicAnswerResponse 
     }
   }
   return {
-    question_id: value.question_id,
-    question: value.question,
-    retrieved_context: value.retrieved_context,
-    think_trace: value.think_trace,
-    answer: value.answer,
+    question_id: value.question_id as string,
+    question: value.question as string,
+    retrieved_context: value.retrieved_context as string,
+    think_trace: value.think_trace as string,
+    answer: value.answer as string,
   }
 }
 
@@ -97,12 +97,18 @@ const isJsonContentType = (response: Response) => {
   return contentType.includes('application/json') || contentType.includes('+json')
 }
 
+const browserFetch: typeof fetch = (input, init) => globalThis.fetch(input, init)
+
 export class HttpPublicAnswerClient implements PublicAnswerClient {
+  private readonly fetcher: typeof fetch
+
   constructor(
     private readonly baseUrl: string = apiClientConfig.baseUrl,
     private readonly timeoutMs: number = parseChatTimeoutMs(import.meta.env.VITE_CHAT_TIMEOUT_MS),
-    private readonly fetcher: typeof fetch = fetch,
-  ) {}
+    fetcher?: typeof fetch,
+  ) {
+    this.fetcher = fetcher ?? browserFetch
+  }
 
   async answer(
     questionId: string,
