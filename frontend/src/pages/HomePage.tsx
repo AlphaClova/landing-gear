@@ -42,15 +42,13 @@ export function HomePage() {
   const goToStart = () => { requestRef.current?.abort(); requestRef.current = null; setLoading(false); setMenuOpen(false); setPage('start'); window.location.hash = '' }
   const enterHome = () => { setPage('home'); window.location.hash = 'home' }
   const selectMode = (mode: ResponseMode) => navigate(mode)
-  const askFromHome = () => { if (message.trim()) navigate('pension-chat') }
   const cancel = () => { requestRef.current?.abort(); requestRef.current = null; setLoading(false); setPendingQuestion(''); setError(null); setCancelled(true) }
-  const submit = async () => {
-    if (page !== 'pension-chat' && page !== 'withdrawal-decision') return
-    const question = message.trim()
+  const submitQuestion = async (question: string) => {
     if (!question || loading) return
-    requestRef.current?.abort(); const controller = new AbortController(); requestRef.current = controller
-    setLoading(true); setError(null); setCancelled(false); setPendingQuestion(question)
-    if (page === 'withdrawal-decision') setResponse(null)
+    requestRef.current?.abort()
+    const controller = new AbortController()
+    requestRef.current = controller
+    setLoading(true); setError(null); setCancelled(false); setPendingQuestion(question); setResponse(null)
     try {
       const nextResponse = await pensionChatProvider.answer(question, controller.signal)
       if (requestRef.current !== controller) return
@@ -64,6 +62,17 @@ export function HomePage() {
     } finally {
       if (requestRef.current === controller) setLoading(false)
     }
+  }
+  const askFromHome = () => {
+    const question = message.trim()
+    if (!question) return
+    setPage('pension-chat')
+    window.location.hash = 'pension-chat'
+    void submitQuestion(question)
+  }
+  const submit = async () => {
+    if (page !== 'pension-chat' && page !== 'withdrawal-decision' && page !== 'home') return
+    await submitQuestion(message.trim())
   }
 
   if (page === 'start') return <main className="start-page">

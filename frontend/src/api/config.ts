@@ -14,7 +14,7 @@ const parseTimeout = (value: string | undefined) => {
 
 export const apiClientConfig: ApiClientConfig = {
   useMockApi: import.meta.env.VITE_USE_MOCK_API !== 'false',
-  baseUrl: import.meta.env.VITE_API_BASE_URL ?? '/api',
+  baseUrl: import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000',
   timeoutMs: parseTimeout(import.meta.env.VITE_API_TIMEOUT_MS),
 }
 

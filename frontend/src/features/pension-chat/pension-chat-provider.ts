@@ -1,8 +1,10 @@
-import { chatApiClient, ChatApiClientError } from '../../api/chat-client'
-import type { ChatApiClient } from '../../api/chat-client'
-import { buildChatApiRequest } from '../../api/chat-request'
+import { ChatApiClientError } from '../../api/chat-client'
 import type { ChatApiCitation, ChatApiResponseTransport } from '../../api/chat-response'
-import { getChatSessionId } from '../../api/chat-session'
+import {
+  adaptPublicAnswerToChatResponse,
+  publicAnswerClient,
+} from '../../api/public-answer-client'
+import type { PublicAnswerClient } from '../../api/public-answer-client'
 import { MockPensionApiClient } from '../../api/mock-client'
 import type { PensionApiClient } from '../../api/client'
 import type { ChatResponse, Citation, ComparisonResult, RequiredSlot } from '../../types/api'
@@ -105,14 +107,13 @@ export interface PensionChatProvider {
 
 export class HttpPensionChatProvider implements PensionChatProvider {
   constructor(
-    private readonly client: ChatApiClient = chatApiClient,
-    private readonly sessionId: () => string = getChatSessionId,
+    private readonly client: PublicAnswerClient = publicAnswerClient,
+    private readonly questionId: () => string = () => crypto.randomUUID(),
   ) {}
 
   async answer(question: string, signal?: AbortSignal): Promise<ChatResponse> {
-    const request = buildChatApiRequest({ sessionId: this.sessionId(), question })
-    const response = await this.client.chat(request, { signal })
-    return adaptPensionChatResponse(response)
+    const payload = await this.client.answer(this.questionId(), question, { signal })
+    return adaptPublicAnswerToChatResponse(payload)
   }
 }
 
@@ -126,7 +127,7 @@ export class MockPensionChatProvider implements PensionChatProvider {
 
 export function createPensionChatProvider(
   mode: PensionChatApiMode = parsePensionChatApiMode(import.meta.env.VITE_CHAT_API_MODE),
-  client: ChatApiClient = chatApiClient,
+  client: PublicAnswerClient = publicAnswerClient,
 ): PensionChatProvider {
   return mode === 'http' ? new HttpPensionChatProvider(client) : new MockPensionChatProvider()
 }
