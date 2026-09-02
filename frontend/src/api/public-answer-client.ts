@@ -5,6 +5,7 @@ import {
   parseChatTimeoutMs,
 } from './chat-client'
 import type { ChatResponse } from '../types/api'
+import { presentRetrievedContext } from './retrieved-context'
 
 export interface PublicAnswerResponse {
   question_id: string
@@ -89,6 +90,7 @@ export function adaptPublicAnswerToChatResponse(payload: PublicAnswerResponse): 
     explanation: '',
     comparison: null,
     citations: [],
+    retrievedContextView: presentRetrievedContext(payload.retrieved_context),
   }
 }
 

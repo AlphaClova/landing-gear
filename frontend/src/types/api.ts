@@ -42,9 +42,21 @@ export interface ComparisonResult {
   citations: Citation[]
 }
 
+export interface RetrievedEvidenceItem {
+  document: string
+  page: string | null
+  evidenceId: string | null
+  excerpt: string
+}
+
+export type RetrievedContextView =
+  | { kind: 'none' }
+  | { kind: 'items'; items: RetrievedEvidenceItem[] }
+  | { kind: 'unparseable' }
+
 export type ChatResponse =
   | { type: 'clarification'; requestId: string; message?: string; requiredSlots: RequiredSlot[] }
-  | { type: 'result'; requestId: string; mode: ResponseMode; conclusion: string; explanation: string; comparison: ComparisonResult | null; citations: Citation[] }
+  | { type: 'result'; requestId: string; mode: ResponseMode; conclusion: string; explanation: string; comparison: ComparisonResult | null; citations: Citation[]; retrievedContextView?: RetrievedContextView }
   | { type: 'limitation'; requestId: string; availableAnswer: string | null; message: string; requiredConditions: string[] }
   | { type: 'error'; requestId: string | null; code: string; message: string; retryable: boolean }
 

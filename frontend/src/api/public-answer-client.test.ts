@@ -35,7 +35,26 @@ describe('public GET /answer client', () => {
       explanation: '',
       comparison: null,
       citations: [],
+      retrievedContextView: {
+        kind: 'items',
+        items: [{ document: 'x', page: null, evidenceId: null, excerpt: 'excerpt' }],
+      },
     })
+  })
+
+  it('maps empty retrieved_context to a hidden evidence view', () => {
+    const mapped = adaptPublicAnswerToChatResponse({ ...payload, retrieved_context: '' })
+    expect(mapped.type === 'result' && mapped.conclusion).toBe(payload.answer)
+    expect(mapped.type === 'result' && mapped.retrievedContextView).toEqual({ kind: 'none' })
+  })
+
+  it('maps unparseable retrieved_context without changing the answer', () => {
+    const mapped = adaptPublicAnswerToChatResponse({
+      ...payload,
+      retrieved_context: 'THIS_SHOULD_NOT_BE_TREATED_AS_AN_EXCERPT',
+    })
+    expect(mapped.type === 'result' && mapped.conclusion).toBe(payload.answer)
+    expect(mapped.type === 'result' && mapped.retrievedContextView).toEqual({ kind: 'unparseable' })
   })
 
   it('does not treat think_trace as the displayed answer', () => {
