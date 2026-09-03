@@ -13,7 +13,7 @@ from app.agent.canonical import (
     detect_false_premise,
 )
 from app.agent.composer import Draft
-from app.agent.product_evidence import allows_product_evidence_enrichment
+from app.agent.product_evidence import allows_product_evidence_enrichment, is_prospectus_citation
 from app.agent.router import RouteDecision
 from app.api.schemas import CalculationResult, Citation, InternalAnswer, RequiredSlot, ThinkTrace, ToolCallTrace
 from app.core.query_normalization import (
@@ -84,6 +84,13 @@ _LIMITATION_SKIP_MARKERS = (
     "[한계]", "[주의]", "확정할 수 없", "단정할 수 없", "확인할 수 없",
     "제공된 문서만으로", "뜻이 아닙니다", "일률적으로", "단정하지 않습니다",
 )
+
+_CONTENT_TOKEN_PATTERN = re.compile(r"[가-힣A-Za-z0-9]{2,}")
+_CITATION_STOPWORDS = frozenset({
+    "합니다", "습니다", "있습니다", "없습니다", "됩니다", "것입니다", "때문에",
+    "그리고", "그러나", "또한", "관련", "대한", "대해", "경우", "이상", "이하",
+    "제도", "설명", "내용", "기준", "가능", "필요", "확인", "적용", "따라",
+})
 
 
 class Verifier:
@@ -221,7 +228,7 @@ class Verifier:
                 comparison=draft.comparison,
                 withdrawal_result=draft.withdrawal_result,
                 calculation_results=draft.calculation_results,
-                citations=draft.citations,
+                citations=self._prune_citations(draft, message),
                 confidence=0.4,
                 trace=trace,
             )
@@ -235,10 +242,44 @@ class Verifier:
             comparison=draft.comparison,
             withdrawal_result=draft.withdrawal_result,
             calculation_results=draft.calculation_results,
-            citations=draft.citations,
+            citations=self._prune_citations(draft, draft.message),
             confidence=confidence,
             trace=trace,
         )
+
+    def _prune_citations(self, draft: Draft, message: str) -> list[Citation]:
+        """최종 응답에 노출할 근거만 남긴다: 미선택 상품 근거 제외, 중복 제거, 답변에 실제로 반영된 근거만 유지.
+
+        Draft.citations(검증에 쓰인 전체 후보)는 그대로 두고, InternalAnswer로 나가는 목록만 정리한다.
+        답변 문구와 겹치는 근거가 하나도 없으면(패러프레이징 등) 안전하게 중복 제거본으로 되돌린다.
+        """
+        citations = draft.citations
+        if not citations:
+            return citations
+
+        context = draft.context
+        if context and context.response_mode == "clarification":
+            citations = [
+                c for c in citations
+                if not c.id.startswith("product-") and not is_prospectus_citation(c)
+            ]
+
+        deduped: list[Citation] = []
+        seen: set[tuple[str, str]] = set()
+        for citation in citations:
+            key = (citation.document_id, re.sub(r"\s+", "", citation.excerpt))
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(citation)
+
+        message_tokens = self._content_tokens(message)
+        used = [c for c in deduped if self._content_tokens(c.excerpt) & message_tokens]
+        return used or deduped
+
+    @staticmethod
+    def _content_tokens(text: str) -> set[str]:
+        return {t for t in _CONTENT_TOKEN_PATTERN.findall(text) if t not in _CITATION_STOPWORDS}
 
     def check(self, draft: Draft) -> list[str]:
         issues: list[str] = []
