@@ -29,6 +29,18 @@ _FEE_LINE = re.compile(
     r"수수료선취-오프라인\(A\)\s+(?:-\s+)?([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)"
     r"\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)",
 )
+_FEE_TABLE_FIELDS = (
+    ("management_fee_rate_percent", "집합투자업자 보수"),
+    ("sales_company_fee_rate_percent", "판매회사 보수"),
+    ("trustee_fee_rate_percent", "신탁업자 보수"),
+    ("admin_fee_rate_percent", "일반사무관리회사 보수"),
+    ("total_fee_rate_percent", "총 보수"),
+    ("other_cost_rate_percent", "기타비용"),
+    ("total_expense_ratio_percent", "총보수비용"),
+    ("peer_total_fee_rate_percent", "동종유형 총 보수"),
+    ("synthetic_total_expense_ratio_percent", "합성총보수비용"),
+)
+_FEE_VALUE = re.compile(r"(?<!\d)(\d+(?:\.\d+)?)(?!\d)")
 _STRATEGY = re.compile(r"2\.\s*투자전략\s*투자전략\s*(.+?)\s*분류", re.S)
 _AS_OF = re.compile(r"작성기준일\s*[:：]\s*(\d{4}년\s*\d{1,2}월\s*\d{1,2}일)")
 _AUM = re.compile(
@@ -166,6 +178,71 @@ def extract_class_fee(item: Citation) -> dict[str, EvidenceValue]:
     }
 
 
+def extract_fee_table(item: Citation) -> dict[str, EvidenceValue]:
+    """Extract a labelled annual-fee row without guessing across columns."""
+    compact = _compact(item.excerpt)
+    required_labels = (
+        "집합투자업자보수", "판매회사보수", "신탁업자보수",
+        "일반사무관리회사보수", "총보수", "기타비용", "동종유형총보수",
+        "합성총보수비용",
+    )
+    positions = [compact.find(label) for label in required_labels]
+    if any(position < 0 for position in positions) or positions != sorted(positions):
+        return {}
+
+    row = re.search(r"(종류\s*[A-Za-z0-9-]+\s*[^\d|]*?)\|?\s*(\d+(?:\.\d+)?(?:\s*\|\s*|\s+)){8}\d+(?:\.\d+)?", item.excerpt, re.S)
+    if not row:
+        return {}
+    values = _FEE_VALUE.findall(row.group(0)[len(row.group(1)):])
+    if len(values) != len(_FEE_TABLE_FIELDS):
+        return {}
+    class_name = re.sub(r"\s+", "", row.group(1)).strip(" |")
+    fields = {
+        key: _value(item, value, "percent")
+        for (key, _), value in zip(_FEE_TABLE_FIELDS, values, strict=True)
+    }
+    fields["sales_class"] = _value(item, class_name, None)
+    return fields
+
+
+def render_fee_table_claim(fields: dict[str, EvidenceValue]) -> str | None:
+    """Render the exact label/value pairs parsed from one prospectus row."""
+    if not all(key in fields for key, _ in _FEE_TABLE_FIELDS):
+        return None
+    cls = fields.get("sales_class")
+    prefix = f"{cls.value} 비용표" if cls else "투자설명서 비용표"
+    pairs = ", ".join(
+        f"{label}: {fields[key].value}%" for key, label in _FEE_TABLE_FIELDS
+    )
+    return f"{prefix}에서 {pairs}입니다."
+
+
+def structured_fee_mapping(fields: dict[str, EvidenceValue]) -> dict[str, str]:
+    return {
+        label: fields[key].value
+        for key, label in _FEE_TABLE_FIELDS
+        if key in fields
+    }
+
+
+def answer_fee_mapping(text: str) -> dict[str, list[str]]:
+    """Read explicit Korean fee label/value claims from an answer."""
+    labels = sorted((label for _, label in _FEE_TABLE_FIELDS), key=len, reverse=True)
+    candidates: list[tuple[int, int, str, str]] = []
+    for label in labels:
+        spaced = r"\s*".join(map(re.escape, label.replace(" ", "")))
+        pattern = re.compile(spaced + r"\s*(?::|=|은|는|이|가)?\s*(\d+(?:\.\d+)?)\s*%")
+        candidates.extend((match.start(), match.end(), label, match.group(1)) for match in pattern.finditer(text))
+    found: dict[str, list[str]] = {}
+    occupied: list[tuple[int, int]] = []
+    for start, end, label, value in sorted(candidates, key=lambda item: (item[0], -(item[1] - item[0]))):
+        if any(start < used_end and end > used_start for used_start, used_end in occupied):
+            continue
+        occupied.append((start, end))
+        found.setdefault(label, []).append(value)
+    return found
+
+
 def extract_historical_returns(item: Citation) -> dict[str, EvidenceValue]:
     fields: dict[str, EvidenceValue] = {}
     if "VaR" in item.excerpt or "수익률 변동성" in item.excerpt.replace(" ", ""):
@@ -254,6 +331,8 @@ def build_product_evidence_bundles(
                 strategy = extract_strategy(item)
                 if strategy:
                     fields["investment_strategy"] = strategy
+            for key, value in extract_fee_table(item).items():
+                fields.setdefault(key, value)
             for key, value in extract_class_fee(item).items():
                 fields.setdefault(key, value)
             for key, value in extract_historical_returns(item).items():

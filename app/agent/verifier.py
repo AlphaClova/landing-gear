@@ -13,7 +13,7 @@ from app.agent.canonical import (
     detect_false_premise,
 )
 from app.agent.composer import Draft
-from app.agent.product_evidence import allows_product_evidence_enrichment
+from app.agent.product_evidence import allows_product_evidence_enrichment, answer_fee_mapping
 from app.agent.router import RouteDecision
 from app.api.schemas import CalculationResult, Citation, InternalAnswer, RequiredSlot, ThinkTrace, ToolCallTrace
 from app.core.query_normalization import (
@@ -73,10 +73,14 @@ _TAXABILITY_POSITIVE_RE = re.compile(
     r"과세의?\s*대상|"
     r"세금이\s*발생합니다|"
     r"세금을\s*(?:내야|납부해야)|"
-    r"퇴직소득세.{0,24}(?:납부|부과|차감|감면)|"
+    r"퇴직\s*소득세.{0,24}(?:납부|부과|차감|감면|공제)|"
+    r"소득세를?\s*차감|"
     r"감면됩니다|"
     r"과세가\s*이루어)"
 )
+_TAX_ACCOUNT_TYPES = ("연금저축", "IRP")
+_TAX_SOURCE_TYPES = ("법정외퇴직금", "법정퇴직금", "퇴직금재원", "개인납입금", "운용수익", "IRP추가납입", "추가납입")
+_TAX_EVENTS = ("중도인출", "해지", "일시금", "연금수령")
 _TAX_RATE_OR_REDUCTION_RE = re.compile(
     r"(?:\d+(?:\.\d+)?\s*%|감면|세율|과세이연)"
 )
@@ -92,7 +96,7 @@ class Verifier:
         context = draft.context
         if not context:
             return False
-        if "안전 거절 확장" in issues or "Rule 밖 금액 계산" in issues or "민감정보 응답 확장" in issues or "반올림 실패 응답 확장" in issues or "상품 한계 응답 확장" in issues or "핵심 grounded contract 변경 또는 일부 누락" in issues or "DB/DC fact inversion" in issues or "false-premise affirmation" in issues or "false-premise correction 누락" in issues or "limitation contract expansion" in issues or "unsupported hard constraint product dump" in issues or "unsupported factual claim" in issues or "future-return inference" in issues or "product unit confusion" in issues or "unsupported product recommendation" in issues or any(issue.startswith("근거 없는 숫자") for issue in issues):
+        if "안전 거절 확장" in issues or "Rule 밖 금액 계산" in issues or "민감정보 응답 확장" in issues or "반올림 실패 응답 확장" in issues or "상품 한계 응답 확장" in issues or "핵심 grounded contract 변경 또는 일부 누락" in issues or "DB/DC fact inversion" in issues or "false-premise affirmation" in issues or "false-premise correction 누락" in issues or "limitation contract expansion" in issues or "unsupported hard constraint product dump" in issues or "unsupported factual claim" in issues or "future-return inference" in issues or "product unit confusion" in issues or "product fee mapping mismatch" in issues or "unsupported product recommendation" in issues or any(issue.startswith("근거 없는 숫자") for issue in issues):
             draft.message = context.fallback_message
             draft.hcx_audit.append({"phase":"deterministic_repair", "violations":issues, "action":"restore_grounded_contract"})
             return not self.check(draft)
@@ -356,6 +360,8 @@ class Verifier:
 
             if self._ungrounded_tax_liability_claim(draft, context, evidence_text):
                 issues.append("unsupported factual claim")
+            if self._unsupported_eligibility_relation(draft, context):
+                issues.append("unsupported factual claim")
 
             classified = tax_intent(context.question)
             if classified and classified != "TAX_CREDIT" and not is_tax_deduction_question(context.question):
@@ -425,6 +431,21 @@ class Verifier:
         if unverified and not draft.calculation_results:
             issues.append(f"근거 없는 숫자({', '.join(unverified[:3])})")
 
+        if context and allows_product_evidence_enrichment(context.intent):
+            expected_fee_mapping: dict[str, str] = {}
+            for subtask in context.claim_plan:
+                mapping = subtask.get("structured_fee_mapping")
+                if isinstance(mapping, dict):
+                    expected_fee_mapping.update({str(key): str(value) for key, value in mapping.items()})
+            if expected_fee_mapping:
+                stated = answer_fee_mapping(draft.message)
+                if any(
+                    value != expected_fee_mapping.get(label)
+                    for label, values in stated.items()
+                    for value in values
+                ) or re.search(r"수수료\s*선취(?:\s*[-·]?\s*)오프라인.{0,16}\d+(?:\.\d+)?\s*%", draft.message):
+                    issues.append("product fee mapping mismatch")
+
         if context and context.products:
             support = "\n".join(c.excerpt for c in context.evidence) + repr(context.products)
             for field in ("듀레이션", "변동성", "최적", "가장 적합", "더 안정적"):
@@ -446,11 +467,12 @@ class Verifier:
 
     @staticmethod
     def _non_limitation_text(message: str) -> str:
+        """Remove limitation sentences, not entire paragraphs containing one."""
         kept: list[str] = []
-        for line in re.split(r"\n+", message):
-            if any(marker in line for marker in _LIMITATION_SKIP_MARKERS):
+        for sentence in re.split(r"(?<=[.!?])\s+|\n+", message):
+            if any(marker in sentence for marker in _LIMITATION_SKIP_MARKERS):
                 continue
-            kept.append(line)
+            kept.append(sentence)
         return "\n".join(kept)
 
     @classmethod
@@ -470,11 +492,59 @@ class Verifier:
                     parts.append(str(claim["text"]))
         return "\n".join(parts)
 
+    @staticmethod
+    def _tax_liability_tuple(text: str) -> tuple[set[str], set[str], set[str]]:
+        compact = re.sub(r"\s+", "", text)
+        accounts = {marker for marker in _TAX_ACCOUNT_TYPES if marker in compact}
+        sources = {marker for marker in _TAX_SOURCE_TYPES if marker in compact}
+        events = {marker for marker in _TAX_EVENTS if marker in compact}
+        return accounts, sources, events
+
+    @classmethod
+    def _is_tuple_sensitive(cls, text: str) -> bool:
+        accounts, sources, events = cls._tax_liability_tuple(text)
+        return bool(accounts and sources and events)
+
+    @classmethod
+    def _directly_supported_tax_relation(
+        cls, sentence: str, context, *, require_question_entities: bool = False,
+    ) -> bool:
+        """Require tax polarity and the claim tuple in one support item."""
+        claim_pos, claim_neg = cls._taxability_polarity(sentence)
+        if not claim_pos and not claim_neg:
+            return True
+        accounts, sources, events = cls._tax_liability_tuple(sentence)
+        contract_items = [
+            str(claim.get("text", ""))
+            for subtask in context.claim_plan
+            if subtask.get("status") == "answerable"
+            for claim in (subtask.get("claims") or [])
+            if isinstance(claim, dict) and claim.get("text")
+        ]
+        question_compact = re.sub(r"\s+", "", context.question)
+        claimed = accounts | sources | events
+        evidence_relevant = not require_question_entities or (
+            bool(claimed) and all(entity in question_compact for entity in claimed)
+        )
+        support_items = contract_items + (
+            [citation.excerpt for citation in context.evidence] if evidence_relevant else []
+        )
+        for support in support_items:
+            support_accounts, support_sources, support_events = cls._tax_liability_tuple(support)
+            if accounts - support_accounts or sources - support_sources or events - support_events:
+                continue
+            support_pos, support_neg = cls._taxability_polarity(support)
+            if (claim_pos and support_pos) and (not claim_neg or support_neg):
+                return True
+            if claim_neg and support_neg and not claim_pos:
+                return True
+        return False
+
     def _ungrounded_tax_liability_claim(self, draft: Draft, context, evidence_text: str) -> bool:
         """Require same-scope Evidence/Rule/claim-plan for tax factual claims.
 
         Covers taxability polarity, exemption, rate, and reduction.
-        UNKNOWN_TAX may not borrow those claims from unrelated retrieved excerpts.
+        Tax-liability sentences are checked even when TAX_INTENT is None.
         """
         remaining = self._non_limitation_text(draft.message)
         if not remaining.strip():
@@ -488,6 +558,26 @@ class Verifier:
         unknown = classified == UNKNOWN_TAX
         if not pos and not neg and not (unknown and rate_or_reduction):
             return False
+        liability_sentences = [
+            sentence for sentence in re.split(r"(?<=[.!?])\s+|\n+", remaining)
+            if any(self._taxability_polarity(sentence))
+        ]
+        if self._is_tuple_sensitive(remaining) and not self._directly_supported_tax_relation(remaining, context):
+            return True
+        if any(
+            self._is_tuple_sensitive(sentence)
+            and not self._directly_supported_tax_relation(sentence, context)
+            for sentence in liability_sentences
+        ):
+            return True
+        if unknown:
+            if liability_sentences:
+                return any(
+                    not self._directly_supported_tax_relation(
+                        sentence, context, require_question_entities=True,
+                    )
+                    for sentence in liability_sentences
+                )
         contract = self._answerable_tax_contract(context)
         if unknown:
             support = contract
@@ -501,6 +591,29 @@ class Verifier:
         if unknown and rate_or_reduction and not _TAX_RATE_OR_REDUCTION_RE.search(support):
             return True
         return False
+
+    @staticmethod
+    def _unsupported_eligibility_relation(draft: Draft, context) -> bool:
+        compact = re.sub(r"\s+", "", draft.message)
+        negative = bool(re.search(r"(?:가입|적용)대상이?아니|가입대상이아닙", compact))
+        separate = "별도" in compact and "제도" in compact and "적용" in compact
+        if not negative and not separate:
+            return False
+        entities = tuple(
+            marker for marker in ("공무원", "군인", "사립학교교직원", "선원")
+            if marker in compact
+        )
+        if not entities:
+            return False
+        for citation in context.evidence:
+            support = re.sub(r"\s+", "", citation.excerpt)
+            if not all(entity in support for entity in entities):
+                continue
+            supports_negative = "가입대상" in support and "아닙" in support
+            supports_separate = "별도" in support and "퇴직급여제도" in support and "적용" in support
+            if (not negative or supports_negative) and (not separate or supports_separate):
+                return False
+        return True
 
     @staticmethod
     def _negated_assertion(message: str, phrase: str) -> bool:

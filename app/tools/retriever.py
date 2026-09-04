@@ -26,9 +26,164 @@ RETRIEVAL_MIN_SCORE = 0.01
 RETRIEVAL_MIN_QUERY_COVERAGE = 0.51
 RETRIEVAL_MIN_DOMAIN_COVERAGE = 0.40
 
+# Informal receiving wording is not added as standalone in-scope keywords.
+# These aliases only absorb lexical mismatch against provided corpus phrasing.
+_PENSION_DOMAIN_ANCHORS = ("퇴직연금", "연금저축", "퇴직급여", "퇴직금", "IRP", "irp", "연금")
+_INFORMAL_RECEIVING_TERMS = ("받으려면", "받을", "받는", "받다", "언제", "몇 살", "나이", "살부터")
+_PENSION_RECEIVING_EXPANSION = "수령 지급 수령 시점 개시 시점 수령 연령 개시 연령 연금 수령"
+_PENSION_RECEIVING_TOKEN_ALIASES: dict[str, tuple[str, ...]] = {
+    "받다": ("수령",),
+    "받는": ("수령",),
+    "받을": ("수령",),
+    "받으려면": ("수령",),
+    "받으면": ("수령",),
+    "언제": ("수령", "개시"),
+    "살부터": ("수령", "연령", "개시"),
+    "몇살": ("수령", "연령", "개시"),
+    "나이": ("수령", "연령", "개시"),
+}
+_RECEIVING_DOMAIN_ALIASES = frozenset({"수령", "개시", "연령"})
+
+# Informal IRP account / compare / transfer wording. Parallel to receiving
+# aliases: absorb lexical mismatch only. Do not encode ages, rates, or limits.
+_IRP_ACCOUNT_INFORMAL = ("계좌인가요", "어떤 계좌", "무슨 계좌")
+_IRP_COMPARE_INFORMAL = ("뭐가 다른", "다른가요", "달라요")
+_IRP_TRANSFER_INFORMAL = ("옮길", "옮기", "넘겨", "넘길")
+_IRP_ACCOUNT_EXPANSION = "개인형퇴직연금 계좌 정의"
+_IRP_COMPARE_EXPANSION = "연금저축 계좌 비교 차이"
+_IRP_TRANSFER_EXPANSION = "이전 이동 입금"
+_IRP_SKIP_TOKENS = frozenset({"어떤", "뭐가", "다른가요", "달라요"})
+_IRP_LEXICAL_TOKEN_ALIASES: dict[str, tuple[str, ...]] = {
+    "계좌인가요": ("계좌", "개인형퇴직연금"),
+    "옮길": ("이전", "이동", "입금"),
+    "옮기": ("이전", "이동", "입금"),
+    "넘겨": ("이전", "이동", "입금"),
+    "넘길": ("이전", "이동", "입금"),
+    "퇴직한": ("퇴직",),
+}
+_IRP_DOMAIN_TERMS = frozenset({"계좌", "이전", "이동", "입금", "비교", "차이", "정의", "개인형퇴직연금"})
+
 
 def _tokenize(text: str) -> list[str]:
     return [token.lower() for token in TOKEN_PATTERN.findall(text)]
+
+
+def pension_receiving_normalization_applies(query: str) -> bool:
+    """True only when a pension-domain question uses informal receiving wording."""
+    if not isinstance(query, str) or not query.strip():
+        return False
+    if not any(anchor in query for anchor in _PENSION_DOMAIN_ANCHORS):
+        return False
+    return any(term in query for term in _INFORMAL_RECEIVING_TERMS)
+
+
+def _receiving_search_query(query: str) -> str:
+    if not pension_receiving_normalization_applies(query):
+        return query
+    if _PENSION_RECEIVING_EXPANSION in query:
+        return query
+    return f"{query} {_PENSION_RECEIVING_EXPANSION}"
+
+
+def irp_lexical_normalization_applies(query: str) -> bool:
+    """True when an IRP question uses informal account, compare, or transfer wording."""
+    if not isinstance(query, str) or not query.strip():
+        return False
+    if "IRP" not in query.upper() and "irp" not in query.lower():
+        return False
+    return (
+        any(term in query for term in _IRP_ACCOUNT_INFORMAL)
+        or any(term in query for term in _IRP_COMPARE_INFORMAL)
+        or any(term in query for term in _IRP_TRANSFER_INFORMAL)
+    )
+
+
+def _irp_search_query(query: str) -> str:
+    if not irp_lexical_normalization_applies(query):
+        return query
+    extra: list[str] = []
+    if any(term in query for term in _IRP_ACCOUNT_INFORMAL):
+        extra.append(_IRP_ACCOUNT_EXPANSION)
+    if any(term in query for term in _IRP_COMPARE_INFORMAL):
+        extra.append(_IRP_COMPARE_EXPANSION)
+    if any(term in query for term in _IRP_TRANSFER_INFORMAL):
+        extra.append(_IRP_TRANSFER_EXPANSION)
+    blob = " ".join(extra)
+    if not blob or blob in query:
+        return query
+    return f"{query} {blob}"
+
+
+def _gate_query_tokens(query: str) -> tuple[str, ...]:
+    tokens = meaningful_query_tokens(query)
+    if not irp_lexical_normalization_applies(query):
+        return tokens
+    rewritten: list[str] = []
+    for token in tokens:
+        if token in _IRP_SKIP_TOKENS:
+            continue
+        aliases = _IRP_LEXICAL_TOKEN_ALIASES.get(token)
+        if aliases:
+            rewritten.append(aliases[0])
+            continue
+        rewritten.append(token)
+    return tuple(dict.fromkeys(rewritten)) or tokens
+
+
+def _irp_domain_coverage(query: str, meaningful: tuple[str, ...]) -> float:
+    if not meaningful:
+        return 0.0
+    anchors = query_domain_anchors(query)
+    supported = 0
+    for token in meaningful:
+        if any(token in anchor.lower() or anchor.lower() in token for anchor in anchors):
+            supported += 1
+            continue
+        if token in _IRP_DOMAIN_TERMS:
+            supported += 1
+    return supported / len(meaningful)
+
+
+def _irp_chunk_supported(query: str, compact: str) -> bool:
+    if any(term in query for term in _IRP_TRANSFER_INFORMAL):
+        return any(term in compact for term in ("이전", "이동", "계약이전"))
+    if any(term in query for term in _IRP_COMPARE_INFORMAL):
+        return "연금저축" in compact and "irp" in compact
+    if any(term in query for term in _IRP_ACCOUNT_INFORMAL):
+        return "irp" in compact and ("개인형" in compact or "연금계좌" in compact)
+    return "irp" in compact
+
+
+def _retrieval_topics(query: str, topic: str | None) -> list[str] | None:
+    if topic is None:
+        return None
+    # IRP account/compare facts live in the tax corpus, not pension_system.
+    if irp_lexical_normalization_applies(query) and topic == "pension_system":
+        return ["pension_system", "withdrawal_tax"]
+    return [topic]
+
+
+def _token_matches_corpus(token: str, compact: str, *, use_aliases: bool) -> bool:
+    if token in compact:
+        return True
+    if not use_aliases:
+        return False
+    return any(alias in compact for alias in _PENSION_RECEIVING_TOKEN_ALIASES.get(token, ()))
+
+
+def _receiving_domain_coverage(query: str, meaningful: tuple[str, ...]) -> float:
+    if not meaningful:
+        return 0.0
+    anchors = query_domain_anchors(query)
+    supported = 0
+    for token in meaningful:
+        if any(token in anchor.lower() or anchor.lower() in token for anchor in anchors):
+            supported += 1
+            continue
+        aliases = _PENSION_RECEIVING_TOKEN_ALIASES.get(token, ())
+        if aliases and any(alias in _RECEIVING_DOMAIN_ALIASES for alias in aliases):
+            supported += 1
+    return supported / len(meaningful)
 
 
 def _soft_term_freq(term: str, term_freq: Counter[str]) -> int:
@@ -180,7 +335,7 @@ def retrieve_evidence(
     hits = BM25Retriever(chunks).search(
         search_query,
         top_k=max(top_k * 20, 80),
-        topics=[topic] if topic is not None else None,
+        topics=_retrieval_topics(query, topic),
     )
     hits = _apply_relevance_gate(query, hits, chunks_by_id)
     hits = _rerank_and_diversify(hits, chunks_by_id, query_kind, top_k)
@@ -207,19 +362,43 @@ def relevance_diagnostics(
     aggregate_coverage: float | None = None,
 ) -> dict[str, object]:
     """Explain the deterministic relevance gate for tests and audit artifacts."""
-    meaningful = meaningful_query_tokens(query)
+    use_receiving = pension_receiving_normalization_applies(query)
+    use_irp = irp_lexical_normalization_applies(query)
+    meaningful = _gate_query_tokens(query)
     searchable = f"{chunk.title} {chunk.section} {chunk.text}".lower()
     compact = searchable.replace(" ", "")
-    matched = tuple(token for token in meaningful if token in compact)
+    matched = tuple(
+        token for token in meaningful if _token_matches_corpus(token, compact, use_aliases=use_receiving)
+    )
     coverage = len(matched) / len(meaningful) if meaningful else 0.0
     anchors = query_domain_anchors(query)
     matched_anchors = tuple(anchor for anchor in anchors if anchor.lower() in compact)
-    domain_coverage = domain_query_coverage(query)
-    effective_coverage = coverage if aggregate_coverage is None else aggregate_coverage
+    if use_receiving:
+        domain_coverage = _receiving_domain_coverage(query, meaningful)
+    elif use_irp:
+        domain_coverage = _irp_domain_coverage(query, meaningful)
+    else:
+        domain_coverage = domain_query_coverage(query)
+    # Informal receiving/IRP terms can be covered by one supporting chunk while
+    # other candidates only share the domain noun. Keep per-hit coverage so
+    # union coverage does not revive unrelated operational pages.
+    effective_coverage = coverage if (aggregate_coverage is None or use_receiving or use_irp) else aggregate_coverage
     custom_exact_match = not anchors and effective_coverage == 1.0
+    receiving_supported = True
+    if use_receiving:
+        receiving_supported = any(
+            _token_matches_corpus(token, compact, use_aliases=True)
+            for token in meaningful
+            if token in _PENSION_RECEIVING_TOKEN_ALIASES
+        )
+    irp_supported = True
+    if use_irp:
+        irp_supported = _irp_chunk_supported(query, compact)
     accepted = (
         hit.score >= RETRIEVAL_MIN_SCORE
         and bool(meaningful)
+        and receiving_supported
+        and irp_supported
         and (
             custom_exact_match
             or (
@@ -229,8 +408,13 @@ def relevance_diagnostics(
             )
         )
     )
+    normalized = " ".join(meaningful)
+    if use_receiving:
+        normalized = f"{normalized} {_PENSION_RECEIVING_EXPANSION}".strip()
+    elif use_irp:
+        normalized = _irp_search_query(normalized)
     return {
-        "normalized_query": " ".join(meaningful),
+        "normalized_query": normalized,
         "meaningful_query_tokens": list(meaningful),
         "matched_query_tokens": list(matched),
         "token_coverage": coverage,
@@ -248,15 +432,19 @@ def _apply_relevance_gate(
     hits: list[RetrievalHit],
     chunks_by_id: dict[str, Chunk],
 ) -> list[RetrievalHit]:
-    meaningful = meaningful_query_tokens(query)
+    meaningful = _gate_query_tokens(query)
     if not meaningful or not hits:
         return []
+    use_aliases = pension_receiving_normalization_applies(query)
     candidate_text = " ".join(
         f"{chunks_by_id[hit.chunk_id].title} {chunks_by_id[hit.chunk_id].section} "
         f"{chunks_by_id[hit.chunk_id].text}"
         for hit in hits
     ).lower().replace(" ", "")
-    aggregate_matched = [token for token in meaningful if token in candidate_text]
+    aggregate_matched = [
+        token for token in meaningful
+        if _token_matches_corpus(token, candidate_text, use_aliases=use_aliases)
+    ]
     aggregate_coverage = len(aggregate_matched) / len(meaningful)
     return [
         hit for hit in hits
@@ -268,14 +456,32 @@ def _apply_relevance_gate(
 
 def _expand_query(query: str, topic: str | None) -> tuple[str, str | None]:
     if topic == "pension_system" and (has_alias(query, "db") or has_alias(query, "dc") or has_alias(query, "institution")):
-        return f"{query} 확정급여형 DB 회사 적립금 운용 확정기여형 DC 근로자 운용 퇴직급여", "institution"
-    if topic == "withdrawal_tax" and is_tax_deduction_question(query):
-        return f"{query} 연금저축 IRP 세액공제 납입한도 합산 600만원 900만원", "tax_deduction"
-    if topic == "withdrawal_tax" and is_teacher_retirement_domain(query):
-        return f"{query} 공무원 교사 퇴직수당 명예퇴직수당 퇴직소득 60일 연금계좌 환급", "teacher_retirement"
-    if topic == "product" and has_alias(query, "product_family"):
-        return f"{query} 투자목적 투자전략 투자위험등급 변동성 VaR 금리변동위험", "product_compare"
-    return query, None
+        search_query, query_kind = (
+            f"{query} 확정급여형 DB 회사 적립금 운용 확정기여형 DC 근로자 운용 퇴직급여",
+            "institution",
+        )
+    elif topic == "withdrawal_tax" and is_tax_deduction_question(query):
+        search_query, query_kind = (
+            f"{query} 연금저축 IRP 세액공제 납입한도 합산 600만원 900만원",
+            "tax_deduction",
+        )
+    elif topic == "withdrawal_tax" and is_teacher_retirement_domain(query):
+        search_query, query_kind = (
+            f"{query} 공무원 교사 퇴직수당 명예퇴직수당 퇴직소득 60일 연금계좌 환급",
+            "teacher_retirement",
+        )
+    elif topic == "product" and has_alias(query, "product_family"):
+        search_query, query_kind = (
+            f"{query} 투자목적 투자전략 투자위험등급 변동성 VaR 금리변동위험",
+            "product_compare",
+        )
+    else:
+        search_query, query_kind = query, None
+    if pension_receiving_normalization_applies(query):
+        search_query = _receiving_search_query(search_query)
+    if irp_lexical_normalization_applies(query):
+        search_query = _irp_search_query(search_query)
+    return search_query, query_kind
 
 
 def _rerank_and_diversify(

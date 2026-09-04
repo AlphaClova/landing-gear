@@ -10,14 +10,32 @@ from app.agent.product_evidence import (
     allows_product_evidence_enrichment,
     build_product_evidence_bundles,
     citations_for_product,
+    extract_fee_table,
     is_prospectus_citation,
     render_cost_claim,
+    render_fee_table_claim,
     render_product_comparison,
+    structured_fee_mapping,
 )
 from app.agent.router import Intent
 from app.agent.tools import ToolResult
 from app.api.schemas import CalculationResult, Citation, ComparisonResult, ComparisonRow, RequiredSlot, WithdrawalComparisonResponse
-from app.core.query_normalization import ACCOUNT_TERMINATION_TAX, EARLY_WITHDRAWAL_TAX, has_alias, has_legally_named_retirement_benefit, is_comparison_question, is_db_dc_question, is_tax_deduction_question, is_teacher_retirement_domain, needs_retirement_benefit_clarification, pension_year_rate_block_allowed, retirement_benefit_subtasks, tax_intent
+from app.core.query_normalization import (
+    ACCOUNT_TERMINATION_TAX,
+    EARLY_WITHDRAWAL_TAX,
+    allows_dc_irp_account_transfer_claim,
+    excerpt_supports_dc_irp_retirement_transfer,
+    has_alias,
+    has_legally_named_retirement_benefit,
+    is_comparison_question,
+    is_db_dc_question,
+    is_tax_deduction_question,
+    is_teacher_retirement_domain,
+    needs_retirement_benefit_clarification,
+    pension_year_rate_block_allowed,
+    retirement_benefit_subtasks,
+    tax_intent,
+)
 from app.core.errors import ErrorCode, HCXError
 
 _SYSTEM_PROMPT = """제공된 계약만 자연스러운 한국어 답변으로 바꾸세요.
@@ -201,6 +219,20 @@ class Composer:
                 [fallback], [], forbidden, [fallback], [], fallback)
         correction_pair = self._false_premise_correction(question, result)
         claim_plan = self._build_claim_plan(question, result, intent)
+        tax_scope = result.tax_intent or tax_intent(question)
+        unsupported_tax_subtasks = [
+            item for item in claim_plan
+            if item.get("status") == "unsupported" and "tax" in str(item.get("subtask", ""))
+        ]
+        if (
+            tax_scope == "UNKNOWN_TAX"
+            and unsupported_tax_subtasks
+            and not any(item.get("claims") for item in unsupported_tax_subtasks)
+        ):
+            # Retrieval may still supply useful account/source definitions, but an
+            # unsupported tax subtask is not permission to synthesize a new
+            # entity-to-taxability relationship from adjacent raw excerpts.
+            forbidden.append("direct support 없는 tax liability relation 생성")
         if correction_pair:
             fallback_correction, evidence_id = correction_pair
             sourced = [item for item in result.evidence if item.id == evidence_id] or result.evidence[:1]
@@ -344,6 +376,26 @@ class Composer:
         receipt_evidence = [item for item in result.evidence if item.document_id in {"doc51", "doc55"}]
 
         doc26 = [item for item in result.evidence if item.document_id == "doc26"]
+        population = next((
+            label for label in ("공무원", "군인", "사립학교 교직원", "선원")
+            if label.replace(" ", "") in question.replace(" ", "")
+        ), None)
+        eligibility_relation_evidence = [
+            item for item in result.evidence
+            if population
+            and population.replace(" ", "") in item.excerpt.replace(" ", "")
+            and "일반퇴직연금가입대상" in item.excerpt.replace(" ", "")
+            and "아닙" in item.excerpt
+            and "별도" in item.excerpt
+            and "퇴직급여제도" in item.excerpt.replace(" ", "")
+        ]
+        if population and eligibility_relation_evidence and any(marker in question for marker in ("가입", "대상")):
+            plan.append(self._claim(
+                "eligibility_relation",
+                f"{population}은 일반 퇴직연금 가입 대상이 아니며, 별도의 퇴직급여제도를 적용받습니다.",
+                evidence=eligibility_relation_evidence[:1],
+            ))
+
         teacher_subtasks = retirement_benefit_subtasks(question)
         if teacher_subtasks and doc26:
             teacher_claims = {
@@ -420,8 +472,11 @@ class Composer:
                 "DC 퇴직금은 먼저 IRP로 이전해 수령하고, 이후 연금저축으로 계약이전하여 운용할 수 있습니다.",
                 evidence=transfer_evidence,
             ))
-        elif has_alias(question, "dc") and has_alias(question, "irp"):
-            dc_irp_evidence = [item for item in result.evidence if "DC" in item.excerpt and "IRP" in item.excerpt]
+        elif allows_dc_irp_account_transfer_claim(question):
+            dc_irp_evidence = [
+                item for item in result.evidence
+                if excerpt_supports_dc_irp_retirement_transfer(item.excerpt)
+            ]
             if dc_irp_evidence:
                 plan.append(self._claim("account_transfer", "DC 법정퇴직금은 IRP로 이전할 수 있습니다.", evidence=dc_irp_evidence))
 
@@ -497,6 +552,41 @@ class Composer:
                     f"[한계] 요청한 {entity} 상품은 현재 Product Fact에서 확인되지 않습니다.",
                 ))
         for constraint in result.recommendation_constraints:
+            if not constraint.get("applied") and constraint.get("constraint") == "account_type":
+                plan.append(self._unsupported(
+                    "account_type",
+                    "[한계] 현재 Product Fact에서 요청한 계좌 유형에 가입 가능하다고 확인된 상품이 없어 조건 충족 상품을 비교할 수 없습니다.",
+                ))
+            if not constraint.get("applied") and constraint.get("constraint") == "shared_account_types":
+                accounts = [str(value) for value in (constraint.get("value") or [])]
+                missing = [str(value) for value in (constraint.get("missing_account_types") or [])]
+                joined = "와 ".join(accounts) if accounts else "요청한 계좌 유형"
+                if missing:
+                    missing_joined = "와 ".join(missing)
+                    limitation = (
+                        f"[한계] 현재 제공된 Product Fact에서는 {missing_joined} 가입 가능 상품이 확인되지 않아, "
+                        f"{joined}에서 공통으로 가입 가능한 상품이 있는지 확정할 수 없습니다."
+                    )
+                else:
+                    limitation = (
+                        f"[한계] 현재 제공된 Product Fact에서는 {joined}에서 공통으로 가입 가능한 상품이 확인되지 않아 "
+                        "조건 충족 상품을 비교할 수 없습니다."
+                    )
+                plan.append(self._unsupported("shared_account_types", limitation))
+            if not constraint.get("applied") and constraint.get("constraint") == "product_type":
+                account = next((
+                    item for item in result.recommendation_constraints
+                    if item.get("constraint") == "account_type" and item.get("applied")
+                ), None)
+                product_type = str(constraint.get("value", "요청 유형"))
+                if account:
+                    limitation = (
+                        f"[한계] 현재 Product Fact에서 {account.get('value')} 가입 가능 상품은 확인되지만, "
+                        f"그중 {product_type}으로 확인되는 상품은 찾지 못했습니다."
+                    )
+                else:
+                    limitation = f"[한계] 현재 제공 Product Fact 중 {product_type}으로 확인되는 상품은 찾지 못했습니다."
+                plan.append(self._unsupported("product_type", limitation))
             if not constraint.get("applied") and constraint.get("constraint") == "investment_horizon":
                 horizon = str(constraint.get("value", "요청한 기간"))
                 plan.append(self._unsupported(
@@ -515,7 +605,7 @@ class Composer:
                 ))
         distinctive_unapplied = [
             item for item in result.recommendation_constraints
-            if item.get("constraint") not in {"account_type"} and not item.get("applied")
+            if item.get("constraint") not in {"account_type", "shared_account_types"} and not item.get("applied")
         ]
         if not result.products and distinctive_unapplied and not any(
             item.get("constraint") in {"principal_guarantee", "fee_ceiling_percent", "investment_horizon"}
@@ -537,13 +627,25 @@ class Composer:
         if requested_cost and allows_product_evidence_enrichment(intent):
             cost_text = None
             cost_evidence: list = []
+            fee_mapping: dict[str, str] = {}
             for bundle in build_product_evidence_bundles(result.products, result.evidence, intent=intent):
                 cost_text = render_cost_claim(bundle, intent=intent)
                 if cost_text:
                     cost_evidence = bundle.citations
                     break
+            if not cost_text:
+                for citation in result.evidence:
+                    fields = extract_fee_table(citation)
+                    cost_text = render_fee_table_claim(fields)
+                    if cost_text:
+                        fee_mapping = structured_fee_mapping(fields)
+                        cost_evidence = [citation]
+                        break
             if cost_text:
-                plan.append(self._claim("product_cost", cost_text, evidence=cost_evidence))
+                claim = self._claim("product_cost", cost_text, evidence=cost_evidence)
+                if fee_mapping:
+                    claim["structured_fee_mapping"] = fee_mapping
+                plan.append(claim)
             else:
                 plan.append(self._unsupported("product_cost", "[한계] 현재 확보된 Product Fact와 투자설명서 근거에서는 요청한 비용 값을 확인하지 못했습니다."))
         elif requested_cost:
@@ -631,7 +733,9 @@ class Composer:
             parts.append("확정급여형(DB)은 근로자가 퇴직할 때 받을 금액이 사전에 확정되어 있고 회사가 적립금을 운용합니다. 확정기여형(DC)은 회사가 매년 일정 금액을 근로자의 계좌에 입금하고 근로자가 직접 운용하므로, 운용 수익률에 따라 최종 퇴직금이 달라집니다.")
         if has_alias(question, "dc") and "연금저축" in question and any(c.document_id == "doc51" and "계약이전" in c.excerpt for c in result.evidence):
             parts.append("DC 퇴직금은 먼저 IRP로 이전해야 하며, 연금저축에서 운용하려면 IRP로 퇴직금을 수령한 뒤 연금저축으로 계약이전할 수 있습니다.")
-        elif has_alias(question, "irp") and has_alias(question, "dc") and any("IRP" in c.excerpt and "DC" in c.excerpt for c in result.evidence):
+        elif allows_dc_irp_account_transfer_claim(question) and any(
+            excerpt_supports_dc_irp_retirement_transfer(item.excerpt) for item in result.evidence
+        ):
             parts.append("DC 법정퇴직금은 IRP로 이전할 수 있습니다.")
         if len(result.tax_source_types) >= 3 and any(c.document_id in {"doc51", "doc55"} for c in result.evidence):
             parts.append("연금계좌 과세는 재원별로 구분해야 합니다. 세액공제를 받지 않은 개인 납입금, 퇴직금·이연퇴직소득, 세액공제를 받은 개인 납입금과 운용수익은 같은 세율로 취급하지 않습니다. 퇴직금 재원의 연금수령에는 이연퇴직소득세의 실제수령연차별 납부비율이 적용되고, 3.3~5.5%는 퇴직금 재원 자체의 세율로 적용하지 않습니다.")

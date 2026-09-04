@@ -150,6 +150,77 @@ def is_comparison_question(question: str) -> bool:
     return has_alias(question, "comparison") or "안정" in question
 
 
+_PRODUCT_AVAILABILITY_PHRASES = (
+    "같은 상품",
+    "동일 상품",
+    "살 수 있",
+    "가입할 수 있",
+    "구매할 수 있",
+)
+_PRODUCT_AVAILABILITY_ENTITIES = ("상품", "펀드")
+_ACCOUNT_TRANSFER_QUESTION_MARKERS = ("이전", "옮기", "이동", "전환", "수령계좌", "현물이전", "넘긴", "넘겨", "넘길")
+_IRP_DC_RELATION_MARKERS = ("같은", "차이", "관계", "다르", "제도")
+
+
+def is_product_availability_question(question: str) -> bool:
+    """True when the user asks whether a product can be bought/joined, not whether plans are the same."""
+    if not any(entity in question for entity in _PRODUCT_AVAILABILITY_ENTITIES):
+        return False
+    return any(phrase in question for phrase in _PRODUCT_AVAILABILITY_PHRASES)
+
+
+def plan_types_from_question(question: str) -> tuple[str, ...]:
+    """All retirement account types named in the question, without collapsing to the first hit."""
+    found: list[str] = []
+    if has_alias(question, "irp"):
+        found.append("IRP")
+    if has_alias(question, "dc"):
+        found.append("DC")
+    if has_alias(question, "db"):
+        found.append("DB")
+    return tuple(found)
+
+
+def has_account_transfer_intent(question: str) -> bool:
+    return any(marker in question for marker in _ACCOUNT_TRANSFER_QUESTION_MARKERS)
+
+
+def allows_dc_irp_account_transfer_claim(question: str) -> bool:
+    """Permit the DC→IRP retirement-transfer claim only for transfer or plan-relation questions."""
+    if is_product_availability_question(question):
+        return False
+    if not (has_alias(question, "dc") and has_alias(question, "irp")):
+        return False
+    if has_account_transfer_intent(question):
+        return True
+    return any(marker in question for marker in _IRP_DC_RELATION_MARKERS)
+
+
+def excerpt_supports_dc_irp_retirement_transfer(excerpt: str) -> bool:
+    """True when one excerpt directly links DC retirement funds, a transfer event, and IRP."""
+    compact = excerpt.replace(" ", "")
+    has_dc = "DC" in excerpt or "확정기여" in excerpt
+    has_irp = "IRP" in excerpt
+    has_event = any(token in compact for token in ("이전", "옮기", "이동", "전환"))
+    has_source = any(token in compact for token in ("법정퇴직금", "DC퇴직금", "DC법정퇴직금", "퇴직금"))
+    if "현물이전" in compact and not any(token in compact for token in ("법정퇴직금", "DC퇴직금")):
+        return False
+    return has_dc and has_irp and has_event and has_source
+
+
+def is_generic_risk_grade_meaning_question(question: str) -> bool:
+    """True when the user asks what a 1-6 risk grade means, not for a product."""
+    if not isinstance(question, str) or not question.strip():
+        return False
+    if "위험등급" not in question:
+        return False
+    if re.search(r"[1-6]\s*등급", question) is None:
+        return False
+    if any(marker in question for marker in ("상품", "펀드", "추천", "골라", "목록", "보여", "솔로몬", "비교")):
+        return False
+    return any(marker in question for marker in ("의미", "뜻", "무엇", "뭐야", "무슨"))
+
+
 def is_tax_deduction_question(question: str) -> bool:
     return has_alias(question, "tax_deduction") or any(x in question.replace(" ", "") for x in ("납입한도", "공제대상", "공제상한", "세금에서빠")) or ("공제" in question and any(x in question for x in ("한도", "최대", "상한", "환급액")))
 
@@ -234,7 +305,11 @@ def is_account_termination_question(question: str) -> bool:
     if is_db_dc_question(question):
         return False
     compact = _compact_question(question)
-    return any(marker in question for marker in ("해지", "해약", "끝내")) or "전액일시인출" in compact or "전액 일시 인출" in question
+    termination = bool(
+        re.search(r"(?<!정)해지(?:$|[\s를은는이가의,?]|하|했|되|된|할|하려)", question)
+        or any(marker in question for marker in ("해약", "끝내"))
+    )
+    return termination or "전액일시인출" in compact or "전액 일시 인출" in question
 
 
 def pension_year_rate_block_allowed(scope: str | None) -> bool:
@@ -263,6 +338,20 @@ def _is_pension_receipt_tax(question: str) -> bool:
     if is_early_withdrawal_question(question) or is_account_termination_question(question):
         return False
     if any(marker in question for marker in ("연금수령", "연금 수령", "수령연차", "이연퇴직소득세")):
+        return True
+    if (
+        "퇴직소득세" in question
+        and any(marker in question for marker in ("퇴직금", "퇴직급여"))
+        and "연금" in question
+        and any(marker in question for marker in ("계산", "절세액", "비교"))
+    ):
+        return True
+    if (
+        any(marker in question for marker in ("퇴직금", "퇴직급여"))
+        and "연금으로" in question
+        and any(marker in question for marker in ("받으", "받으면", "수령"))
+        and any(marker in question for marker in ("세금", "과세", "세율"))
+    ):
         return True
     if re.search(r"\d+\s*년차", question):
         return True

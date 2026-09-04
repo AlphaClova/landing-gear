@@ -14,6 +14,7 @@ from app.core.query_normalization import (
     has_alias,
     is_comparison_question,
     is_db_dc_question,
+    is_product_availability_question,
     is_tax_deduction_question,
     is_teacher_retirement_domain,
     tax_intent,
@@ -25,11 +26,18 @@ Route = Literal["fast_path", "deep_path"]
 _KEYWORDS: dict[Intent, tuple[str, ...]] = {
     "제도": ("운용 주체", "운용 책임", "제도 설명", "퇴직연금 제도"),
     "세제": ("세금", "세율", "과세", "소득세", "퇴직소득세", "비과세", "절세"),
-    "상품": ("상품", "IRP", "펀드", "예금", "ETF", "국공채", "채권형", "솔로몬", "수익률 비교"),
+    "상품": ("상품", "펀드", "예금", "ETF", "국공채", "채권형", "솔로몬", "수익률 비교"),
     "절차": ("신청", "절차", "방법", "서류", "이전", "이동", "해지", "끝내", "어떻게 하나요", "어떻게 해야"),
 }
 
 _OUT_OF_SCOPE_MARKERS = ("주식 추천", "부동산 투자", "코인", "타로", "날씨", "번역")
+
+# Generic receive/time words are not in-scope by themselves. They only rescue a
+# question that already names a pension-domain account or benefit.
+_PENSION_DOMAIN_ANCHORS = ("퇴직연금", "연금저축", "퇴직급여", "퇴직금", "IRP", "irp", "연금")
+_PENSION_RECEIVING_TERMS = (
+    "받다", "받는", "받을", "받으려면", "수령", "언제", "몇 살", "나이", "개시", "시작", "조건",
+)
 
 
 @dataclass
@@ -77,6 +85,9 @@ class IntentRouter:
             scores["세제"] += 2
         if has_alias(question, "procedure_feature"):
             scores["절차"] += 2
+        if _has_pension_plan_type_entity(question):
+            scores["제도"] += 2
+        _apply_irp_context_scores(scores, question)
         matched = {intent: score for intent, score in scores.items() if score > 0}
 
         # 세액공제 한도는 계좌명이 함께 나와도 상품 추천이 아닌 세제 factual 질의다.
@@ -97,12 +108,21 @@ class IntentRouter:
         ):
             matched = {"종합": 3}
 
-        # 상품명/자산유형과 비교 표현이 함께 있으면 product compare로 우선한다.
+        # 상품 비교 요구는 계좌명이 함께 있어도 상품 intent로 우선한다. DC/IRP는
+        # 이 경우 제도 설명 주제가 아니라 Product Fact의 가입계좌 filter다.
         has_specific_product_signal = has_alias(question, "product_family") or has_alias(question, "product_metric") or any(
-            marker in question for marker in ("펀드", "채권", "상품 목록", "상품 후보")
+            marker in question for marker in ("상품", "펀드", "채권", "위험등급", "비용", "보수", "수익률", "추천")
         )
-        if scores["상품"] and has_specific_product_signal and is_comparison_question(question) and not (has_retirement_amount or has_tax_amount):
+        if (
+            scores["상품"]
+            and has_specific_product_signal
+            and is_comparison_question(question)
+            and not (has_retirement_amount or has_tax_amount)
+            and not _is_account_entity_comparison(question)
+        ):
             matched = {"상품": scores["상품"]}
+        elif _is_account_entity_comparison(question) and not _irp_product_context(question):
+            matched = {"제도": max(2, scores["제도"])}
 
         # 상품 선택 요청은 계좌/제도명이 함께 있어도 상품 intent다. 실제 추천에
         # 필요한 사용자 조건은 Router가 아니라 SlotManager가 판정한다.
@@ -114,12 +134,28 @@ class IntentRouter:
 
         # 신청·이전·해지와 구비서류를 직접 묻는 질문은 제도명이 포함돼도
         # 실행 절차를 묻는 단일 도메인 질의다.
-        if scores["절차"] and any(marker in question for marker in ("신청", "서류", "이전", "해지", "절차")):
+        if scores["절차"] and any(marker in question for marker in ("신청", "서류", "이전", "이동", "옮길", "해지", "절차")):
             multi_procedure = scores["상품"] > 0 and any(marker in question for marker in ("상품 선택", "추천", "연금 개시"))
             multi_tax = scores["세제"] > 0 and any(marker in question for marker in ("세금", "과세", "퇴직소득세"))
             matched = {"종합": max(3, scores["절차"])} if (multi_procedure or multi_tax) else {"절차": scores["절차"]}
 
+        # Availability ("같은 상품을 살 수 있나요") is a Product Fact probe, not an
+        # IRP/DC institution comparison. Keep transfer/procedure questions on 절차.
+        if (
+            is_product_availability_question(question)
+            and not (has_retirement_amount or has_tax_amount)
+            and not (scores["절차"] and any(marker in question for marker in ("이전", "이동", "옮길", "해지", "신청", "서류")))
+        ):
+            matched = {"상품": max(2, scores["상품"])}
+
         if not matched:
+            if _is_pension_receiving_question(question):
+                return RouteDecision(
+                    intent="제도",
+                    route="deep_path",
+                    route_confidence=0.7,
+                    fallback_reason="pension_receiving_domain",
+                )
             return RouteDecision(
                 intent="범위 밖",
                 route="fast_path",
@@ -160,3 +196,61 @@ class IntentRouter:
         if keyword == "해지":
             return any(token.startswith("해지") for token in question.split())
         return keyword in question
+
+
+def _is_pension_receiving_question(question: str) -> bool:
+    """True only when a pension-domain anchor and a receiving term co-occur."""
+    if not any(anchor in question for anchor in _PENSION_DOMAIN_ANCHORS):
+        return False
+    return any(term in question for term in _PENSION_RECEIVING_TERMS)
+
+
+_NON_PENSION_DC_MARKERS = ("모터", "전압", "전류", "전원", "회로", "배터리", "변환기")
+_PENSION_DC_FORMS = ("DC형", "확정기여형", "확정기여", "디씨형", "디씨", "Defined Contribution")
+_PENSION_DB_FORMS = ("DB형", "확정급여형", "확정급여", "디비형", "디비", "Defined Benefit")
+_IRP_PRODUCT_MARKERS = ("상품", "펀드", "채권", "주식", "추천", "수익률", "보수", "위험등급", "AUM")
+_IRP_PROCEDURE_MARKERS = ("옮기다", "옮길", "이전", "이동", "넘기다", "입금", "전환")
+_IRP_INSTITUTION_MARKERS = ("계좌", "제도", "차이", "다르", "무엇", "뭐", "가입대상", "가입 대상", "정의")
+_ACCOUNT_COMPARE_ENTITIES = ("연금저축", "IRP", "개인형퇴직연금", "개인형 퇴직연금", "DB형", "DC형", "확정급여", "확정기여", "퇴직연금")
+
+
+def _has_pension_plan_type_entity(question: str) -> bool:
+    """True when DB/DC is a retirement-plan entity, not an electrical DC token."""
+    if any(marker in question for marker in _NON_PENSION_DC_MARKERS):
+        return False
+    if any(form in question for form in _PENSION_DC_FORMS + _PENSION_DB_FORMS):
+        return True
+    # Standalone DC/DB: allow particles/space, reject DC모터-style concatenation.
+    return bool(re.search(r"(?<![A-Za-z])(?:DC|DB)(?=(?:형|[와과은는이가를을의에도만,]|\s|$))", question, re.IGNORECASE))
+
+
+def _irp_product_context(question: str) -> bool:
+    return any(marker in question for marker in _IRP_PRODUCT_MARKERS)
+
+
+def _irp_procedure_context(question: str) -> bool:
+    return any(marker in question for marker in _IRP_PROCEDURE_MARKERS)
+
+
+def _apply_irp_context_scores(scores: dict[Intent, int], question: str) -> None:
+    """IRP is an account. Surrounding wording decides product vs procedure vs institution."""
+    if not has_alias(question, "irp"):
+        return
+    if _irp_product_context(question):
+        scores["상품"] += 2
+    elif _irp_procedure_context(question):
+        scores["절차"] += 2
+    else:
+        scores["제도"] += 2
+
+
+def _is_account_entity_comparison(question: str) -> bool:
+    if not is_comparison_question(question):
+        return False
+    compact = question.upper()
+    hits = 0
+    for entity in _ACCOUNT_COMPARE_ENTITIES:
+        needle = entity.upper() if entity.isascii() else entity
+        if needle in compact or entity in question:
+            hits += 1
+    return hits >= 2

@@ -207,6 +207,62 @@ def test_g033_limitation_only_answer_is_allowed() -> None:
     assert "unsupported factual claim" not in Verifier().check(draft)
 
 
+def test_unsupported_tax_sentence_before_same_paragraph_limitation_is_repaired() -> None:
+    _, result, context = grounded(G033_QUESTION)
+    draft = Draft(
+        message=(
+            "법정외퇴직금은 비과세입니다. "
+            "다만 제공된 문서만으로 세율은 확정할 수 없습니다."
+        ),
+        citations=result.evidence,
+        context=context,
+    )
+    verifier = Verifier()
+    issues = verifier.check(draft)
+    assert "unsupported factual claim" in issues
+    assert verifier.repair_safe(draft, issues)
+    assert draft.message == context.fallback_message
+
+
+def test_limitation_sentence_is_not_treated_as_tax_liability_claim() -> None:
+    _, result, context = grounded(G033_QUESTION)
+    draft = Draft(
+        message="제공된 문서만으로 과세 여부나 세율을 확정할 수 없습니다.",
+        citations=result.evidence,
+        context=context,
+    )
+    assert "unsupported factual claim" not in Verifier().check(draft)
+
+
+def test_directly_unsupported_statutory_extra_benefit_exemption_is_rejected() -> None:
+    _, result, context = grounded(G033_QUESTION)
+    draft = Draft(message="법정외퇴직금은 비과세입니다.", citations=result.evidence, context=context)
+    assert "unsupported factual claim" in Verifier().check(draft)
+
+
+def test_directly_supported_tax_relation_is_allowed() -> None:
+    _, result, context = grounded(G033_QUESTION)
+    context.question = "법정외퇴직금은 비과세인가요?"
+    support = Citation(
+        id="direct-tax-relation",
+        document_id="direct-tax-source",
+        page=1,
+        source="provided",
+        excerpt="법정외퇴직금은 비과세입니다.",
+    )
+    context.evidence.append(support)
+    draft = Draft(message="법정외퇴직금은 비과세입니다.", citations=[*result.evidence, support], context=context)
+    assert "unsupported factual claim" not in Verifier().check(draft)
+
+
+def test_unknown_tax_unsupported_subtask_forbids_new_tax_relation_contract() -> None:
+    _, _, context = grounded(G033_QUESTION)
+    tax_subtasks = [item for item in context.claim_plan if "tax" in str(item.get("subtask", ""))]
+    assert tax_subtasks
+    assert all(item.get("status") == "unsupported" and not item.get("claims") for item in tax_subtasks)
+    assert "direct support 없는 tax liability relation 생성" in context.forbidden_behaviors
+
+
 def test_supported_lump_sum_tax_claim_is_preserved() -> None:
     _, result, context = grounded("퇴직금을 일시금으로 받으면 세율이 무조건 16.5%인가요?")
     draft = Draft(message=context.fallback_message, citations=result.evidence, context=context)
