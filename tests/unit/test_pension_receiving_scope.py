@@ -1,9 +1,15 @@
 from app.agent.router import IntentRouter
+from app.agent.slots import SlotManager
+from app.core.query_normalization import pension_scope
 
-IN_SCOPE_PENSION_RECEIVING = (
+IN_SCOPE_SPECIFIC_RECEIVING = (
+    "퇴직금은 연금으로 받을 수 있나요?",
+    "퇴직연금은 언제부터 받을 수 있나요?",
+)
+
+GENERIC_RECEIVING = (
     "연금은 언제부터 받을 수 있나요?",
     "연금은 몇 살부터 받나요?",
-    "퇴직금은 연금으로 받을 수 있나요?",
     "연금으로 받으려면 조건이 있나요?",
     "연금은 언제 받을 수 있죠?",
     "연금을 받을 수 있는 나이가 어떻게 되나요?",
@@ -31,13 +37,24 @@ C1_C6 = (
 )
 
 
-def test_pension_receiving_with_domain_anchor_is_in_scope_institution() -> None:
+def test_pension_receiving_with_specific_anchor_is_in_scope_institution() -> None:
     router = IntentRouter()
-    for question in IN_SCOPE_PENSION_RECEIVING:
+    for question in IN_SCOPE_SPECIFIC_RECEIVING:
         decision = router.classify(question)
         assert decision.intent != "범위 밖", question
         assert decision.intent == "제도", (question, decision.intent)
-        assert decision.fallback_reason == "pension_receiving_domain"
+        assert decision.fallback_reason in {None, "pension_receiving_domain"}
+
+
+def test_generic_pension_receiving_stays_institution_for_clarification() -> None:
+    router = IntentRouter()
+    slots = SlotManager()
+    for question in GENERIC_RECEIVING:
+        decision = router.classify(question)
+        assert decision.intent == "제도", (question, decision.intent)
+        assert decision.fallback_reason == "pension_receiving_generic"
+        missing = slots.required(decision.intent, {}, question)
+        assert missing and missing[0].name == "pension_kind", question
 
 
 def test_receiving_terms_without_pension_anchor_are_not_auto_pension() -> None:
@@ -51,3 +68,4 @@ def test_c1_c6_intents_unchanged_by_pension_receiving_rescue() -> None:
     router = IntentRouter()
     for case_id, question, intent in C1_C6:
         assert router.classify(question).intent == intent, case_id
+        assert pension_scope(question) != "NATIONAL_PENSION" or case_id == "unused"

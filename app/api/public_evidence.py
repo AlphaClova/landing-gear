@@ -13,11 +13,15 @@ from typing import Any
 
 from app.core.query_normalization import (
     is_db_dc_question,
+    is_generic_pension_receiving_question,
     is_generic_risk_grade_meaning_question,
     is_tax_deduction_question,
     is_teacher_retirement_domain,
+    evidence_compatible_with_question_scope,
+    applies_pension_scope_evidence_filter,
     tax_intent,
     TAX_CREDIT,
+    pension_scopes,
 )
 
 _PRODUCT_SUPPORT = (
@@ -124,6 +128,8 @@ def select_public_citations(internal: Any, question: str) -> list[Any]:
     if not citations:
         return []
     if internal.trace.intent == "범위 밖":
+        return []
+    if internal.type == "clarification" and is_generic_pension_receiving_question(question):
         return []
 
     answer = public_answer_text(internal)
@@ -241,6 +247,8 @@ def _drop_reason(
     if _is_excess_eligibility(excerpt, question, answer):
         return "IRRELEVANT_EVIDENCE"
     if _is_unused_pension_income_tax(excerpt, answer):
+        return "WRONG_SCOPE_EVIDENCE"
+    if applies_pension_scope_evidence_filter(question) and pension_scopes(question) and not evidence_compatible_with_question_scope(question, excerpt):
         return "WRONG_SCOPE_EVIDENCE"
     return None
 

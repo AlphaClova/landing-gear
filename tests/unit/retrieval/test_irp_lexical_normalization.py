@@ -77,7 +77,7 @@ def test_r14_retrieves_transfer_procedure_evidence() -> None:
 
 
 def test_receiving_normalization_is_unchanged_by_irp_lexical_path() -> None:
-    query = "연금은 언제부터 받을 수 있나요?"
+    query = "퇴직연금은 언제부터 받을 수 있나요?"
     assert pension_receiving_normalization_applies(query)
     assert irp_lexical_normalization_applies(query) is False
     search_query, _ = _expand_query(query, "pension_system")

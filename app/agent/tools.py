@@ -28,9 +28,11 @@ from app.api.schemas import (
 )
 from app.core.errors import ErrorCode, ToolError
 from app.core.logging import get_logger
-from app.core.query_normalization import ALIASES, ACCOUNT_TERMINATION_TAX, EARLY_WITHDRAWAL_TAX, RETIREMENT_LUMP_SUM_TAX, RETIREMENT_PENSION_RECEIPT_TAX, has_alias, is_db_dc_question, is_generic_risk_grade_meaning_question, is_product_availability_question, is_teacher_retirement_domain, plan_types_from_question, procedure_type, tax_intent, tax_source_types
+from app.agent.product_evidence import allows_product_evidence_enrichment, citations_for_product
+from app.core.query_normalization import ALIASES, ACCOUNT_TERMINATION_TAX, EARLY_WITHDRAWAL_TAX, RETIREMENT_LUMP_SUM_TAX, RETIREMENT_PENSION_RECEIPT_TAX, applies_pension_scope_evidence_filter, evidence_compatible_with_question_scope, has_alias, is_db_dc_question, is_generic_pension_question, is_generic_risk_grade_meaning_question, is_pension_receiving_question, is_product_availability_question, is_teacher_retirement_domain, pension_scope, plan_types_from_question, procedure_type, tax_intent, tax_source_types
 from app.tools.withdrawal_comparison import calculate_withdrawal_comparison as b_calculate_withdrawal_comparison
 from app.tools.product_query import query_products as b_query_products
+from app.tools.retriever import prospectus_for_documents as b_prospectus_for_documents
 from app.tools.retriever import retrieve_evidence as b_retrieve_evidence
 from app.tools.rule_engine import RoundingPolicyUndefinedError, calc_retirement_lump_sum_tax
 
@@ -405,6 +407,11 @@ class ToolRouter:
                     if item.id not in seen and (is_teacher_retirement_domain(question) or item.document_id != "doc26"):
                         result.evidence.append(item)
                         seen.add(item.id)
+            if applies_pension_scope_evidence_filter(question):
+                result.evidence = [
+                    item for item in result.evidence
+                    if evidence_compatible_with_question_scope(question, item.excerpt)
+                ]
 
         if "calculate" in allowed and rule_id and slots.get("expected_tax_won") is not None:
             calc, trace = self._call_calculate(rule_id, slots)
@@ -501,6 +508,18 @@ class ToolRouter:
                 if not str(item.id).startswith("product-") or str(item.id) in {f"product-{pid}" for pid in kept_ids}
             ]
 
+        if (
+            result.products
+            and allows_product_evidence_enrichment(intent)
+            and has_alias(question, "product_family")
+        ):
+            self._attach_matched_product_prospectus(result)
+            allowed_docs = {str(item.get("document_id") or "") for item in result.products}
+            result.evidence = [
+                item for item in result.evidence
+                if str(item.id).startswith("product-") or str(item.document_id) in allowed_docs
+            ]
+
         return result
 
     @staticmethod
@@ -527,7 +546,17 @@ class ToolRouter:
 
     @staticmethod
     def _evidence_queries(question: str, intent: str, result: ToolResult) -> list[tuple[str, str]]:
-        queries = [(question, intent)]
+        if is_generic_pension_question(question) and is_pension_receiving_question(question):
+            return []
+        scope = pension_scope(question)
+        if is_pension_receiving_question(question) and scope == "NATIONAL_PENSION":
+            return []
+        if is_pension_receiving_question(question) and scope == "PENSION_SAVINGS" and intent == "제도":
+            queries = [(question, "세제")]
+        else:
+            queries = [(question, intent)]
+            if is_pension_receiving_question(question) and scope == "IRP" and intent == "제도":
+                queries.append((question, "세제"))
         if has_alias(question, "db") or has_alias(question, "dc"):
             queries.append((f"{question} 확정급여형 확정기여형 운용 주체 최종 퇴직급여", "제도"))
         if is_db_dc_question(question):
@@ -710,6 +739,43 @@ class ToolRouter:
         duration_ms = (time.monotonic() - start) * 1000
         trace = ToolCallTrace(tool_name="query_products", args=args.model_dump(), status=status, duration_ms=duration_ms)
         return products, trace, resolutions
+
+    def _attach_matched_product_prospectus(self, result: ToolResult) -> None:
+        """Attach prospectus excerpts for catalog-matched products by document_id."""
+        document_ids = [str(item.get("document_id") or "") for item in result.products]
+        candidates = [
+            self._citation_from_evidence_result(item)
+            for item in b_prospectus_for_documents(document_ids)
+        ]
+        seen = {item.id for item in result.evidence}
+        for product in result.products:
+            matched = citations_for_product(product, candidates)
+            if not matched:
+                continue
+            best = max(
+                matched,
+                key=lambda item: (
+                    int("투자전략" in item.excerpt),
+                    int("수수료선취-오프라인(A)" in item.excerpt),
+                ),
+            )
+            if best.id in seen:
+                continue
+            result.evidence.append(best)
+            seen.add(best.id)
+
+    @staticmethod
+    def _citation_from_evidence_result(item: Any) -> Citation:
+        return Citation(
+            id=item.evidence_id,
+            document_id=item.document_id,
+            page=item.page,
+            section=item.section,
+            source=item.source,
+            excerpt=item.excerpt,
+            source_priority=item.source_priority,
+            score=item.score,
+        )
 
     @staticmethod
     def _requested_product_periods(question: str) -> list[str]:

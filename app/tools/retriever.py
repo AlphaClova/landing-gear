@@ -14,8 +14,11 @@ from app.core.query_normalization import (
     meaningful_query_tokens,
     query_domain_anchors,
     has_alias,
+    is_generic_pension_question,
+    is_pension_receiving_question,
     is_tax_deduction_question,
     is_teacher_retirement_domain,
+    pension_scope,
     population_scope,
 )
 
@@ -28,7 +31,7 @@ RETRIEVAL_MIN_DOMAIN_COVERAGE = 0.40
 
 # Informal receiving wording is not added as standalone in-scope keywords.
 # These aliases only absorb lexical mismatch against provided corpus phrasing.
-_PENSION_DOMAIN_ANCHORS = ("퇴직연금", "연금저축", "퇴직급여", "퇴직금", "IRP", "irp", "연금")
+# Bare "연금" is not a retirement-pension retrieval trigger; scope helpers decide.
 _INFORMAL_RECEIVING_TERMS = ("받으려면", "받을", "받는", "받다", "언제", "몇 살", "나이", "살부터")
 _PENSION_RECEIVING_EXPANSION = "수령 지급 수령 시점 개시 시점 수령 연령 개시 연령 연금 수령"
 _PENSION_RECEIVING_TOKEN_ALIASES: dict[str, tuple[str, ...]] = {
@@ -69,10 +72,14 @@ def _tokenize(text: str) -> list[str]:
 
 
 def pension_receiving_normalization_applies(query: str) -> bool:
-    """True only when a pension-domain question uses informal receiving wording."""
+    """True only when a specific pension-domain question uses informal receiving wording."""
     if not isinstance(query, str) or not query.strip():
         return False
-    if not any(anchor in query for anchor in _PENSION_DOMAIN_ANCHORS):
+    if is_generic_pension_question(query) or pension_scope(query) in {"NONE", "NATIONAL_PENSION"}:
+        return False
+    if pension_scope(query) not in {"RETIREMENT_PENSION", "PENSION_SAVINGS", "IRP"}:
+        return False
+    if not is_pension_receiving_question(query):
         return False
     return any(term in query for term in _INFORMAL_RECEIVING_TERMS)
 
@@ -316,6 +323,40 @@ def _load_chunks(path: Path) -> list[Chunk]:
                 )
             )
     return chunks
+
+
+_PRODUCT_PROSPECTUS_MARKERS = ("2. 투자전략", "1. 투자목적", "수수료선취-오프라인(A)")
+
+
+def prospectus_for_documents(document_ids: list[str] | tuple[str, ...]) -> list[EvidenceResult]:
+    """Return prospectus chunks for already-matched product documents.
+
+    Lookup is by Product Fact document_id identity, not BM25 or the 0.51
+    lexical coverage gate. Threshold/top-k of retrieve_evidence are unchanged.
+    """
+    wanted = {str(item) for item in document_ids if str(item).startswith("r2_")}
+    if not wanted:
+        return []
+    selected: list[EvidenceResult] = []
+    for chunk in _load_chunks(DEFAULT_CHUNKS_PATH):
+        if chunk.document_id not in wanted:
+            continue
+        if not any(marker in chunk.text for marker in _PRODUCT_PROSPECTUS_MARKERS):
+            continue
+        selected.append(
+            EvidenceResult(
+                evidence_id=chunk.chunk_id,
+                chunk_id=chunk.chunk_id,
+                document_id=chunk.document_id,
+                page=chunk.page,
+                section=chunk.section,
+                excerpt=chunk.text,
+                source=chunk.title,
+                source_priority=chunk.source_priority,
+                score=chunk.source_priority * -0.001,
+            )
+        )
+    return selected
 
 
 def retrieve_evidence(

@@ -18,9 +18,13 @@ from app.agent.router import RouteDecision
 from app.api.schemas import CalculationResult, Citation, InternalAnswer, RequiredSlot, ThinkTrace, ToolCallTrace
 from app.core.query_normalization import (
     UNKNOWN_TAX,
+    has_retirement_scope_qualifier,
     is_db_dc_question,
+    is_generic_pension_question,
+    is_pension_receiving_question,
     is_tax_deduction_question,
     is_teacher_retirement_domain,
+    pension_scopes,
     pension_year_rate_block_allowed,
     tax_intent,
     tax_source_types,
@@ -96,7 +100,7 @@ class Verifier:
         context = draft.context
         if not context:
             return False
-        if "안전 거절 확장" in issues or "Rule 밖 금액 계산" in issues or "민감정보 응답 확장" in issues or "반올림 실패 응답 확장" in issues or "상품 한계 응답 확장" in issues or "핵심 grounded contract 변경 또는 일부 누락" in issues or "DB/DC fact inversion" in issues or "false-premise affirmation" in issues or "false-premise correction 누락" in issues or "limitation contract expansion" in issues or "unsupported hard constraint product dump" in issues or "unsupported factual claim" in issues or "future-return inference" in issues or "product unit confusion" in issues or "product fee mapping mismatch" in issues or "unsupported product recommendation" in issues or any(issue.startswith("근거 없는 숫자") for issue in issues):
+        if "안전 거절 확장" in issues or "Rule 밖 금액 계산" in issues or "민감정보 응답 확장" in issues or "반올림 실패 응답 확장" in issues or "상품 한계 응답 확장" in issues or "핵심 grounded contract 변경 또는 일부 누락" in issues or "DB/DC fact inversion" in issues or "false-premise affirmation" in issues or "false-premise correction 누락" in issues or "limitation contract expansion" in issues or "unsupported hard constraint product dump" in issues or "unsupported factual claim" in issues or "future-return inference" in issues or "product unit confusion" in issues or "product fee mapping mismatch" in issues or "unsupported product recommendation" in issues or "pension scope mismatch" in issues or any(issue.startswith("근거 없는 숫자") for issue in issues):
             draft.message = context.fallback_message
             draft.hcx_audit.append({"phase":"deterministic_repair", "violations":issues, "action":"restore_grounded_contract"})
             return not self.check(draft)
@@ -322,6 +326,9 @@ class Verifier:
             )
             if inverted_operator or inverted_benefit:
                 issues.append("DB/DC fact inversion")
+
+        if context and self._pension_scope_mismatch(context.question, draft.message, evidence_text):
+            issues.append("pension scope mismatch")
 
         if context:
             support_blob = evidence_text + "\n" + "\n".join(context.required_facts + context.limitations) + repr(context.products)
@@ -624,6 +631,28 @@ class Verifier:
                 marker in after for marker in ("아닙", "않", "수 없", "단정할 수 없", "결론낼 수 없")
             ):
                 return True
+        return False
+
+    @staticmethod
+    def _pension_scope_mismatch(question: str, message: str, evidence_text: str) -> bool:
+        specific = pension_scopes(question)
+        compact = re.sub(r"\s+", "", message)
+        retirement_in_answer = "퇴직연금" in message
+        receiving_fact = any(token in compact for token in ("받을수", "수령", "55세", "만55"))
+        qualified = has_retirement_scope_qualifier(message)
+        if is_generic_pension_question(question):
+            if ("55세" in compact or "만55" in compact) and not qualified:
+                return True
+            return bool(retirement_in_answer and receiving_fact and not qualified)
+        if specific == ("PENSION_SAVINGS",):
+            return bool(retirement_in_answer and receiving_fact)
+        if "NATIONAL_PENSION" in specific:
+            if retirement_in_answer and "국민연금" not in evidence_text:
+                return True
+            return bool(("55세" in compact or "만55" in compact) and "국민연금" not in evidence_text)
+        if specific == ("IRP",) and is_pension_receiving_question(question):
+            irp_named = "IRP" in message.upper() or "개인형" in message
+            return bool(retirement_in_answer and receiving_fact and not irp_named)
         return False
 
     def _check(self, draft: Draft) -> list[str]:

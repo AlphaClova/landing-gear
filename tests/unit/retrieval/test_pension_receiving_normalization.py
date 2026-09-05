@@ -6,7 +6,6 @@ from app.tools.retriever import (
 )
 
 APPLIES = (
-    "연금은 언제부터 받을 수 있나요?",
     "퇴직연금은 몇 살부터 받을 수 있나요?",
     "퇴직금은 연금으로 받을 수 있나요?",
 )
@@ -50,10 +49,10 @@ def test_pension_receiving_queries_retrieve_receipt_evidence() -> None:
     q1 = retrieve_evidence("연금은 언제부터 받을 수 있나요?", "pension_system", 5)
     q2 = retrieve_evidence("퇴직연금은 몇 살부터 받을 수 있나요?", "pension_system", 5)
     q3 = retrieve_evidence("퇴직금은 연금으로 받을 수 있나요?", "pension_system", 5)
-    assert q1 and any("55세" in item.excerpt or "수령" in item.excerpt for item in q1)
+    assert q1 == []
     assert q2 and any("55세" in item.excerpt or "수령" in item.excerpt for item in q2)
     assert q3 and any("연금" in item.excerpt and ("수령" in item.excerpt or "일시금" in item.excerpt) for item in q3)
-    assert all(item.document_id != "r2_kr5153450658" for item in q1 + q2 + q3)
+    assert all(item.document_id != "r2_kr5153450658" for item in q2 + q3)
 
 
 def test_non_pension_time_questions_do_not_use_receiving_expansion() -> None:

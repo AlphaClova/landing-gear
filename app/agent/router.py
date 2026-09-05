@@ -14,6 +14,8 @@ from app.core.query_normalization import (
     has_alias,
     is_comparison_question,
     is_db_dc_question,
+    is_generic_pension_question,
+    is_pension_receiving_question,
     is_product_availability_question,
     is_tax_deduction_question,
     is_teacher_retirement_domain,
@@ -33,11 +35,8 @@ _KEYWORDS: dict[Intent, tuple[str, ...]] = {
 _OUT_OF_SCOPE_MARKERS = ("주식 추천", "부동산 투자", "코인", "타로", "날씨", "번역")
 
 # Generic receive/time words are not in-scope by themselves. They only rescue a
-# question that already names a pension-domain account or benefit.
-_PENSION_DOMAIN_ANCHORS = ("퇴직연금", "연금저축", "퇴직급여", "퇴직금", "IRP", "irp", "연금")
-_PENSION_RECEIVING_TERMS = (
-    "받다", "받는", "받을", "받으려면", "수령", "언제", "몇 살", "나이", "개시", "시작", "조건",
-)
+# question that already names a pension-domain account or benefit. Bare "연금"
+# is GENERIC_PENSION and is not treated as 퇴직연금.
 
 
 @dataclass
@@ -68,6 +67,8 @@ class IntentRouter:
         if has_alias(question, "product_family"):
             scores["상품"] += 1
         if has_alias(question, "product_entity"):
+            scores["상품"] += 2
+        if has_alias(question, "product_type"):
             scores["상품"] += 2
         if has_alias(question, "institution"):
             scores["제도"] += 2
@@ -110,7 +111,7 @@ class IntentRouter:
 
         # 상품 비교 요구는 계좌명이 함께 있어도 상품 intent로 우선한다. DC/IRP는
         # 이 경우 제도 설명 주제가 아니라 Product Fact의 가입계좌 filter다.
-        has_specific_product_signal = has_alias(question, "product_family") or has_alias(question, "product_metric") or any(
+        has_specific_product_signal = has_alias(question, "product_family") or has_alias(question, "product_metric") or has_alias(question, "product_type") or any(
             marker in question for marker in ("상품", "펀드", "채권", "위험등급", "비용", "보수", "수익률", "추천")
         )
         if (
@@ -149,12 +150,13 @@ class IntentRouter:
             matched = {"상품": max(2, scores["상품"])}
 
         if not matched:
-            if _is_pension_receiving_question(question):
+            if is_pension_receiving_question(question):
+                generic = is_generic_pension_question(question)
                 return RouteDecision(
                     intent="제도",
                     route="deep_path",
                     route_confidence=0.7,
-                    fallback_reason="pension_receiving_domain",
+                    fallback_reason="pension_receiving_generic" if generic else "pension_receiving_domain",
                 )
             return RouteDecision(
                 intent="범위 밖",
@@ -199,10 +201,8 @@ class IntentRouter:
 
 
 def _is_pension_receiving_question(question: str) -> bool:
-    """True only when a pension-domain anchor and a receiving term co-occur."""
-    if not any(anchor in question for anchor in _PENSION_DOMAIN_ANCHORS):
-        return False
-    return any(term in question for term in _PENSION_RECEIVING_TERMS)
+    """True only when a pension-domain scope and a receiving term co-occur."""
+    return is_pension_receiving_question(question)
 
 
 _NON_PENSION_DC_MARKERS = ("모터", "전압", "전류", "전원", "회로", "배터리", "변환기")

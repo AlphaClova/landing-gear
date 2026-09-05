@@ -24,10 +24,21 @@ from app.core.query_normalization import (
     ACCOUNT_TERMINATION_TAX,
     EARLY_WITHDRAWAL_TAX,
     allows_dc_irp_account_transfer_claim,
+    evidence_compatible_with_question_scope,
+    excerpt_supports_dc_contribution_factor_relation,
+    excerpt_supports_dc_contribution_structure,
     excerpt_supports_dc_irp_retirement_transfer,
+    excerpt_supports_product_type_comparison,
+    excerpt_supports_savings_irp_comparison,
     has_alias,
+    is_dc_contribution_determination_question,
     has_legally_named_retirement_benefit,
     is_comparison_question,
+    is_generic_pension_receiving_question,
+    is_pension_savings_irp_comparison,
+    is_principal_vs_performance_comparison,
+    applies_pension_scope_evidence_filter,
+    pension_scopes,
     is_db_dc_question,
     is_tax_deduction_question,
     is_teacher_retirement_domain,
@@ -206,6 +217,35 @@ class Composer:
                 question, intent, "result", result.evidence, result.products, result.calculations,
                 [fallback], [], forbidden + ["민감정보 조회 방법 또는 수집 요청 추가"], [], [], fallback,
             )
+        if applies_pension_scope_evidence_filter(question):
+            result.evidence = [
+                item for item in result.evidence
+                if evidence_compatible_with_question_scope(question, item.excerpt)
+            ]
+        if is_pension_savings_irp_comparison(question):
+            result.evidence = [
+                item for item in result.evidence
+                if excerpt_supports_savings_irp_comparison(item.excerpt)
+            ]
+        if is_principal_vs_performance_comparison(question):
+            direct_type = [
+                item for item in result.evidence
+                if excerpt_supports_product_type_comparison(item.excerpt)
+            ]
+            if not direct_type:
+                result.evidence = []
+                result.products = []
+            else:
+                result.evidence = direct_type
+        if "NATIONAL_PENSION" in pension_scopes(question) and not result.evidence:
+            fallback = (
+                "[한계] 제공된 근거에는 국민연금에 대한 직접 자료가 없어 "
+                "수령 시점이나 다른 연금과의 차이를 확정할 수 없습니다."
+            )
+            return GroundedContext(
+                question, intent, "limitation", [], result.products, result.calculations,
+                [fallback], [], forbidden, [fallback], [], fallback,
+            )
         if result.limitations:
             fallback = "\n".join(result.limitations)
             return GroundedContext(
@@ -262,6 +302,15 @@ class Composer:
         limits = [x.strip() for x in re.findall(r"\[(?:주의|한계)\][^\n]+", fallback)]
         if fallback.startswith("[한계] 비교할 특정 상품"):
             forbidden.append("상품 비교 한계 외 사실 추가")
+        if (
+            is_principal_vs_performance_comparison(question)
+            and fallback
+            and fallback.startswith("[한계]")
+            and not any(item.get("status") == "answerable" for item in claim_plan)
+        ):
+            forbidden.append("상품 비교 한계 외 사실 추가")
+        if is_dc_contribution_determination_question(question):
+            forbidden.append("핵심 grounded contract 변경 또는 일부 누락")
         allowed_numbers = self._allowed_numbers(
             result, question, include_question=tax_intent(question) is None
         )
@@ -303,6 +352,18 @@ class Composer:
 
     @staticmethod
     def _required_facts(question: str, result: ToolResult, fallback: str | None) -> list[str]:
+        scoped = [
+            item for item in result.evidence
+            if evidence_compatible_with_question_scope(question, item.excerpt)
+        ]
+        if is_generic_pension_receiving_question(question):
+            return [x.strip() for x in fallback.splitlines() if x.strip()] if fallback else []
+        if (
+            is_pension_savings_irp_comparison(question)
+            or is_principal_vs_performance_comparison(question)
+            or is_dc_contribution_determination_question(question)
+        ):
+            return [x.strip() for x in fallback.splitlines() if x.strip()] if fallback else []
         closed = (fallback is not None or Composer._is_db_dc_explanation(question, result) or Composer._is_tax_deduction_question(question, result)
                   or Composer._is_teacher_retirement_question(question, result) or Composer._is_grounded_product_compare(question, result)
                   or result.withdrawal_result is not None
@@ -310,7 +371,7 @@ class Composer:
                   or (has_alias(question, "product_family") and has_alias(question, "principal_protection"))
                   or (has_alias(question, "institution") and "일반" in question)
                   or (has_alias(question, "irp") and has_alias(question, "dc")))
-        return [x.strip() for x in fallback.splitlines() if x.strip()] if fallback and closed else [c.excerpt for c in result.evidence]
+        return [x.strip() for x in fallback.splitlines() if x.strip()] if fallback and closed else [c.excerpt for c in scoped]
 
     @staticmethod
     def _allowed_numbers(result: ToolResult, question: str = "", *, include_question: bool = True) -> list[str]:
@@ -367,6 +428,114 @@ class Composer:
         }
 
     @staticmethod
+    def _korean_claim_sentences(excerpt: str) -> list[str]:
+        text = " ".join(excerpt.split())
+        parts = re.split(r"(?<=다)\.\s*", text)
+        sentences: list[str] = []
+        for part in parts:
+            sentence = part.strip(" .")
+            if sentence:
+                sentences.append(sentence)
+        return sentences
+
+    @staticmethod
+    def _with_period(sentence: str) -> str:
+        return sentence + "." if sentence.endswith("다") else sentence
+
+    @staticmethod
+    def _tax_credit_limit_claim_text(sentence: str, excerpt: str) -> str:
+        text = Composer._with_period(sentence)
+        if "세액공제" in text.replace(" ", ""):
+            return text
+        if "세액공제" not in excerpt.replace(" ", ""):
+            return text
+        label = "세액공제 대상 납입한도"
+        if text.startswith(label):
+            return text
+        return f"{label}: {text}"
+
+    def _savings_irp_comparison_claims(self, evidence: list[Citation]) -> list[dict[str, object]]:
+        plan: list[dict[str, object]] = []
+        seen: set[tuple[str, str]] = set()
+        for item in evidence:
+            if not excerpt_supports_savings_irp_comparison(item.excerpt):
+                continue
+            excerpt = item.excerpt
+            for sentence in self._korean_claim_sentences(excerpt):
+                compact = sentence.replace(" ", "")
+                specs: list[str] = []
+                if "연금저축" in sentence and (
+                    "누구나" in sentence or "가입할 수" in sentence or "가입이 가능" in sentence
+                ):
+                    specs.append("PENSION_SAVINGS_ELIGIBILITY")
+                if ("IRP" in sentence.upper() or "개인형" in sentence) and "가입" in sentence:
+                    if "가입대상" in compact or "가입 대상" in sentence or any(
+                        token in sentence for token in ("직장인", "자영업", "정해져")
+                    ):
+                        specs.append("IRP_ELIGIBILITY")
+                if any(token in sentence for token in ("입금", "납입")) and "세액공제" not in sentence and re.search(r"\d", sentence):
+                    if any(token in sentence for token in ("합산", "총")):
+                        specs.append("TOTAL_CONTRIBUTION_LIMIT")
+                if "세액공제" in excerpt and "만원" in compact and "입금" not in sentence:
+                    if re.search(r"연금저축은.{0,16}연?\d", compact) or (
+                        "연금저축" in sentence and "세액공제" in sentence
+                    ):
+                        specs.append("PENSION_SAVINGS_TAX_CREDIT_LIMIT")
+                    if ("IRP" in sentence.upper() or "개인형" in sentence) and any(
+                        token in sentence for token in ("포함", "합산", "세액공제")
+                    ):
+                        specs.append("IRP_COMBINED_TAX_CREDIT_LIMIT")
+                for subtask in specs:
+                    key = (subtask, sentence)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    claim_text = self._with_period(sentence)
+                    if subtask in {"PENSION_SAVINGS_TAX_CREDIT_LIMIT", "IRP_COMBINED_TAX_CREDIT_LIMIT"}:
+                        claim_text = self._tax_credit_limit_claim_text(sentence, excerpt)
+                    plan.append(self._claim(subtask, claim_text, evidence=[item]))
+        return plan
+
+    def _dc_contribution_claims(self, evidence: list[Citation]) -> list[dict[str, object]]:
+        plan: list[dict[str, object]] = []
+        seen: set[str] = set()
+        for item in evidence:
+            if not excerpt_supports_dc_contribution_structure(item.excerpt):
+                continue
+            for sentence in self._korean_claim_sentences(item.excerpt):
+                has_dc = "확정기여" in sentence or "DC" in sentence
+                has_flow = any(marker in sentence for marker in ("입금", "운용"))
+                if not (has_dc and has_flow):
+                    continue
+                clause = re.sub(r"은 무엇인가요\?\s*[•·*]?\s*", "은 ", sentence).strip() or sentence
+                text = self._with_period(clause)
+                if text in seen:
+                    continue
+                seen.add(text)
+                plan.append(self._claim("DC_CONTRIBUTION_STRUCTURE", text, evidence=[item]))
+        factor_seen: set[str] = set()
+        for item in evidence:
+            for sentence in self._korean_claim_sentences(item.excerpt):
+                if not excerpt_supports_dc_contribution_factor_relation(sentence):
+                    continue
+                text = self._with_period(sentence)
+                if text in factor_seen:
+                    continue
+                factor_seen.add(text)
+                plan.append(self._claim("CONTRIBUTION_DETERMINATION_FACTOR", text, evidence=[item]))
+        if not any(item.get("subtask") == "CONTRIBUTION_DETERMINATION_FACTOR" for item in plan):
+            plan.append(self._unsupported(
+                "CONTRIBUTION_DETERMINATION_FACTOR",
+                "[한계] 제공된 근거만으로는 구체적인 부담금 결정 요인을 확인할 수 없습니다.",
+            ))
+        if not any(item.get("status") == "answerable" for item in plan):
+            plan.append(self._unsupported(
+                "DC_CONTRIBUTION_STRUCTURE",
+                "[한계] 제공된 근거 안에서만 답변할 수 있으며, 확인되지 않은 내용은 단정할 수 없습니다.",
+            ))
+        return plan
+
+    @staticmethod
     def _unsupported(subtask: str, limitation: str) -> dict[str, object]:
         return {"subtask": subtask, "status": "unsupported", "claims": [], "limitation": limitation}
 
@@ -395,6 +564,34 @@ class Composer:
                 f"{population}은 일반 퇴직연금 가입 대상이 아니며, 별도의 퇴직급여제도를 적용받습니다.",
                 evidence=eligibility_relation_evidence[:1],
             ))
+
+        if is_principal_vs_performance_comparison(question):
+            direct = [
+                item for item in result.evidence
+                if excerpt_supports_product_type_comparison(item.excerpt)
+            ]
+            if direct:
+                for item in direct:
+                    plan.append(self._claim("product_type_comparison", item.excerpt.strip(), evidence=[item]))
+            else:
+                plan.append(self._unsupported(
+                    "product_type_comparison",
+                    "[한계] 제공된 자료에서는 요청한 상품 유형의 정의와 비교 기준을 직접 확인할 수 없어 구체적으로 비교할 수 없습니다.",
+                ))
+            return plan
+
+        if is_pension_savings_irp_comparison(question):
+            plan.extend(self._savings_irp_comparison_claims(result.evidence))
+            if not any(item.get("status") == "answerable" for item in plan):
+                plan.append(self._unsupported(
+                    "savings_irp_comparison",
+                    "[한계] 제공된 근거 안에서만 답변할 수 있으며, 확인되지 않은 내용은 단정할 수 없습니다.",
+                ))
+            return plan
+
+        if is_dc_contribution_determination_question(question):
+            plan.extend(self._dc_contribution_claims(result.evidence))
+            return plan
 
         teacher_subtasks = retirement_benefit_subtasks(question)
         if teacher_subtasks and doc26:
@@ -690,6 +887,15 @@ class Composer:
         elif is_tax_deduction_question(c.question): wanted, anchors = {"doc41", "doc55"}, ("600만원", "900만원", "세액공제율")
         elif is_teacher_retirement_domain(c.question): wanted, anchors = {"doc26", "doc51"}, ("명예퇴직수당", "60일", "퇴직소득")
         selected = [x for x in c.evidence if wanted is None or x.document_id in wanted]
+        if is_pension_savings_irp_comparison(c.question):
+            selected = [x for x in c.evidence if excerpt_supports_savings_irp_comparison(x.excerpt)]
+            anchors = ("가입", "세액공제", "납입한도", "입금")
+        elif is_principal_vs_performance_comparison(c.question):
+            selected = [x for x in c.evidence if excerpt_supports_product_type_comparison(x.excerpt)]
+            anchors = ("원리금보장", "실적배당", "정의", "비교")
+        elif is_dc_contribution_determination_question(c.question):
+            selected = [x for x in c.evidence if excerpt_supports_dc_contribution_structure(x.excerpt)]
+            anchors = ("확정기여형", "입금", "운용")
         if allows_product_evidence_enrichment(c.intent) and c.products:
             matched: list[Citation] = []
             for product in c.products:

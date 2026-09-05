@@ -15,6 +15,13 @@ def test_r06_irp_account_definition_is_institution() -> None:
 
 def test_r07_irp_pension_savings_comparison_is_institution() -> None:
     assert router.classify("연금저축과 IRP는 뭐가 다른가요?").intent == "제도"
+    assert router.classify("연금저축과 IRP는 어떻게 다른가요?").intent == "제도"
+
+
+def test_principal_vs_performance_types_are_product_not_oos() -> None:
+    decision = router.classify("원리금보장형과 실적배당형은 어떻게 비교해야 하나요?")
+    assert decision.intent == "상품"
+    assert decision.intent != "범위 밖"
 
 
 def test_r14_irp_transfer_is_procedure() -> None:

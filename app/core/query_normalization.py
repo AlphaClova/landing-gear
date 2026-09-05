@@ -7,6 +7,7 @@ Entity recognition and legal equivalence are deliberately separate concepts.
 from __future__ import annotations
 
 import re
+from typing import Literal
 
 
 QUERY_TOKEN_PATTERN = re.compile(r"[0-9A-Za-z가-힣]+")
@@ -32,6 +33,39 @@ _RELEVANCE_CANONICAL = {
     "공제대상": "공제",
 }
 
+# Product-comparison horizon forms. Replace only when a product-family/product
+# noun is already in the question so generic "단기형 전략" text is left alone.
+_PRODUCT_HORIZON_CONTEXT = ("상품", "펀드", "국공채", "솔로몬", "solomon")
+_PRODUCT_HORIZON_FORMS = (
+    ("초단기형", "초단기"),
+    ("중장기형", "중장기"),
+    ("단기형", "단기"),
+    ("장기형", "장기"),
+)
+
+
+def has_product_horizon_context(question: str) -> bool:
+    compact = question.lower()
+    return any(marker.lower() in compact for marker in _PRODUCT_HORIZON_CONTEXT)
+
+
+def canonicalize_product_horizon_token(token: str) -> str:
+    for source, target in _PRODUCT_HORIZON_FORMS:
+        if token == source or token.startswith(source):
+            return target + token[len(source):]
+    return token
+
+
+def normalize_product_horizon_terms(question: str) -> str:
+    """Map 단기형/중장기형/장기형 tokens to catalog horizon labels in product context."""
+    if not has_product_horizon_context(question):
+        return question
+    return QUERY_TOKEN_PATTERN.sub(
+        lambda match: canonicalize_product_horizon_token(match.group(0)),
+        question,
+    )
+
+
 # Relevance-only vocabulary. These terms must never be used to manufacture an answer.
 DOMAIN_ANCHORS: dict[str, tuple[str, ...]] = {
     "institution": ("db", "dc", "irp", "연금", "퇴직연금", "연금저축", "퇴직금", "확정급여", "확정기여", "퇴직급여", "적립금", "운용", "책임", "산정", "가입", "대상", "근속"),
@@ -53,8 +87,11 @@ def normalize_relevance_token(token: str) -> str:
 
 def meaningful_query_tokens(question: str) -> tuple[str, ...]:
     """Return stable content tokens used only for retrieval applicability."""
+    in_product_context = has_product_horizon_context(question)
     tokens = []
     for raw in QUERY_TOKEN_PATTERN.findall(question):
+        if in_product_context:
+            raw = canonicalize_product_horizon_token(raw)
         token = normalize_relevance_token(raw)
         if len(token) < 2 or token in RELEVANCE_STOPWORDS:
             continue
@@ -110,6 +147,7 @@ ALIASES: dict[str, tuple[str, ...]] = {
     "tax_deduction": ("세액공제", "세액 공제", "세금공제", "공제 한도", "공제한도", "공제 최대"),
     "product_family": ("솔로몬", "Solomon", "국공채"),
     "product_entity": ("채권", "장기채", "단기채", "펀드", "예금형", "ETF"),
+    "product_type": ("원리금보장형", "원리금보장", "실적배당형", "실적배당상품"),
     "product_metric": ("수익률", "총보수", "보수", "기준일"),
     "recommendation_context": ("은퇴자", "생활비 목적", "현금흐름", "투자기간", "손실 감내", "위험 선호", "중위험"),
     "institution": ("퇴직연금", "퇴직금제도", "일반 퇴직금", "일반퇴직금", "수령구조", "운용주체"),
@@ -148,6 +186,108 @@ def is_db_dc_question(question: str) -> bool:
 
 def is_comparison_question(question: str) -> bool:
     return has_alias(question, "comparison") or "안정" in question
+
+
+_SAVINGS_IRP_COMPARE_MARKERS = ("다른", "차이", "비교", "다른가요", "달라요", "뭐가 다른")
+_SAVINGS_IRP_TRANSFER_NOISE = (
+    "의무이전", "일시금", "일시수령", "퇴직소득세", "법정퇴직", "이연퇴직",
+    "만 55", "만55", "55세", "계약이전",
+)
+_PRINCIPAL_TYPE_MARKERS = ("원리금보장형", "원리금보장")
+_PERFORMANCE_TYPE_MARKERS = ("실적배당형", "실적배당상품")
+_PRODUCT_TYPE_COMPARE_NOISE = ("중도해지", "현물이전", "예금자보호")
+
+
+def is_pension_savings_irp_comparison(question: str) -> bool:
+    """True for 연금저축 vs IRP difference questions, not tax-credit-only probes."""
+    scopes = set(pension_scopes(question))
+    if "PENSION_SAVINGS" not in scopes or "IRP" not in scopes:
+        return False
+    if is_pension_receiving_question(question):
+        return False
+    if is_tax_deduction_question(question) and not any(
+        marker in question for marker in _SAVINGS_IRP_COMPARE_MARKERS
+    ):
+        return False
+    return is_comparison_question(question) or any(
+        marker in question for marker in _SAVINGS_IRP_COMPARE_MARKERS
+    )
+
+
+def excerpt_supports_savings_irp_comparison(excerpt: str) -> bool:
+    """Keep eligibility / contribution / tax-credit comparison facts; drop transfer/tax."""
+    if not isinstance(excerpt, str) or not excerpt.strip():
+        return False
+    has_savings = "연금저축" in excerpt
+    has_irp = "IRP" in excerpt.upper() or "개인형" in excerpt
+    if not (has_savings and has_irp):
+        return False
+    compact = excerpt.replace(" ", "")
+    if any(token in excerpt or token in compact for token in _SAVINGS_IRP_TRANSFER_NOISE):
+        return False
+    return any(marker in excerpt for marker in ("가입", "세액공제", "납입", "입금", "한도"))
+
+
+def is_principal_vs_performance_comparison(question: str) -> bool:
+    """True when the user asks to compare 원리금보장 vs 실적배당 product types."""
+    has_principal = any(marker in question for marker in _PRINCIPAL_TYPE_MARKERS)
+    has_performance = any(marker in question for marker in _PERFORMANCE_TYPE_MARKERS)
+    if not (has_principal and has_performance):
+        return False
+    return is_comparison_question(question) or any(
+        marker in question for marker in ("다른", "차이", "비교")
+    )
+
+
+def excerpt_supports_product_type_comparison(excerpt: str) -> bool:
+    """True only for direct two-type definition/comparison support, not disclaimers."""
+    if not isinstance(excerpt, str) or not excerpt.strip():
+        return False
+    has_principal = any(marker in excerpt for marker in _PRINCIPAL_TYPE_MARKERS)
+    has_performance = any(marker in excerpt for marker in _PERFORMANCE_TYPE_MARKERS)
+    if not (has_principal and has_performance):
+        return False
+    if any(token in excerpt for token in _PRODUCT_TYPE_COMPARE_NOISE):
+        return False
+    return any(marker in excerpt for marker in ("정의", "차이", "비교", "구분", "유형"))
+
+
+_DC_CONTRIBUTION_DETERMINATION_MARKERS = ("정해지", "결정", "기준", "따라", "달라지", "산정", "책정")
+_DC_CONTRIBUTION_FACTOR_MARKERS = ("근속", "연령", "나이", "직급", "임금", "호봉")
+_DC_CONTRIBUTION_FACTOR_DETERMINATION = ("따라", "결정", "산정", "책정", "달라")
+
+
+def is_dc_contribution_determination_question(question: str) -> bool:
+    """True for how-DC-contribution-is-set questions, not generic DC or termination."""
+    if not has_alias(question, "dc"):
+        return False
+    if "부담금" not in question:
+        return False
+    if is_account_termination_question(question):
+        return False
+    return any(marker in question for marker in _DC_CONTRIBUTION_DETERMINATION_MARKERS)
+
+
+def excerpt_supports_dc_contribution_structure(excerpt: str) -> bool:
+    """True when an excerpt states DC deposit/operation structure, not eligibility."""
+    if not isinstance(excerpt, str) or not excerpt.strip():
+        return False
+    if "확정기여" not in excerpt and "DC" not in excerpt:
+        return False
+    return any(marker in excerpt for marker in ("입금", "운용"))
+
+
+def excerpt_supports_dc_contribution_factor_relation(excerpt: str) -> bool:
+    """True only for a direct DC contribution ← factor determination relation."""
+    if not isinstance(excerpt, str) or not excerpt.strip():
+        return False
+    if "확정기여" not in excerpt and "DC" not in excerpt:
+        return False
+    if "부담금" not in excerpt and "기여금" not in excerpt:
+        return False
+    if not any(marker in excerpt for marker in _DC_CONTRIBUTION_FACTOR_MARKERS):
+        return False
+    return any(marker in excerpt for marker in _DC_CONTRIBUTION_FACTOR_DETERMINATION)
 
 
 _PRODUCT_AVAILABILITY_PHRASES = (
@@ -250,6 +390,133 @@ def population_scope(question: str) -> str:
     if any(x in question for x in ("임원", "대표이사", "등기이사")):
         return "EXECUTIVE"
     return "GENERAL_EMPLOYEE"
+
+
+PensionScope = Literal[
+    "RETIREMENT_PENSION",
+    "PENSION_SAVINGS",
+    "IRP",
+    "NATIONAL_PENSION",
+    "GENERIC_PENSION",
+    "NONE",
+]
+
+# Longest / specific markers first so "국민연금" and "연금저축" are not also
+# classified as bare "연금", and "개인형퇴직연금" is IRP rather than 퇴직연금.
+_SPECIFIC_PENSION_MARKERS: tuple[tuple[PensionScope, tuple[str, ...]], ...] = (
+    ("IRP", ("개인형퇴직연금", "개인형 퇴직연금")),
+    ("NATIONAL_PENSION", ("국민연금",)),
+    ("PENSION_SAVINGS", ("연금저축",)),
+    ("IRP", ("IRP", "irp")),
+    ("RETIREMENT_PENSION", ("퇴직연금", "퇴직급여", "퇴직금")),
+)
+
+PENSION_RECEIVING_TERMS = (
+    "받다", "받는", "받을", "받으려면", "수령", "언제", "몇 살", "나이", "개시", "시작", "조건",
+)
+
+_BARE_PENSION_COMPOUNDS = (
+    "연금수령", "연금계좌", "연금소득", "연금개시", "연금액", "연금외수령", "연금외", "연금화",
+)
+_RETIREMENT_SCOPE_QUALIFIERS = (
+    "퇴직연금 기준",
+    "퇴직연금 기준으로",
+    "퇴직연금 기준으로는",
+    "제공된 근거의 퇴직연금",
+)
+
+
+def _mask_specific_pension_markers(text: str) -> tuple[tuple[PensionScope, ...], str]:
+    """Return specific scopes and the text with those spans removed."""
+    found: list[PensionScope] = []
+    remaining = text
+    for scope, markers in _SPECIFIC_PENSION_MARKERS:
+        for marker in markers:
+            if marker.isascii():
+                pattern = re.compile(re.escape(marker), re.IGNORECASE)
+                if not pattern.search(remaining):
+                    continue
+                if scope not in found:
+                    found.append(scope)
+                remaining = pattern.sub(" " * len(marker), remaining)
+            elif marker in remaining:
+                if scope not in found:
+                    found.append(scope)
+                remaining = remaining.replace(marker, " " * len(marker))
+    return tuple(found), remaining
+
+
+def pension_scopes(text: str) -> tuple[PensionScope, ...]:
+    """Specific pension scopes named in text, longest/specific match first."""
+    if not isinstance(text, str) or not text.strip():
+        return ()
+    specific, _ = _mask_specific_pension_markers(text)
+    return specific
+
+
+def pension_scope(text: str) -> PensionScope:
+    """Primary pension scope. Specific names beat a leftover bare 연금."""
+    if not isinstance(text, str) or not text.strip():
+        return "NONE"
+    specific, remaining = _mask_specific_pension_markers(text)
+    if len(specific) == 1:
+        return specific[0]
+    if len(specific) > 1:
+        return specific[0]
+    for compound in _BARE_PENSION_COMPOUNDS:
+        remaining = remaining.replace(compound, " " * len(compound))
+    if "연금" in remaining:
+        return "GENERIC_PENSION"
+    return "NONE"
+
+
+def is_generic_pension_question(question: str) -> bool:
+    return pension_scope(question) == "GENERIC_PENSION" and not pension_scopes(question)
+
+
+def is_pension_receiving_question(question: str) -> bool:
+    """True when a pension scope (specific or generic) co-occurs with receiving wording."""
+    if pension_scope(question) == "NONE":
+        return False
+    return any(term in question for term in PENSION_RECEIVING_TERMS)
+
+
+def is_generic_pension_receiving_question(question: str) -> bool:
+    return is_generic_pension_question(question) and is_pension_receiving_question(question)
+
+
+def applies_pension_scope_evidence_filter(question: str) -> bool:
+    """Receiving questions and any 국민연금 mention must not adopt a substitute scope."""
+    return is_pension_receiving_question(question) or "NATIONAL_PENSION" in pension_scopes(question)
+
+
+def evidence_compatible_with_question_scope(question: str, excerpt: str) -> bool:
+    """True when excerpt may ground the question's pension scope."""
+    if not applies_pension_scope_evidence_filter(question):
+        return True
+    q_specific = pension_scopes(question)
+    e_specific = set(pension_scopes(excerpt))
+    if is_generic_pension_question(question):
+        return False
+    if "NATIONAL_PENSION" in q_specific:
+        return "NATIONAL_PENSION" in e_specific
+    if q_specific == ("PENSION_SAVINGS",):
+        return "PENSION_SAVINGS" in e_specific and "RETIREMENT_PENSION" not in e_specific
+    if q_specific == ("IRP",):
+        return "IRP" in e_specific
+    if q_specific == ("RETIREMENT_PENSION",):
+        if "NATIONAL_PENSION" in e_specific and "RETIREMENT_PENSION" not in e_specific:
+            return False
+        if e_specific == {"PENSION_SAVINGS"}:
+            return False
+        return True
+    if q_specific:
+        return bool(set(q_specific) & e_specific) or not e_specific
+    return True
+
+
+def has_retirement_scope_qualifier(text: str) -> bool:
+    return any(marker in text for marker in _RETIREMENT_SCOPE_QUALIFIERS)
 
 
 def retirement_benefit_subtasks(question: str) -> tuple[str, ...]:
