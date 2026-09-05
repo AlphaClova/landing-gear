@@ -199,8 +199,29 @@ describe('withdrawal decision adapter boundary', () => {
     expect(result).toEqual({
       session_id: 'session-1',
       question: '수령 방식 비교',
-      profile: { age: 55, retirement_amount_won: 300_000_000, expected_tax_won: 24_000_000 },
+      profile: {
+        age: 55,
+        retirement_amount_won: 300_000_000,
+        expected_tax_won: 24_000_000,
+        extra: { pension_start_age: 60 },
+      },
     })
     expect(result.profile).not.toHaveProperty('deferred_retirement_tax')
+  })
+
+  it('carries pensionStartAge through profile.extra instead of dropping it', () => {
+    const result = buildWithdrawalDecisionChatRequest('수령 방식 비교', 'session-1', {
+      ...exampleWithdrawalInput,
+      pensionStartAge: 65,
+    })
+    expect(result.profile?.extra).toEqual({ pension_start_age: 65 })
+  })
+
+  it('omits profile.extra when pensionStartAge is not entered', () => {
+    const result = buildWithdrawalDecisionChatRequest('수령 방식 비교', 'session-1', {
+      ...exampleWithdrawalInput,
+      pensionStartAge: null,
+    })
+    expect(result.profile).not.toHaveProperty('extra')
   })
 })

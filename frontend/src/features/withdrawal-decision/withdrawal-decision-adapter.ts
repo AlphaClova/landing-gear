@@ -243,6 +243,7 @@ export function buildWithdrawalDecisionChatRequest(
       age: input.currentAge,
       retirementAmountWon: input.retirementBenefitAmount,
       expectedTaxWon: input.expectedTaxWon,
+      extra: input.pensionStartAge === null ? null : { pension_start_age: input.pensionStartAge },
     },
   })
 }
@@ -265,37 +266,68 @@ class MockWithdrawalDecisionProvider implements WithdrawalDecisionProvider {
   }
 }
 
+const AUTO_RETRY_DELAY_MS = 1200
+
+const delay = (ms: number, signal: AbortSignal) => new Promise<void>((resolve, reject) => {
+  if (signal.aborted) return reject(new DOMException('Request aborted', 'AbortError'))
+  const timer = window.setTimeout(resolve, ms)
+  signal.addEventListener('abort', () => { window.clearTimeout(timer); reject(new DOMException('Request aborted', 'AbortError')) }, { once: true })
+})
+
 export class HttpChatWithdrawalDecisionProvider implements WithdrawalDecisionProvider {
   constructor(private readonly client: ChatApiClient) {}
+
+  private async attempt(input: WithdrawalDecisionInput, signal: AbortSignal) {
+    const request = buildWithdrawalDecisionChatRequest(
+      WITHDRAWAL_COMPARISON_QUESTION,
+      getChatSessionId(),
+      input,
+    )
+    const response = await this.client.chat(request, { signal })
+    return adaptChatApiWithdrawalResponse(response, input)
+  }
 
   async compare(input: WithdrawalDecisionInput, signal: AbortSignal) {
     const missingFields = invalidRequiredFields(input)
     if (missingFields.length > 0) return validateWithdrawalDecisionViewModel(createNeedsInputFixture(input, missingFields))
     try {
-      const request = buildWithdrawalDecisionChatRequest(
-        WITHDRAWAL_COMPARISON_QUESTION,
-        getChatSessionId(),
-        input,
-      )
-      const response = await this.client.chat(request, { signal })
-      return adaptChatApiWithdrawalResponse(response, input)
-    } catch (error) {
-      if (error instanceof ChatApiClientError && error.kind === 'cancelled') {
+      return await this.attempt(input, signal)
+    } catch (firstError) {
+      if (firstError instanceof ChatApiClientError && firstError.kind === 'cancelled') {
         throw new DOMException('Request aborted', 'AbortError')
       }
-      const retryable = error instanceof ChatApiClientError ? error.retryable : false
-      const summary = error instanceof ChatApiClientError
-        ? error.userMessage
-        : error instanceof WithdrawalChatAdapterError
-          ? '응답을 확인하는 중 문제가 발생했습니다.'
-          : '비교 결과를 불러오지 못했습니다.'
-      return validateWithdrawalDecisionViewModel({
-        status: 'error', scenarioTitle: '퇴직급여 수령 방식 비교', input, missingFields: [],
-        summary, limitations: [], options: [], assumptions: [], evidence: [],
-        baselineOptionId: null, highlightedOptionId: null, highlightReason: null,
-        canCompare: false, canRetry: retryable,
-      })
+      // A cold or momentarily unreachable backend (e.g. Render's free-tier
+      // auto-sleep) fails the first attempt with a retryable network/timeout/5xx
+      // error. One automatic retry after a short delay recovers transparently
+      // without the user having to notice or press anything.
+      const firstRetryable = firstError instanceof ChatApiClientError && firstError.retryable
+      if (!firstRetryable) return this.toErrorViewModel(firstError, input)
+      try {
+        await delay(AUTO_RETRY_DELAY_MS, signal)
+        return await this.attempt(input, signal)
+      } catch (secondError) {
+        if (secondError instanceof DOMException && secondError.name === 'AbortError') throw secondError
+        if (secondError instanceof ChatApiClientError && secondError.kind === 'cancelled') {
+          throw new DOMException('Request aborted', 'AbortError')
+        }
+        return this.toErrorViewModel(secondError, input)
+      }
     }
+  }
+
+  private toErrorViewModel(error: unknown, input: WithdrawalDecisionInput) {
+    const retryable = error instanceof ChatApiClientError ? error.retryable : false
+    const summary = error instanceof ChatApiClientError
+      ? error.userMessage
+      : error instanceof WithdrawalChatAdapterError
+        ? '응답을 확인하는 중 문제가 발생했습니다.'
+        : '비교 결과를 불러오지 못했습니다.'
+    return validateWithdrawalDecisionViewModel({
+      status: 'error', scenarioTitle: '퇴직급여 수령 방식 비교', input, missingFields: [],
+      summary, limitations: [], options: [], assumptions: [], evidence: [],
+      baselineOptionId: null, highlightedOptionId: null, highlightReason: null,
+      canCompare: false, canRetry: retryable,
+    })
   }
 }
 

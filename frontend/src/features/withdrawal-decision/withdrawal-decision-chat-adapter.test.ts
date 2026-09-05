@@ -146,7 +146,12 @@ describe('HTTP chat withdrawal provider', () => {
     expect(chat).toHaveBeenCalledWith({
       session_id: '123e4567-e89b-42d3-a456-426614174000',
       question: WITHDRAWAL_COMPARISON_QUESTION,
-      profile: { age: 55, retirement_amount_won: 300_000_000, expected_tax_won: 24_000_000 },
+      profile: {
+        age: 55,
+        retirement_amount_won: 300_000_000,
+        expected_tax_won: 24_000_000,
+        extra: { pension_start_age: 60 },
+      },
     }, { signal })
     expect(chat.mock.calls[0][0]).not.toHaveProperty('mode')
     expect(chat.mock.calls[0][0].profile).not.toHaveProperty('deferred_retirement_tax')
@@ -162,9 +167,35 @@ describe('HTTP chat withdrawal provider', () => {
     ['timeout', true], ['network', true], ['http', true], ['http', false], ['protocol', false],
   ] as const)('maps %s retryable=%s without exposing debug messages', async (kind, retryable) => {
     const chat = vi.fn<ChatApiClient['chat']>().mockRejectedValue(clientError(kind, retryable))
-    const result = await new HttpChatWithdrawalDecisionProvider({ chat }).compare(exampleWithdrawalInput, new AbortController().signal)
-    expect(result).toMatchObject({ status: 'error', canRetry: retryable })
-    expect(JSON.stringify(result)).not.toContain('sensitive server message')
+    vi.useFakeTimers()
+    try {
+      const resultPromise = new HttpChatWithdrawalDecisionProvider({ chat }).compare(exampleWithdrawalInput, new AbortController().signal)
+      await vi.runAllTimersAsync()
+      const result = await resultPromise
+      expect(result).toMatchObject({ status: 'error', canRetry: retryable })
+      expect(JSON.stringify(result)).not.toContain('sensitive server message')
+      // Retryable transport failures (network/timeout/5xx) get one silent
+      // automatic retry before surfacing an error; non-retryable failures fail fast.
+      expect(chat).toHaveBeenCalledTimes(retryable ? 2 : 1)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('recovers transparently on a single automatic retry after a retryable failure', async () => {
+    const chat = vi.fn<ChatApiClient['chat']>()
+      .mockRejectedValueOnce(clientError('network', true))
+      .mockResolvedValueOnce(response())
+    vi.useFakeTimers()
+    try {
+      const resultPromise = new HttpChatWithdrawalDecisionProvider({ chat }).compare(exampleWithdrawalInput, new AbortController().signal)
+      await vi.runAllTimersAsync()
+      const result = await resultPromise
+      expect(result.status).toBe('complete')
+      expect(chat).toHaveBeenCalledTimes(2)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('maps an Adapter protocol failure to a non-retryable error', async () => {

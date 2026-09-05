@@ -14,7 +14,7 @@ const examples = ['DB형과 DC형의 차이는 무엇인가요?', '퇴직금은 
 export function HomePage() {
   const [page, setPage] = useState<Page>(() => {
     const hash = window.location.hash.slice(1) as AppPage
-    return ['home', 'pension-chat', 'withdrawal-decision', 'calculator', 'history', 'settings', 'help'].includes(hash) ? hash : 'start'
+    return ['home', 'pension-chat', 'withdrawal-decision', 'history', 'settings', 'help'].includes(hash) ? hash : 'start'
   })
   const [message, setMessage] = useState('')
   const [response, setResponse] = useState<ChatResponse | null>(null)

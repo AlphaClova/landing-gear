@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WithdrawalDecision } from './WithdrawalDecision'
 
 async function loadExample(user: ReturnType<typeof userEvent.setup>) {
@@ -183,5 +183,116 @@ describe('인출 의사결정 회귀', () => {
     await screen.findByRole('button', { name: '조건을 바꿔 다시 비교' })
     expect(age).toHaveValue(56)
     expect(screen.getByRole('region', { name: '확정 계산 비교표, 좌우로 스크롤 가능' })).toBeInTheDocument()
+  })
+})
+
+describe('인출 의사결정 HTTP 모드 (실제 클릭 흐름)', () => {
+  const originalFetch = globalThis.fetch
+
+  const jsonResponse = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
+    status,
+    headers: { 'content-type': 'application/json', 'x-request-id': 'req-http-1' },
+  })
+
+  const withdrawalChatResponse = () => ({
+    type: 'result', message: 'ok', request_id: 'req-http-1', required_slots: [], comparison: null,
+    citations: [],
+    withdrawal_result: {
+      comparison: {
+        result_type: 'exact', unit: 'KRW',
+        scenarios: [
+          { scenario: 'lump_sum', tax_value: 5_000_000, applicable_rate: 1, difference_vs_lump_sum: 0, formula: '5000000 * 1.00', rule_id: 'RETIRE_TAX_RATE_BY_YEAR', rule_version: '1.0.0', evidence_ids: ['e1'], assumptions: [], warnings: [] },
+          { scenario: 'annuity_10_years', tax_value: 3_500_000, applicable_rate: 0.7, difference_vs_lump_sum: 1_500_000, formula: '5000000 * 0.70', rule_id: 'RETIRE_TAX_RATE_BY_YEAR', rule_version: '1.0.0', evidence_ids: ['e1'], assumptions: [], warnings: [] },
+          { scenario: 'annuity_21_plus_years', tax_value: 2_500_000, applicable_rate: 0.5, difference_vs_lump_sum: 2_500_000, formula: '5000000 * 0.50', rule_id: 'RETIRE_TAX_RATE_BY_YEAR', rule_version: '1.0.0', evidence_ids: ['e1'], assumptions: [], warnings: [] },
+        ],
+      },
+      evidence: [{ evidence_id: 'e1', chunk_id: 'c1', document_id: 'doc-1', page: 1, section: '근거', quote: '설명', source_priority: 0, score: 1 }],
+      applied_rules: [{ rule_id: 'RETIRE_TAX_RATE_BY_YEAR', rule_version: '1.0.0' }],
+      claim_validation: { validations: [{ claim_id: 'c1', supported: true, reasons: [] }], unsupported_claim_count: 0, validated_claim_count: 1, unsupported_claim_rate: 0 },
+    },
+  })
+
+  async function fillReportedInputAndSubmit(user: ReturnType<typeof userEvent.setup>) {
+    await user.type(screen.getByLabelText(/퇴직급여 예상액/), '100000000')
+    await user.type(screen.getByRole('spinbutton', { name: '감면 전 기준 퇴직소득세' }), '5000000')
+    await user.type(screen.getByLabelText(/현재 나이/), '55')
+    await user.type(screen.getByLabelText(/연금 수령 시작 나이/), '65')
+    await user.selectOptions(screen.getByLabelText(/건강보험 자격/), '잘 모르겠어요')
+    await user.click(screen.getByRole('button', { name: '수령 방식 비교하기' }))
+  }
+
+  beforeEach(() => {
+    vi.stubEnv('VITE_CHAT_API_MODE', 'http')
+    vi.stubEnv('VITE_API_BASE_URL', 'https://landing-gear.onrender.com')
+    vi.resetModules()
+  })
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch
+    vi.unstubAllEnvs()
+    sessionStorage.clear()
+  })
+
+  it('실제 DOM 입력과 클릭만으로 POST /v1/chat 1회 후 withdrawal_result를 렌더링한다', async () => {
+    const fetchMock = vi.fn<typeof fetch>(() => Promise.resolve(jsonResponse(withdrawalChatResponse())))
+    globalThis.fetch = fetchMock
+
+    const { WithdrawalDecision: HttpWithdrawalDecision } = await import('./WithdrawalDecision')
+    const user = userEvent.setup()
+    render(<HttpWithdrawalDecision />)
+
+    await fillReportedInputAndSubmit(user)
+
+    expect(await screen.findByRole('heading', { name: '수령 방식별 차이를 확인하세요' })).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(url).toBe('https://landing-gear.onrender.com/v1/chat')
+    expect(JSON.parse((init as RequestInit).body as string).profile.extra).toEqual({ pension_start_age: 65 })
+  })
+
+  it('일시적인 네트워크 실패는 자동 재시도 1회로 사용자 개입 없이 복구된다', async () => {
+    const fetchMock = vi.fn<typeof fetch>()
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce(jsonResponse(withdrawalChatResponse()))
+    globalThis.fetch = fetchMock
+
+    const { WithdrawalDecision: HttpWithdrawalDecision } = await import('./WithdrawalDecision')
+    const user = userEvent.setup()
+    render(<HttpWithdrawalDecision />)
+
+    await fillReportedInputAndSubmit(user)
+
+    expect(await screen.findByRole('heading', { name: '수령 방식별 차이를 확인하세요' }, { timeout: 5000 })).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('두 번 연속 실패해도 오류 화면이 새 비교와 다시 시도를 막지 않고, 다시 시도는 동일 입력으로 재요청한다', async () => {
+    const fetchMock = vi.fn<typeof fetch>()
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce(jsonResponse(withdrawalChatResponse()))
+    globalThis.fetch = fetchMock
+
+    const { WithdrawalDecision: HttpWithdrawalDecision } = await import('./WithdrawalDecision')
+    const user = userEvent.setup()
+    render(<HttpWithdrawalDecision />)
+
+    await fillReportedInputAndSubmit(user)
+
+    const alert = await screen.findByRole('alert', {}, { timeout: 5000 })
+    expect(alert).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(2) // original attempt + one automatic retry, both failed
+
+    // The input form must still be open and the primary submit button must still work.
+    expect(screen.getByRole('button', { name: '수령 방식 비교하기' })).toBeEnabled()
+
+    await user.click(screen.getByRole('button', { name: '다시 시도' }))
+
+    expect(await screen.findByRole('heading', { name: '수령 방식별 차이를 확인하세요' }, { timeout: 5000 })).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    const thirdCallBody = JSON.parse((fetchMock.mock.calls[2][1] as RequestInit).body as string)
+    expect(thirdCallBody.profile).toEqual({
+      age: 55, retirement_amount_won: 100000000, expected_tax_won: 5000000, extra: { pension_start_age: 65 },
+    })
   })
 })
