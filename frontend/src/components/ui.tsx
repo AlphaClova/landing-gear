@@ -1,6 +1,5 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react'
 import Bell from 'lucide-react/dist/esm/icons/bell.mjs'
-import Calculator from 'lucide-react/dist/esm/icons/calculator.mjs'
 import CircleHelp from 'lucide-react/dist/esm/icons/circle-help.mjs'
 import History from 'lucide-react/dist/esm/icons/history.mjs'
 import Home from 'lucide-react/dist/esm/icons/home.mjs'
@@ -11,7 +10,7 @@ import Settings from 'lucide-react/dist/esm/icons/settings.mjs'
 import UserRound from 'lucide-react/dist/esm/icons/user-round.mjs'
 import type { ResponseMode } from '../types/api'
 
-export type AppPage = 'home' | ResponseMode | 'calculator' | 'history' | 'settings' | 'help'
+export type AppPage = 'home' | ResponseMode | 'history' | 'settings' | 'help'
 
 export function LandingGearLogo({ compact = false }: { compact?: boolean }) {
   return <img className={compact ? 'logo logo--compact' : 'logo'} src={compact ? '/assets/brand/landing-gear-mark.svg' : '/assets/brand/landing-gear-logo.svg'} alt="Landing Gear" />
@@ -57,7 +56,6 @@ const menu = [
   { id: 'home', label: '홈', icon: Home },
   { id: 'pension-chat', label: '연금 상담', icon: MessageCircle },
   { id: 'withdrawal-decision', label: '인출 의사결정', icon: Scale },
-  { id: 'calculator', label: '계산·시뮬레이션', icon: Calculator },
   { id: 'history', label: '내 기록', icon: History },
 ] as const
 
