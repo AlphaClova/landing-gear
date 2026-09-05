@@ -322,11 +322,16 @@ export class HttpChatWithdrawalDecisionProvider implements WithdrawalDecisionPro
       : error instanceof WithdrawalChatAdapterError
         ? '응답을 확인하는 중 문제가 발생했습니다.'
         : '비교 결과를 불러오지 못했습니다.'
+    const diagnosticCode = error instanceof ChatApiClientError
+      ? error.diagnosticCode
+      : error instanceof WithdrawalChatAdapterError
+        ? 'WD-PROTOCOL'
+        : 'WD-UNKNOWN'
     return validateWithdrawalDecisionViewModel({
       status: 'error', scenarioTitle: '퇴직급여 수령 방식 비교', input, missingFields: [],
       summary, limitations: [], options: [], assumptions: [], evidence: [],
       baselineOptionId: null, highlightedOptionId: null, highlightReason: null,
-      canCompare: false, canRetry: retryable,
+      canCompare: false, canRetry: retryable, diagnosticCode,
     })
   }
 }

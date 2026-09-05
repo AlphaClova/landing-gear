@@ -129,4 +129,9 @@ export interface WithdrawalDecisionViewModel {
 
   canCompare: boolean
   canRetry: boolean
+
+  /** Safe-to-display transport diagnostic code (e.g. "WD-TIMEOUT"), set only
+   *  when status is 'error'. Full detail (URL, HTTP status, raw error) goes
+   *  to the developer console via chat-diagnostics.ts, never to this field. */
+  diagnosticCode?: string | null
 }
