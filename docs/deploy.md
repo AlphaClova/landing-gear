@@ -15,7 +15,7 @@ docker run -d --name landing-gear-agent -p 8000:8000 --env-file .env landing-gea
 | --- | --- |
 | `HCX_API_KEY` | mock 모드로 동작 (실 서비스 응답 아님) — 운영 배포 전 필수 설정 |
 | `EVAL_SCHEMA_MODE` | `loose` (내부 InternalAnswer 그대로 반환). 평가 서버 연동 시 `strict`로 설정 |
-| `CORS_ALLOW_ORIGINS` | `["*"]` — C 프론트 도메인이 확정되면 그 origin으로 제한 |
+| `CORS_ALLOW_ORIGINS` | `["*"]` — C 프론트 도메인이 확정되면 그 origin으로 제한. 현재 확정된 프론트 배포 도메인: `https://landing-gear-nine.vercel.app` |
 
 ## NCP 배포 (Container Registry + Server/Container 기준)
 
