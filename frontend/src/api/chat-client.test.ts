@@ -71,6 +71,34 @@ afterEach(() => {
 })
 
 describe('/v1/chat HTTP client', () => {
+  it('binds the default fetcher to a valid receiver (regression: real browsers reject a detached fetch call)', async () => {
+    // Node/jsdom's fetch does not enforce the receiver checks a real browser's
+    // native `window.fetch` does, so this codepath looked fine under every
+    // Node-based test and even most manual browser checks (any script that
+    // happens to rebind fetch first — e.g. wrapping it for logging — hides the
+    // bug). A real, unmodified Chromium throws
+    // `TypeError: Failed to execute 'fetch' on 'Window': Illegal invocation`
+    // the moment `this.fetcher(...)` (a member-expression call whose `this` is
+    // the client instance, not `window`) invokes an unbound `fetch` reference.
+    // This fake reproduces that exact browser contract so the regression is
+    // caught by a fast, deterministic unit test instead of only in a browser.
+    const strictBrowserFetch = function (this: unknown) {
+      if (this !== globalThis) {
+        throw new TypeError("Failed to execute 'fetch' on 'Window': Illegal invocation")
+      }
+      return Promise.resolve(jsonResponse(responseBody()))
+    } as typeof fetch
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = strictBrowserFetch
+    try {
+      // No explicit fetcher argument: exercises the class's own default capture.
+      const client = new HttpChatApiClient('/api', 1000)
+      await expect(client.chat(request)).resolves.toMatchObject({ type: 'result' })
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
   it('posts the exact request as JSON to the normalized URL', async () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(responseBody()))
     const client = new HttpChatApiClient('http://localhost:8000/', 1000, fetcher)
@@ -138,6 +166,58 @@ describe('/v1/chat HTTP client', () => {
     const fetcher = vi.fn<typeof fetch>().mockRejectedValue(new TypeError('offline'))
     const error = await expectClientError(new HttpChatApiClient('/api', 1000, fetcher).chat(request))
     expect(error).toMatchObject({ kind: 'network', retryable: true, status: null })
+  })
+
+  describe('diagnosticCode classification (chat-diagnostics.ts)', () => {
+    it('confirms WD-CORS when the request fails but a no-cors probe to the same host succeeds', async () => {
+      const fetcher = vi.fn<typeof fetch>((url) => (
+        typeof url === 'string' && url.endsWith('/health')
+          ? Promise.resolve(new Response(null, { status: 200 }))
+          : Promise.reject(new TypeError('Failed to fetch'))
+      ))
+      const error = await expectClientError(new HttpChatApiClient('https://api.example.com', 1000, fetcher).chat(request))
+      expect(error).toMatchObject({ kind: 'network', diagnosticCode: 'WD-CORS' })
+      expect(fetcher).toHaveBeenCalledWith('https://api.example.com/health', expect.objectContaining({ mode: 'no-cors' }))
+    })
+
+    it('confirms WD-NETWORK when both the request and the reachability probe fail', async () => {
+      const fetcher = vi.fn<typeof fetch>().mockRejectedValue(new TypeError('Failed to fetch'))
+      const error = await expectClientError(new HttpChatApiClient('https://api.example.com', 1000, fetcher).chat(request))
+      expect(error).toMatchObject({ kind: 'network', diagnosticCode: 'WD-NETWORK' })
+    })
+
+    it('assigns WD-TIMEOUT to a client-side timeout', async () => {
+      vi.useFakeTimers()
+      const fetcher = vi.fn<typeof fetch>().mockImplementation((_url, init) => new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')), { once: true })
+      }))
+      const pending = new HttpChatApiClient('/api', 25, fetcher).chat(request)
+      const errorPromise = expectClientError(pending)
+      await vi.advanceTimersByTimeAsync(25)
+      expect(await errorPromise).toMatchObject({ kind: 'timeout', diagnosticCode: 'WD-TIMEOUT' })
+    })
+
+    it('assigns WD-ABORTED to a caller-cancelled request', async () => {
+      const controller = new AbortController()
+      const fetcher = vi.fn<typeof fetch>().mockImplementation((_url, init) => new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')), { once: true })
+      }))
+      const pending = new HttpChatApiClient('/api', 1000, fetcher).chat(request, { signal: controller.signal })
+      controller.abort()
+      expect(await expectClientError(pending)).toMatchObject({ kind: 'cancelled', diagnosticCode: 'WD-ABORTED' })
+    })
+
+    it('assigns WD-HTTP-5XX and WD-HTTP-4XX by status class', async () => {
+      const serverError = await expectClientError(new HttpChatApiClient('/api', 1000, vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(errorEnvelope('internal_error'), 500))).chat(request))
+      expect(serverError).toMatchObject({ diagnosticCode: 'WD-HTTP-5XX' })
+      const clientError = await expectClientError(new HttpChatApiClient('/api', 1000, vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(errorEnvelope('validation_error'), 422))).chat(request))
+      expect(clientError).toMatchObject({ diagnosticCode: 'WD-HTTP-4XX' })
+    })
+
+    it('assigns WD-PROTOCOL to a contract-violating 200 response', async () => {
+      const error = await expectClientError(new HttpChatApiClient('/api', 1000, vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ type: 'result' }))).chat(request))
+      expect(error).toMatchObject({ kind: 'protocol', diagnosticCode: 'WD-PROTOCOL' })
+    })
   })
 
   it('distinguishes the client timeout as retryable', async () => {

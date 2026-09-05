@@ -109,7 +109,7 @@ const emptyErrorViewModel: WithdrawalDecisionViewModel = { status: 'error', scen
 
 function WithdrawalResult({ viewModel, onRetry }: { viewModel: WithdrawalDecisionViewModel; onRetry: () => void }) {
   if (viewModel.status === 'needs_input') return null
-  if (viewModel.status === 'error') return <section className="withdrawal-state withdrawal-state--amber" role="alert"><h2>{viewModel.summary}</h2>{viewModel.canRetry && <button className="secondary-button" onClick={onRetry}>다시 시도</button>}</section>
+  if (viewModel.status === 'error') return <section className="withdrawal-state withdrawal-state--amber" role="alert"><h2>{viewModel.summary}</h2>{viewModel.diagnosticCode && <p className="withdrawal-diagnostic-code">오류 코드: {viewModel.diagnosticCode}</p>}{viewModel.canRetry && <button className="secondary-button" onClick={onRetry}>다시 시도</button>}</section>
 
   const hasEstimatedCashflow = viewModel.options.some((option) => option.estimatedTotalCashflow.amount !== null || option.estimatedMonthlyCashflow.amount !== null)
   const healthInsuranceDescriptions = [...new Set(viewModel.options.map((option) => option.healthInsuranceImpact.description))]

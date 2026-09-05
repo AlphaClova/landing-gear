@@ -250,10 +250,22 @@ describe('인출 의사결정 HTTP 모드 (실제 클릭 흐름)', () => {
     expect(JSON.parse((init as RequestInit).body as string).profile.extra).toEqual({ pension_start_age: 65 })
   })
 
+  // A 'network'-classified failure now also triggers a GET .../health reachability
+  // probe (see chat-diagnostics.ts) to disambiguate CORS from a genuine outage.
+  // These tests discriminate the mock by URL so the probe never consumes a
+  // queued POST /v1/chat response, and count/index only the POST calls.
+  const isHealthProbe = (url: unknown) => typeof url === 'string' && url.endsWith('/health')
+  const postCalls = (fetchMock: ReturnType<typeof vi.fn>) => fetchMock.mock.calls.filter(([url]) => !isHealthProbe(url))
+
   it('일시적인 네트워크 실패는 자동 재시도 1회로 사용자 개입 없이 복구된다', async () => {
-    const fetchMock = vi.fn<typeof fetch>()
-      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
-      .mockResolvedValueOnce(jsonResponse(withdrawalChatResponse()))
+    let postAttempts = 0
+    const fetchMock = vi.fn<typeof fetch>((url) => {
+      if (isHealthProbe(url)) return Promise.resolve(new Response(null, { status: 200 }))
+      postAttempts += 1
+      return postAttempts === 1
+        ? Promise.reject(new TypeError('Failed to fetch'))
+        : Promise.resolve(jsonResponse(withdrawalChatResponse()))
+    })
     globalThis.fetch = fetchMock
 
     const { WithdrawalDecision: HttpWithdrawalDecision } = await import('./WithdrawalDecision')
@@ -263,14 +275,18 @@ describe('인출 의사결정 HTTP 모드 (실제 클릭 흐름)', () => {
     await fillReportedInputAndSubmit(user)
 
     expect(await screen.findByRole('heading', { name: '수령 방식별 차이를 확인하세요' }, { timeout: 5000 })).toBeInTheDocument()
-    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(postCalls(fetchMock)).toHaveLength(2)
   })
 
   it('두 번 연속 실패해도 오류 화면이 새 비교와 다시 시도를 막지 않고, 다시 시도는 동일 입력으로 재요청한다', async () => {
-    const fetchMock = vi.fn<typeof fetch>()
-      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
-      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
-      .mockResolvedValueOnce(jsonResponse(withdrawalChatResponse()))
+    let postAttempts = 0
+    const fetchMock = vi.fn<typeof fetch>((url) => {
+      if (isHealthProbe(url)) return Promise.resolve(new Response(null, { status: 200 }))
+      postAttempts += 1
+      return postAttempts <= 2
+        ? Promise.reject(new TypeError('Failed to fetch'))
+        : Promise.resolve(jsonResponse(withdrawalChatResponse()))
+    })
     globalThis.fetch = fetchMock
 
     const { WithdrawalDecision: HttpWithdrawalDecision } = await import('./WithdrawalDecision')
@@ -281,7 +297,8 @@ describe('인출 의사결정 HTTP 모드 (실제 클릭 흐름)', () => {
 
     const alert = await screen.findByRole('alert', {}, { timeout: 5000 })
     expect(alert).toBeInTheDocument()
-    expect(fetchMock).toHaveBeenCalledTimes(2) // original attempt + one automatic retry, both failed
+    expect(postCalls(fetchMock)).toHaveLength(2) // original attempt + one automatic retry, both failed
+    expect(screen.getByText(/오류 코드: WD-/)).toBeInTheDocument()
 
     // The input form must still be open and the primary submit button must still work.
     expect(screen.getByRole('button', { name: '수령 방식 비교하기' })).toBeEnabled()
@@ -289,8 +306,9 @@ describe('인출 의사결정 HTTP 모드 (실제 클릭 흐름)', () => {
     await user.click(screen.getByRole('button', { name: '다시 시도' }))
 
     expect(await screen.findByRole('heading', { name: '수령 방식별 차이를 확인하세요' }, { timeout: 5000 })).toBeInTheDocument()
-    expect(fetchMock).toHaveBeenCalledTimes(3)
-    const thirdCallBody = JSON.parse((fetchMock.mock.calls[2][1] as RequestInit).body as string)
+    const posts = postCalls(fetchMock)
+    expect(posts).toHaveLength(3)
+    const thirdCallBody = JSON.parse((posts[2][1] as RequestInit).body as string)
     expect(thirdCallBody.profile).toEqual({
       age: 55, retirement_amount_won: 100000000, expected_tax_won: 5000000, extra: { pension_start_age: 65 },
     })
