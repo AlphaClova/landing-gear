@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ChatApiClientError } from '../../api/chat-client'
-import type { ChatApiClient } from '../../api/chat-client'
+import type { PublicAnswerClient } from '../../api/public-answer-client'
 import type { ChatApiResponseTransport } from '../../api/chat-response'
 import {
   adaptPensionChatResponse,
@@ -24,25 +24,32 @@ const transport = (
   ...overrides,
 })
 
+const publicPayload = (question: string, answer: string, questionId = 'Q-1') => ({
+  question_id: questionId,
+  question,
+  retrieved_context: '',
+  think_trace: '',
+  answer,
+})
+
 describe('pension chat HTTP provider', () => {
-  it('sends the exact entered question to /v1/chat and keeps one session id', async () => {
-    const chat = vi.fn<ChatApiClient['chat']>()
-      .mockResolvedValueOnce(transport('result', { message: '첫 번째 실제 답변' }))
-      .mockResolvedValueOnce(transport('limitation', { message: '두 번째 범위 밖 안내' }))
-    const provider = new HttpPensionChatProvider({ chat }, () => '123e4567-e89b-42d3-a456-426614174000')
+  it('sends the exact entered question to GET /answer with a unique question_id', async () => {
+    const answer = vi.fn<PublicAnswerClient['answer']>()
+      .mockResolvedValueOnce(publicPayload('DB형과 DC형은 어떻게 다른가요?', '첫 번째 실제 답변', 'Q-1'))
+      .mockResolvedValueOnce(publicPayload('오늘 비트코인 가격이 오를까요?', '두 번째 범위 밖 안내', 'Q-2'))
+    const ids = ['Q-1', 'Q-2']
+    const provider = new HttpPensionChatProvider({ answer }, () => ids.shift() ?? 'Q-fallback')
 
-    await provider.answer('DB형과 DC형은 어떻게 다른가요?')
-    await provider.answer('오늘 비트코인 가격이 오를까요?')
+    const first = await provider.answer('DB형과 DC형은 어떻게 다른가요?')
+    const second = await provider.answer('오늘 비트코인 가격이 오를까요?')
 
-    expect(chat.mock.calls[0][0]).toEqual({
-      session_id: '123e4567-e89b-42d3-a456-426614174000',
-      question: 'DB형과 DC형은 어떻게 다른가요?',
-    })
-    expect(chat.mock.calls[1][0]).toEqual({
-      session_id: '123e4567-e89b-42d3-a456-426614174000',
-      question: '오늘 비트코인 가격이 오를까요?',
-    })
-    expect(chat.mock.calls[0][0].question).not.toBe(chat.mock.calls[1][0].question)
+    expect(answer.mock.calls[0][0]).toBe('Q-1')
+    expect(answer.mock.calls[0][1]).toBe('DB형과 DC형은 어떻게 다른가요?')
+    expect(answer.mock.calls[1][0]).toBe('Q-2')
+    expect(answer.mock.calls[1][1]).toBe('오늘 비트코인 가격이 오를까요?')
+    expect(first).toMatchObject({ type: 'result', conclusion: '첫 번째 실제 답변' })
+    expect(second).toMatchObject({ type: 'result', conclusion: '두 번째 범위 밖 안내' })
+    expect(first.type === 'result' && first.conclusion).not.toBe(second.type === 'result' && second.conclusion)
   })
 
   it('maps result and snake_case comparison fields without a mock fixture', () => {
@@ -103,11 +110,11 @@ describe('pension chat HTTP provider', () => {
       kind: 'cancelled', status: null, code: null, requestId: null, retryable: false,
       debugMessage: 'debug', userMessage: '요청이 취소되었습니다.',
     })
-    const chat = vi.fn<ChatApiClient['chat']>().mockRejectedValue(cancelled)
-    const provider = new HttpPensionChatProvider({ chat }, () => '123e4567-e89b-42d3-a456-426614174000')
+    const answer = vi.fn<PublicAnswerClient['answer']>().mockRejectedValue(cancelled)
+    const provider = new HttpPensionChatProvider({ answer }, () => 'Q-1')
     controller.abort()
     await expect(provider.answer('질문', controller.signal)).rejects.toBe(cancelled)
-    expect(chat.mock.calls[0][1]?.signal).toBe(controller.signal)
+    expect(answer.mock.calls[0][2]?.signal).toBe(controller.signal)
   })
 })
 
@@ -117,7 +124,7 @@ describe('pension chat mode regression', () => {
   )
 
   it('uses separate HTTP and mock providers', () => {
-    expect(createPensionChatProvider('http', { chat: vi.fn() })).toBeInstanceOf(HttpPensionChatProvider)
+    expect(createPensionChatProvider('http', { answer: vi.fn() })).toBeInstanceOf(HttpPensionChatProvider)
     expect(createPensionChatProvider('mock')).toBeInstanceOf(MockPensionChatProvider)
   })
 

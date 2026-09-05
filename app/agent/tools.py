@@ -6,6 +6,7 @@
 LLM은 계산하지 않고 이 Tool의 결과만 사용한다 (문서 9장 Failsafe).
 """
 
+import json
 import re
 import time
 from dataclasses import asdict, dataclass, field, is_dataclass
@@ -27,9 +28,11 @@ from app.api.schemas import (
 )
 from app.core.errors import ErrorCode, ToolError
 from app.core.logging import get_logger
-from app.core.query_normalization import ALIASES, ACCOUNT_TERMINATION_TAX, EARLY_WITHDRAWAL_TAX, RETIREMENT_LUMP_SUM_TAX, RETIREMENT_PENSION_RECEIPT_TAX, has_alias, is_db_dc_question, is_teacher_retirement_domain, procedure_type, tax_intent, tax_source_types
+from app.agent.product_evidence import allows_product_evidence_enrichment, citations_for_product
+from app.core.query_normalization import ALIASES, ACCOUNT_TERMINATION_TAX, EARLY_WITHDRAWAL_TAX, RETIREMENT_LUMP_SUM_TAX, RETIREMENT_PENSION_RECEIPT_TAX, applies_pension_scope_evidence_filter, evidence_compatible_with_question_scope, has_alias, is_db_dc_question, is_generic_pension_question, is_generic_risk_grade_meaning_question, is_pension_receiving_question, is_product_availability_question, is_teacher_retirement_domain, pension_scope, plan_types_from_question, procedure_type, tax_intent, tax_source_types
 from app.tools.withdrawal_comparison import calculate_withdrawal_comparison as b_calculate_withdrawal_comparison
 from app.tools.product_query import query_products as b_query_products
+from app.tools.retriever import prospectus_for_documents as b_prospectus_for_documents
 from app.tools.retriever import retrieve_evidence as b_retrieve_evidence
 from app.tools.rule_engine import RoundingPolicyUndefinedError, calc_retirement_lump_sum_tax
 
@@ -329,7 +332,72 @@ class ToolRouter:
             semantic_tax = "TAX_CREDIT"
         result = ToolResult(input_slots=dict(slots), tax_intent=semantic_tax, tax_source_types=tax_source_types(question), procedure_type=semantic_procedure)
 
-        if "retrieve_evidence" in allowed:
+        requested_product_type = self._requested_product_type(question)
+        requested_accounts = plan_types_from_question(question)
+        multi_account = len(requested_accounts) >= 2
+        account_scoped_type_probe = bool(slots.get("plan_type") and requested_product_type)
+        needs_catalog = not is_generic_risk_grade_meaning_question(question) and (
+            account_scoped_type_probe
+            or ("예금" not in question and (
+            has_alias(question, "product_family")
+            or has_alias(question, "product_entity")
+            or is_product_availability_question(question)
+            or ("상품" in question and any(marker in question for marker in ("비교", "추천", "후보", "보여", "골라")))
+            or ("위험등급" in question and re.search(r"[1-6]\s*등급", question) is not None)
+            or any(marker in question for marker in ("펀드", "채권", "상품 목록", "상품을 보여", "상품 후보", "상품 비교", "상품 선택", "추천", "골라"))
+            ))
+        )
+        recommendation_needs_plan = any(marker in question for marker in ("상품 선택", "상품 추천", "추천", "골라")) and not slots.get("plan_type")
+        product_focused = intent == "상품" and needs_catalog and not recommendation_needs_plan
+        account_match_count: int | None = None
+
+        # Product-focused requests query the exact Product Fact boundary first.
+        # With no matching row, generic pension retrieval must not fill the gap
+        # with institution/tax/procedure evidence.
+        if "query_products" in allowed and needs_catalog and not recommendation_needs_plan:
+            catalog_slots = dict(slots)
+            if multi_account:
+                catalog_slots.pop("plan_type", None)
+            products, trace, resolutions = self._call_query_products(catalog_slots, question)
+            if multi_account:
+                if requested_product_type:
+                    products = [
+                        item for item in products
+                        if self._matches_product_type(item, requested_product_type)
+                    ]
+                by_account = {
+                    account: [item for item in products if account in self._product_account_types(item)]
+                    for account in requested_accounts
+                }
+                shared = [
+                    item for item in products
+                    if set(requested_accounts).issubset(self._product_account_types(item))
+                ]
+                result.recommendation_constraints.append({
+                    "constraint": "shared_account_types",
+                    "value": list(requested_accounts),
+                    "kind": "hard",
+                    "applied": bool(shared),
+                    "support": "product_fact.plan_types",
+                    "missing_account_types": [account for account in requested_accounts if not by_account[account]],
+                    "present_account_types": [account for account in requested_accounts if by_account[account]],
+                    "reason": "filtered by intersection of account fields" if shared else "no shared account matches",
+                })
+                products = shared
+                account_match_count = len(shared)
+            else:
+                account_match_count = len(products) if slots.get("plan_type") else None
+                if requested_product_type:
+                    products = [
+                        item for item in products
+                        if self._matches_product_type(item, requested_product_type)
+                    ]
+            result.products = products
+            result.product_resolutions = resolutions
+            result.traces.append(trace)
+            result.evidence.extend(self._product_citations(products))
+
+        if "retrieve_evidence" in allowed and (not product_focused or result.products):
             queries = self._evidence_queries(question, intent, result)
             seen: set[str] = set()
             for query, topic in queries:
@@ -339,6 +407,11 @@ class ToolRouter:
                     if item.id not in seen and (is_teacher_retirement_domain(question) or item.document_id != "doc26"):
                         result.evidence.append(item)
                         seen.add(item.id)
+            if applies_pension_scope_evidence_filter(question):
+                result.evidence = [
+                    item for item in result.evidence
+                    if evidence_compatible_with_question_scope(question, item.excerpt)
+                ]
 
         if "calculate" in allowed and rule_id and slots.get("expected_tax_won") is not None:
             calc, trace = self._call_calculate(rule_id, slots)
@@ -369,26 +442,19 @@ class ToolRouter:
                 result.calculations.extend(self._withdrawal_calculations(result.withdrawal_result))
                 result.evidence.extend(self._withdrawal_citations(result.withdrawal_result))
 
-        needs_catalog = "예금" not in question and (
-            has_alias(question, "product_family")
-            or ("위험등급" in question and re.search(r"[1-6]\s*등급", question) is not None)
-            or any(marker in question for marker in ("펀드", "채권", "상품 목록", "상품을 보여", "상품 후보", "상품 비교", "상품 선택", "추천", "골라"))
-        )
-        recommendation_needs_plan = any(marker in question for marker in ("상품 선택", "상품 추천", "추천", "골라")) and not slots.get("plan_type")
-        if "query_products" in allowed and needs_catalog and not recommendation_needs_plan:
-            products, trace, resolutions = self._call_query_products(slots, question)
-            result.products = products
-            result.product_resolutions = resolutions
-            result.traces.append(trace)
-            result.evidence.extend(self._product_citations(products))
-
         recommendation_or_compare = any(marker in question for marker in ("후보", "추천", "골라", "상품 선택", "상품 비교", "상품만", "상품을", "보여"))
         if recommendation_or_compare:
-            if slots.get("plan_type"):
+            if slots.get("plan_type") and not multi_account:
                 result.recommendation_constraints.append({
                     "constraint": "account_type", "value": slots["plan_type"], "kind": "hard",
-                    "applied": bool(result.products), "support": "product_fact.plan_types",
-                    "reason": "filtered by supported account field" if result.products else "no matching products",
+                    "applied": bool(account_match_count), "support": "product_fact.plan_types",
+                    "reason": "filtered by supported account field" if account_match_count else "no account matches",
+                })
+            if requested_product_type:
+                result.recommendation_constraints.append({
+                    "constraint": "product_type", "value": requested_product_type, "kind": "hard",
+                    "applied": bool(result.products), "support": "product_fact.category/product_fact.asset_type",
+                    "reason": "filtered by supported product type fields" if result.products else "no account and product type matches",
                 })
             if slots.get("risk_tolerance") == "stable":
                 result.recommendation_constraints.append({
@@ -442,17 +508,79 @@ class ToolRouter:
                 if not str(item.id).startswith("product-") or str(item.id) in {f"product-{pid}" for pid in kept_ids}
             ]
 
+        if (
+            result.products
+            and allows_product_evidence_enrichment(intent)
+            and has_alias(question, "product_family")
+        ):
+            self._attach_matched_product_prospectus(result)
+            allowed_docs = {str(item.get("document_id") or "") for item in result.products}
+            result.evidence = [
+                item for item in result.evidence
+                if str(item.id).startswith("product-") or str(item.document_id) in allowed_docs
+            ]
+
         return result
 
     @staticmethod
+    def _requested_product_type(question: str) -> str | None:
+        if any(marker in question for marker in ("예금형", "예금 상품", "예금상품")):
+            return "예금형"
+        return None
+
+    @staticmethod
+    def _matches_product_type(item: dict[str, Any], requested_type: str) -> bool:
+        if requested_type == "예금형":
+            return item.get("category") in {"deposit", "deposit_like"} or item.get("asset_type") in {"예금", "예금형"}
+        return False
+
+    @staticmethod
+    def _product_account_types(item: dict[str, Any]) -> set[str]:
+        raw = item.get("plan_types") or []
+        if isinstance(raw, str):
+            try:
+                raw = json.loads(raw)
+            except (TypeError, ValueError):
+                raw = []
+        return {str(value).upper() for value in raw if value}
+
+    @staticmethod
     def _evidence_queries(question: str, intent: str, result: ToolResult) -> list[tuple[str, str]]:
-        queries = [(question, intent)]
+        if is_generic_pension_question(question) and is_pension_receiving_question(question):
+            return []
+        scope = pension_scope(question)
+        if is_pension_receiving_question(question) and scope == "NATIONAL_PENSION":
+            return []
+        if is_pension_receiving_question(question) and scope == "PENSION_SAVINGS" and intent == "제도":
+            queries = [(question, "세제")]
+        else:
+            queries = [(question, intent)]
+            if is_pension_receiving_question(question) and scope == "IRP" and intent == "제도":
+                queries.append((question, "세제"))
         if has_alias(question, "db") or has_alias(question, "dc"):
             queries.append((f"{question} 확정급여형 확정기여형 운용 주체 최종 퇴직급여", "제도"))
         if is_db_dc_question(question):
             # A short canonical retrieval query reliably locates the supplied
             # DB/DC definition document without changing B's relevance policy.
             queries.append(("DB DC 회사 근로자 운용 퇴직금", "제도"))
+        if (
+            intent == "제도"
+            and has_alias(question, "irp")
+            and has_alias(question, "dc")
+            and any(marker in question for marker in ("같은", "차이", "관계", "다르", "제도"))
+        ):
+            queries.append(("DC 퇴직급여 IRP 이전 수령계좌 제도 관계", "세제"))
+        explicit_plan_transfer = (
+            (has_alias(question, "db") or has_alias(question, "dc"))
+            and has_alias(question, "irp")
+            and any(marker in question for marker in ("이전", "옮기", "이동", "전환", "수령계좌"))
+        )
+        if explicit_plan_transfer:
+            plan_entities = " ".join(
+                entity for entity, alias in (("DB", "db"), ("DC", "dc"))
+                if has_alias(question, alias)
+            )
+            queries.append((f"{plan_entities} 퇴직급여 IRP 이전 수령계좌", "세제"))
         if result.tax_intent == "TAX_CREDIT":
             queries.append(("연금저축 IRP 세액공제 납입한도 합산 600만원 900만원", "세제"))
         if result.tax_intent == RETIREMENT_PENSION_RECEIPT_TAX:
@@ -467,6 +595,15 @@ class ToolRouter:
             queries.append(("퇴직연금 가입 대상 근로시간 계속근로기간", "제도"))
         if result.tax_source_types:
             queries.append((f"{question} 연금계좌 재원별 인출 과세 퇴직금 운용수익", "세제"))
+        mixed_source_tax = (
+            (has_alias(question, "irp") or "연금계좌" in question)
+            and any(marker in question for marker in ("퇴직금", "퇴직소득"))
+            and any(marker in question for marker in ("개인납입금", "개인 납입금", "세액공제받은", "세액공제 받은", "운용수익"))
+            and any(marker in question for marker in ("과세", "세금", "세율", "구분"))
+        )
+        if mixed_source_tax:
+            queries.append(("연금계좌 퇴직소득 실제수령연차 이연퇴직소득세", "세제"))
+            queries.append(("연금계좌 세액공제 납입금 운용수익 연금소득세", "세제"))
         if result.procedure_type == "ACCOUNT_TERMINATION":
             queries.append((f"{question} DB DC 계약 종료 해지", "절차"))
         elif result.procedure_type == "ACCOUNT_OPENING":
@@ -602,6 +739,43 @@ class ToolRouter:
         duration_ms = (time.monotonic() - start) * 1000
         trace = ToolCallTrace(tool_name="query_products", args=args.model_dump(), status=status, duration_ms=duration_ms)
         return products, trace, resolutions
+
+    def _attach_matched_product_prospectus(self, result: ToolResult) -> None:
+        """Attach prospectus excerpts for catalog-matched products by document_id."""
+        document_ids = [str(item.get("document_id") or "") for item in result.products]
+        candidates = [
+            self._citation_from_evidence_result(item)
+            for item in b_prospectus_for_documents(document_ids)
+        ]
+        seen = {item.id for item in result.evidence}
+        for product in result.products:
+            matched = citations_for_product(product, candidates)
+            if not matched:
+                continue
+            best = max(
+                matched,
+                key=lambda item: (
+                    int("투자전략" in item.excerpt),
+                    int("수수료선취-오프라인(A)" in item.excerpt),
+                ),
+            )
+            if best.id in seen:
+                continue
+            result.evidence.append(best)
+            seen.add(best.id)
+
+    @staticmethod
+    def _citation_from_evidence_result(item: Any) -> Citation:
+        return Citation(
+            id=item.evidence_id,
+            document_id=item.document_id,
+            page=item.page,
+            section=item.section,
+            source=item.source,
+            excerpt=item.excerpt,
+            source_priority=item.source_priority,
+            score=item.score,
+        )
 
     @staticmethod
     def _requested_product_periods(question: str) -> list[str]:

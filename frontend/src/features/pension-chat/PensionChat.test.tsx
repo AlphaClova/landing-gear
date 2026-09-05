@@ -52,6 +52,88 @@ describe('연금 상담 회귀', () => {
     expect(screen.getByText('제1장')).toBeInTheDocument()
   })
 
+  it('renders two retrieved-context evidence cards without changing the live answer', async () => {
+    const user = userEvent.setup()
+    const answer = 'DB형은 급여가 사전확정되고 회사가 운용합니다. DC형은 근로자가 운용합니다.'
+    render(<PensionChat
+      value="" onChange={() => undefined} onSubmit={() => undefined} onCancel={() => undefined}
+      onRetry={() => undefined} answeredQuestion="질문" pendingQuestion="" loading={false}
+      error={null} cancelled={false}
+      response={{
+        type: 'result', requestId: 'Q-live', mode: 'pension-chat', conclusion: answer,
+        explanation: '', comparison: null, citations: [],
+        retrievedContextView: {
+          kind: 'items',
+          items: [
+            {
+              document: '연금저축계좌, IRP 세액공제 안내',
+              page: '1',
+              evidenceId: 'doc41-p01-c02',
+              excerpt: '연금저축은 연 600만원, IRP는 연금저축 납입액을 포함해 연 900만원',
+            },
+            {
+              document: 'doc55',
+              page: '10',
+              evidenceId: 'doc55-p10-c01',
+              excerpt: 'IRP를 포함한 합산 한도는 연 900만원입니다.',
+            },
+          ],
+        },
+      }}
+    />)
+    expect(screen.getByRole('heading', { name: '상담 답변' })).toBeInTheDocument()
+    expect(screen.getByText(answer)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '근거 문서 2건' })).toBeInTheDocument()
+    const panel = screen.getByRole('heading', { name: '근거 문서 2건' }).closest('details')
+    expect(panel).not.toHaveAttribute('open')
+    await user.click(screen.getByText('펼쳐보기'))
+    expect(panel).toHaveAttribute('open')
+    expect(screen.getByText('접기')).toBeInTheDocument()
+    expect(screen.getByText('연금저축계좌, IRP 세액공제 안내')).toBeInTheDocument()
+    expect(screen.getByText('p.1')).toBeInTheDocument()
+    expect(screen.getByText('doc55')).toBeInTheDocument()
+    expect(screen.getByText('p.10')).toBeInTheDocument()
+    expect(screen.getByText('연금저축은 연 600만원, IRP는 연금저축 납입액을 포함해 연 900만원')).toBeInTheDocument()
+    expect(screen.getByText('IRP를 포함한 합산 한도는 연 900만원입니다.')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: '근거와 출처' })).not.toBeInTheDocument()
+  })
+
+  it('hides the evidence section when retrieved_context is empty', () => {
+    render(<PensionChat
+      value="" onChange={() => undefined} onSubmit={() => undefined} onCancel={() => undefined}
+      onRetry={() => undefined} answeredQuestion="오늘 비트코인 가격이 오를까요?" pendingQuestion=""
+      loading={false} error={null} cancelled={false}
+      response={{
+        type: 'result', requestId: 'Q-empty', mode: 'pension-chat',
+        conclusion: '가상자산 가격 전망은 답변 범위 밖입니다.',
+        explanation: '', comparison: null, citations: [],
+        retrievedContextView: { kind: 'none' },
+      }}
+    />)
+    expect(screen.getByText('가상자산 가격 전망은 답변 범위 밖입니다.')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: '근거 문서' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/근거 문서 \d+건/)).not.toBeInTheDocument()
+  })
+
+  it('keeps the answer visible when retrieved_context parsing fails', () => {
+    const answer = '상담 답변은 그대로 보여야 합니다.'
+    const raw = 'THIS_SHOULD_NOT_APPEAR_RAW'
+    render(<PensionChat
+      value="" onChange={() => undefined} onSubmit={() => undefined} onCancel={() => undefined}
+      onRetry={() => undefined} answeredQuestion="질문" pendingQuestion="" loading={false}
+      error={null} cancelled={false}
+      response={{
+        type: 'result', requestId: 'Q-bad', mode: 'pension-chat', conclusion: answer,
+        explanation: '', comparison: null, citations: [],
+        retrievedContextView: { kind: 'unparseable' },
+      }}
+    />)
+    expect(screen.getByText(answer)).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: '답변을 불러오지 못했습니다.' })).not.toBeInTheDocument()
+    expect(screen.getByText('근거 정보를 표시하지 못했습니다.')).toBeInTheDocument()
+    expect(screen.queryByText(raw)).not.toBeInTheDocument()
+  })
+
   it('화면명과 행동 제목을 반복하지 않고 하나의 h1을 사용한다', () => {
     render(<PensionHarness />)
     expect(screen.getByText('연금 상담')).toBeInTheDocument()

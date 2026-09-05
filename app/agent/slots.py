@@ -5,7 +5,7 @@ import re
 
 from app.api.schemas import RequiredSlot, UserProfile
 from app.agent.router import Intent
-from app.core.query_normalization import has_alias, is_closed_tax_faq, is_tax_deduction_question, needs_retirement_benefit_clarification
+from app.core.query_normalization import has_alias, is_closed_tax_faq, is_generic_pension_receiving_question, is_tax_deduction_question, needs_retirement_benefit_clarification
 
 MAX_CLARIFICATION_SLOTS = 3
 
@@ -58,6 +58,16 @@ class SlotManager:
                     reason="수당의 법적 성격과 적용 가능한 세제 규칙 확인",
                 )
             ]
+        if intent == "제도" and is_generic_pension_receiving_question(question):
+            if effective_slots.get("pension_kind") is None:
+                return [
+                    RequiredSlot(
+                        name="pension_kind",
+                        prompt="퇴직연금, 연금저축, IRP 중 어떤 연금을 기준으로 안내할까요?",
+                        reason="연금 종류에 따라 수령 시점이 다릅니다",
+                    )
+                ]
+            return []
         if intent == "세제":
             return []
         if intent == "종합" and not any(x in question for x in ("일시금", "연금 비교", "절세액 계산", "실수령액")):

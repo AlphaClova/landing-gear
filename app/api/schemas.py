@@ -11,6 +11,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from app.api.public_evidence import public_answer_text, select_public_citations
 from app.core.errors import ErrorCode
 
 # ---------------------------------------------------------------------------
@@ -315,16 +316,9 @@ def to_eval_response(internal: InternalAnswer, question_id: str, question: str) 
 
     정보가 부족해도 역질문만 반환하지 않고
     '현재 답 가능한 내용 → 한계 → 필요한 조건' 순서로 answer를 구성한다.
+    Public retrieved_context is pruned here; the internal citation list is unchanged.
     """
-    if internal.type == "clarification":
-        parts = [internal.message]
-        if internal.required_slots:
-            needed = ", ".join(s.prompt for s in internal.required_slots)
-            parts.append(f"[한계] 아래 정보가 없어 확정적으로 답변할 수 없습니다.")
-            parts.append(f"[필요한 조건] {needed}")
-        answer = "\n".join(parts)
-    else:
-        answer = internal.message
+    answer = public_answer_text(internal)
 
     tool_names = list(dict.fromkeys(call.tool_name for call in internal.trace.tool_calls))
     public_trace = {
@@ -342,7 +336,7 @@ def to_eval_response(internal: InternalAnswer, question_id: str, question: str) 
     return PublicAnswerResponse(
         question_id=str(question_id or ""),
         question=str(question or ""),
-        retrieved_context=serialize_retrieved_context(internal.citations),
+        retrieved_context=serialize_retrieved_context(select_public_citations(internal, question)),
         think_trace=json.dumps(public_trace, ensure_ascii=False),
         answer=str(answer or ""),
     )
